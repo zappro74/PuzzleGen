@@ -41,6 +41,24 @@ namespace Puzzle.Geometry
 
             return (uuu * p0) + (3f * uu * t * p1) + (3f * u * tt * p2) + (ttt * p3);
         }
+
+        public static List<Vector2> GenerateEdgeCurve(Vector2 start, Vector2 end, EdgeType edgeType, float tabHeight, float shoulderRatio, float neckRatio, int sampleCountPerHalf)
+        {
+            if (sampleCountPerHalf < 1)
+            {
+                throw new ArgumentOutOfRangeException(nameof(sampleCountPerHalf), "sampleCountPerHalf must be at least 1.");
+            }
+
+            if (shoulderRatio < 0f || shoulderRatio >= 0.5f)
+            {
+                throw new ArgumentOutOfRangeException(nameof(shoulderRatio), "shoulderRatio must be in [0, 0.5).");
+            }
+
+            if (neckRatio <= 0f || neckRatio >= 0.5f)
+            {
+                throw new ArgumentOutOfRangeException(nameof(neckRatio), "neckRatio must be in (0, 0.5).");
+            }
+        }
     }
 
 }
