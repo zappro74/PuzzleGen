@@ -48,12 +48,12 @@ namespace Puzzle.Geometry
         {
             if (pointsPerCurveHalf < 1)
             {
-                throw new ArgumentOutOfRangeException(nameof(pointsPerCurveHalf), "sampleCountPerHalf must be at least 1.");
+                throw new ArgumentOutOfRangeException(nameof(pointsPerCurveHalf), "pointsPerCurveHalf must be at least 1.");
             }
 
             if (edgeMargin < 0f || edgeMargin >= 0.5f)
             {
-                throw new ArgumentOutOfRangeException(nameof(edgeMargin), "edgeMarginRatio must be in [0, 0.5).");
+                throw new ArgumentOutOfRangeException(nameof(edgeMargin), "edgeMargin must be in [0, 0.5).");
             }
 
             if (tabWidth <= 0f || tabWidth >= 0.5f)
