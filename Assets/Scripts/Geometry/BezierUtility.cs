@@ -34,12 +34,14 @@ namespace Puzzle.Geometry
             t = Math.Clamp(t, 0f, 1f);
 
             float u = 1f - t;
-            float tt = t * t;
-            float uu = u * u;
-            float uuu = uu * u;
-            float ttt = tt * t;
 
-            return (uuu * p0) + (3f * uu * t * p1) + (3f * u * tt * p2) + (ttt * p3);
+            float tSquared = t * t;
+            float tCubed = tSquared * t;
+
+            float uSquared = u * u;
+            float uCubed = uSquared * u;
+
+            return (uCubed * p0) + (3f * uSquared * t * p1) + (3f * u * tSquared * p2) + (tCubed * p3);
         }
 
         public static List<Vector2> GenerateEdgeCurve(Vector2 start, Vector2 end, EdgeType edgeType, float tabHeight, float shoulderRatio, float neckRatio, int sampleCountPerHalf)
@@ -58,6 +60,8 @@ namespace Puzzle.Geometry
             {
                 throw new ArgumentOutOfRangeException(nameof(neckRatio), "neckRatio must be in (0, 0.5).");
             }
+
+            
         }
     }
 
