@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
+using UnityEngine;
 
 //Just an FYI:
 //t is the progress along the curve
@@ -63,7 +63,7 @@ namespace Puzzle.Geometry
 
             Vector2 edge = end - start;
 
-            if (edge.Length() <= 0.0001f)
+            if (edge.magnitude <= 0.0001f)
             {
                 throw new ArgumentException("Start and end points must not be the same");
             }
@@ -74,7 +74,7 @@ namespace Puzzle.Geometry
             }
 
             Vector2 tangent = Vector2.Normalize(edge);
-            Vector2 normal = new Vector2(-tangent.Y, tangent.X);
+            Vector2 normal = new Vector2(-tangent.y, tangent.x);
 
             float directionMultiplier = edgeType == EdgeType.Extruded ? 1f : -1f;
             
@@ -99,7 +99,7 @@ namespace Puzzle.Geometry
             curve2[0] = peak;
             curve2[1] = Curve2End + (tabOffset * 0.85f);
             curve2[2] = Vector2.Lerp(Curve2End, curve1End, 0.5f);
-            curve1[3] = curve1End;
+            curve2[3] = curve1End;
 
             List<Vector2> result = new List<Vector2>();
 
