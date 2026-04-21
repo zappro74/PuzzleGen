@@ -10,20 +10,15 @@ public class PuzzleGenerator
     {
         var generatedPieces = new List<PieceData>();
         var idNumber = 0;
-        var rowTracker = 1;
-        var columnTracker = 1;
 
-        for(var i = 0; i < rows; i++)
+        for(int row = 1; row <= rows; i++)
         {
-            for(var j = 0; j < columns; j++)
+            for(int column = 1; column <= columns; j++)
             {
                 PieceData piece = new PieceData(idNumber, rowTracker, columnTracker);
-                idNumber++;
-                columnTracker++;
                 generatedPieces.Add(piece);
-
+                idNumber++;
             }
-            rowTracker++;
         }
         return generatedPieces;
     }
