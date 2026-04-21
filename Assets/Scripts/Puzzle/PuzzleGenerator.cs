@@ -11,11 +11,11 @@ public class PuzzleGenerator
         var generatedPieces = new List<PieceData>();
         var idNumber = 0;
 
-        for(int row = 1; row <= rows; i++)
+        for(int row = 1; row <= rows; row++)
         {
-            for(int column = 1; column <= columns; j++)
+            for(int column = 1; column <= columns; column++)
             {
-                PieceData piece = new PieceData(idNumber, rowTracker, columnTracker);
+                PieceData piece = new PieceData(idNumber, row, column);
                 generatedPieces.Add(piece);
                 idNumber++;
             }
