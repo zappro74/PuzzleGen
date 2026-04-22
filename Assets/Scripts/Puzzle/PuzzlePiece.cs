@@ -1,12 +1,22 @@
 using System.Data.Common;
 using UnityEngine;
 
-public class PuzzlePiece
+public class PuzzlePiece : MonoBehaviour
 {
     public PieceData Data { get; private set; }
 
-    public void Initialize(PieceData data)
+    public void Initialize(PieceData pieceData)
     {
-        Data = data;
+        Data = pieceData;
+    }
+
+    public GameObject CreatePiece(PieceData pieceData)
+    {
+        GameObject pieceObject = new GameObject($"Piece_{pieceData.Id}");
+        PuzzlePiece puzzlePiece = pieceObject.AddComponent<PuzzlePiece>();
+
+        puzzlePiece.Initialize(pieceData);
+
+        return pieceObject;
     }
 }
