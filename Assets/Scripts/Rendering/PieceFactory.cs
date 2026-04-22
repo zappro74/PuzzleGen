@@ -1,7 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.PackageManager;
 using LibTessDotNet;
 
 public class PieceFactory : MonoBehaviour
@@ -19,7 +17,6 @@ public class PieceFactory : MonoBehaviour
         PolygonCollider2D polygonCollider = pieceObject.AddComponent<PolygonCollider2D>();
         PuzzlePiece puzzlePiece = pieceObject.AddComponent<PuzzlePiece>();
 
-
         Mesh pieceMesh = BuildMesh(outlinePoints);
         meshFilter.mesh = pieceMesh;
 
@@ -36,14 +33,14 @@ public class PieceFactory : MonoBehaviour
     {
         Mesh mesh = new Mesh();
 
-        Vector3[] verticies = new Vector3[outlinePoints.Count];
+        Vector3[] vertices = new Vector3[outlinePoints.Count];
 
         for (int i = 0; i < outlinePoints.Count; i++)
         {
-            verticies[i] = new Vector3(outlinePoints[i].x, outlinePoints[i].y, 0f);
+            vertices[i] = new Vector3(outlinePoints[i].x, outlinePoints[i].y, 0f);
         }
 
-        mesh.vertices = verticies;
+        mesh.vertices = vertices;
         mesh.triangles = Triangulate(outlinePoints);
 
         mesh.RecalculateNormals();
