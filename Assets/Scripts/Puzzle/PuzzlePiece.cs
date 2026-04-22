@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Data.Common;
 using UnityEngine;
 
@@ -18,5 +19,13 @@ public class PuzzlePiece : MonoBehaviour
         puzzlePiece.Initialize(pieceData);
 
         return pieceObject;
+    }
+
+    public void CreateAllPieces(List<PieceData> pieces)
+    {
+        foreach (PieceData pieceData in pieces)
+        {
+            CreatePiece(pieceData);
+        }
     }
 }
