@@ -54,17 +54,17 @@ public class PieceFactory : MonoBehaviour
         //LibTessDotNet is a library/plugin
         //Here's the github: https://github.com/speps/LibTessDotNet/releases
 
-        LibTessDotNet.Tess tess = new LibTessDotNet.Tess();
+        Tess tess = new Tess();
 
-        LibTessDotNet.ContourVertex[] contour = new LibTessDotNet.ContourVertex[outlinePoints.Count];
+        ContourVertex[] contour = new ContourVertex[outlinePoints.Count];
 
         for (int i = 0; i < outlinePoints.Count; i++)
         {
-            contour[i].Position = new LibTessDotNet.Vec3(outlinePoints[i].x, outlinePoints[i].y, 0f);
+            contour[i].Position = new Vec3(outlinePoints[i].x, outlinePoints[i].y, 0f);
         }
 
-        tess.AddContour(contour, LibTessDotNet.ContourOrientation.Original);
-        tess.Tessellate(LibTessDotNet.WindingRule.EvenOdd, LibTessDotNet.ElementType.Polygons, 3);
+        tess.AddContour(contour, ContourOrientation.Original);
+        tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
 
         return tess.Elements;
     }
