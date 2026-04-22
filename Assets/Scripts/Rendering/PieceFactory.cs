@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 
 public class PieceFactory : MonoBehaviour
 {
@@ -27,5 +28,20 @@ public class PieceFactory : MonoBehaviour
         puzzlePiece.Initialize(pieceData);
 
         return pieceObject;
+    }
+
+    private Mesh BuildMesh(List<Vector2> outlinePoints)
+    {
+        Mesh mesh = new Mesh();
+
+        Vector3[] verticies = new Vector3[outlinePoints.Count];
+
+        for (int i = 0; i < outlinePoints.Count; i++)
+        {
+            verticies[i] = new Vector3(outlinePoints[i].x, outlinePoints[i].y, 0f);
+        }
+
+        //Need triangulation...
+        //Fun Research time!!!
     }
 }
