@@ -18,9 +18,12 @@ public class PieceFactory : MonoBehaviour
         PolygonCollider2D polygonCollider = pieceObject.AddComponent<PolygonCollider2D>();
         PuzzlePiece puzzlePiece = pieceObject.AddComponent<PuzzlePiece>();
 
+        /*
         Mesh pieceMesh = BuildMesh(outlinePoints); //creating a helper for this shortly
 
         meshFilter.mesh = pieceMesh;
+        */
+        
         meshRenderer.material = pieceMaterial;
 
         polygonCollider.points = outlinePoints.ToArray();
@@ -30,6 +33,7 @@ public class PieceFactory : MonoBehaviour
         return pieceObject;
     }
 
+    /*
     private Mesh BuildMesh(List<Vector2> outlinePoints)
     {
         Mesh mesh = new Mesh();
@@ -44,4 +48,5 @@ public class PieceFactory : MonoBehaviour
         //Need triangulation...
         //Fun Research time!!!
     }
+    */
 }
