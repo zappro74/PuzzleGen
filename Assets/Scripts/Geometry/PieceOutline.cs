@@ -21,14 +21,16 @@ public class PieceOutline
         List<Vector2> outline = new List<Vector2>();
 
         outline.AddRange(topEdge);
-        AddEdgeWithoutFirstPoint(outline, rightEdge);
-        AddEdgeWithoutFirstPoint(outline, bottomEdge);
-        AddEdgeWithoutFirstPoint(outline, leftEdge);
+        AddEdge(outline, rightEdge);
+        AddEdge(outline, bottomEdge);
+        AddEdge(outline, leftEdge); //might need to reamove last point
 
         return outline;
     }
-
-    private static void AddEdgeWithoutFirstPoint(List<Vector2> outline, List<Vector2> edge)
+    
+    //Removes the first point of the edge
+    //otherwise would count the last point and would make a duplicate
+    private static void AddEdge(List<Vector2> outline, List<Vector2> edge)
     {
         for (int i = 1; i < edge.Count; i++)
         {
