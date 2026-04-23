@@ -5,30 +5,34 @@ public class SnapValidation
 
     public bool CanSnap(PieceData a, PieceData b, float snapTolerance)
     {
-        if(AreNeighbors == false)
+        NeighborDetection neighborDetection = new NeighborDetection;
+
+        if(!neighborDetection.AreNeighbors(a,b))
         {
             return false;
         }
 
-        PieceDirection direction = GetRelativeDirection(PieceData a, PieceData b);
+        PieceDirection direction = neighborDetection.GetRelativeDirection(a, b);
+        EdgeType edgeA = EdgeType.None;
+        EdgeType edgeB = EdgeType.None;
 
         switch(direction)
         {
             case PieceDirection.Right:
-                a = a.RightEdge;
-                b = b.LeftEdge;
+                edgeA = a.RightEdge;
+                edgeB = b.LeftEdge;
                 break;
             case PieceDirection.Left:
-                a = a.LeftEdge;
-                b = b.RightEdge;
+                edgeA = a.LeftEdge;
+                edgeB = b.RightEdge;
                 break;
             case PieceDirection.Top:
-                a = a.TopEdge;
-                b = b.BottomEdge;
+                edgeA = a.TopEdge;
+                edgeB = b.BottomEdge;
                 break;
             case PieceDirection.Bottom:
-                a = a.BottomEdge;
-                b = b.BottomEdge;
+                edgeA = a.BottomEdge;
+                edgeB = b.TopEdge;
                 break;
             default:
                 return false;
