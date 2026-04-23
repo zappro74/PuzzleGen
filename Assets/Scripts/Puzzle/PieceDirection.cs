@@ -7,5 +7,6 @@ public enum PieceDirection
     Top,
     Right,
     Bottom,
-    Left
+    Left,
+    None
 }
