@@ -55,14 +55,12 @@ public class PuzzleGenerator
                 //ASSIGNING RIGHT EDGE
                 if(piece.RightEdge != EdgeType.Flat)
                 {
-                    //WILL EVENTUALLY BE RANDOMLY ASSIGNED
                     piece.RightEdge = GetSeededEdgeType(row, column, PieceDirection.Right);
                 }
                 
                 //ASSIGNING BOTTOM EDGE
                 if(piece.BottomEdge != EdgeType.Flat)
                 {
-                    //WILL EVENTUALLY BE RANDOMLY ASSIGNED
                     piece.BottomEdge = GetSeededEdgeType(row, column, PieceDirection.Bottom);
                 }
 
