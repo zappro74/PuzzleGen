@@ -45,14 +45,10 @@ public class PuzzleFactory : MonoBehaviour
         foreach (PieceData pieceData in pieceDataList)
         {
             GameObject pieceObject = pieceFactory.CreatePiece(
-            pieceData, 
-            puzzleConfig.pieceConfig.pieceMaterial, 
-            puzzleConfig.pieceConfig.pieceWidth, 
-            puzzleConfig.pieceConfig.pieceHeight, 
-            puzzleConfig.pieceConfig.tabHeight, 
-            puzzleConfig.pieceConfig.edgeMargin, 
-            puzzleConfig.pieceConfig.tabWidth, 
-            puzzleConfig.pieceConfig.pointsPerCurveHalf);
+                pieceData,
+                puzzleConfig.pieceConfig,
+                pieceWidth,
+                pieceHeight);
 
             pieceObject.transform.SetParent(puzzleParent.transform);
             pieceObject.transform.position = GetPiecePosition(pieceData, pieceWidth, pieceHeight);

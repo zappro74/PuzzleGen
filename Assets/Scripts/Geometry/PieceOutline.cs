@@ -6,17 +6,17 @@ using UnityEngine;
 
 public class PieceOutline
 {
-    public static List<Vector2> BuildPieceOutline(PieceData piece, float pieceWidth, float pieceHeight, float tabWidth, float tabHeight, float edgeMargin, int pointsPerCurveHalf)
+public static List<Vector2> BuildPieceOutline(PieceData piece, float pieceWidth, float pieceHeight, PieceConfig config)
     {
         Vector2 topLeft = new Vector2(0, 0);
         Vector2 topRight = new Vector2(pieceWidth, 0);
         Vector2 bottomRight = new Vector2(pieceWidth, pieceHeight);
         Vector2 bottomLeft = new Vector2(0, pieceHeight);
 
-        List<Vector2> topEdge = BezierUtility.GenerateEdgeCurve(topLeft, topRight, piece.TopEdge, tabHeight, edgeMargin, tabWidth, pointsPerCurveHalf);
-        List<Vector2> rightEdge = BezierUtility.GenerateEdgeCurve(topRight, bottomRight, piece.RightEdge, tabHeight, edgeMargin, tabWidth, pointsPerCurveHalf);
-        List<Vector2> bottomEdge = BezierUtility.GenerateEdgeCurve(bottomRight, bottomLeft, piece.BottomEdge, tabHeight, edgeMargin, tabWidth, pointsPerCurveHalf);
-        List<Vector2> leftEdge = BezierUtility.GenerateEdgeCurve(bottomLeft, topLeft, piece.LeftEdge, tabHeight, edgeMargin, tabWidth, pointsPerCurveHalf);
+        List<Vector2> topEdge = BezierUtility.GenerateEdgeCurve(topLeft, topRight, piece.TopEdge, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
+        List<Vector2> rightEdge = BezierUtility.GenerateEdgeCurve(topRight, bottomRight, piece.RightEdge, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
+        List<Vector2> bottomEdge = BezierUtility.GenerateEdgeCurve(bottomRight, bottomLeft, piece.BottomEdge, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
+        List<Vector2> leftEdge = BezierUtility.GenerateEdgeCurve(bottomLeft, topLeft, piece.LeftEdge, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
 
         List<Vector2> outline = new List<Vector2>();
 
