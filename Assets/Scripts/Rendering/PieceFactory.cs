@@ -6,9 +6,16 @@ public class PieceFactory : MonoBehaviour
 {
 
 
-    public GameObject CreatePiece(PieceData pieceData, Material pieceMaterial, float pieceWidth, float pieceHeight, float tabHeight, float edgeMargin, float tabWidth, int pointsPerCurveHalf)
+    public GameObject CreatePiece(PieceData pieceData, PieceConfig pieceConfig, float pieceWidth, float pieceHeight)
     {
-        List<Vector2> outlinePoints = PieceOutline.BuildPieceOutline(pieceData, pieceWidth, pieceHeight, tabHeight, edgeMargin, tabWidth, pointsPerCurveHalf);
+        List<Vector2> outlinePoints = PieceOutline.BuildPieceOutline(
+        pieceData,
+        pieceWidth,
+        pieceHeight,
+        pieceConfig.tabHeight,
+        pieceConfig.edgeMargin,
+        pieceConfig.tabWidth,
+        pieceConfig.pointsPerCurveHalf);
 
         GameObject pieceObject = new GameObject($"Piece_{pieceData.Id}");
 
@@ -20,7 +27,7 @@ public class PieceFactory : MonoBehaviour
         Mesh pieceMesh = BuildMesh(outlinePoints);
         meshFilter.mesh = pieceMesh;
 
-        meshRenderer.material = pieceMaterial;
+        meshRenderer.material = pieceConfig.pieceMaterial;
 
         polygonCollider.points = outlinePoints.ToArray();
 
