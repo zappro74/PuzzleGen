@@ -8,14 +8,7 @@ public class PieceFactory : MonoBehaviour
 
     public GameObject CreatePiece(PieceData pieceData, PieceConfig pieceConfig, float pieceWidth, float pieceHeight)
     {
-        List<Vector2> outlinePoints = PieceOutline.BuildPieceOutline(
-        pieceData,
-        pieceWidth,
-        pieceHeight,
-        pieceConfig.tabHeight,
-        pieceConfig.edgeMargin,
-        pieceConfig.tabWidth,
-        pieceConfig.pointsPerCurveHalf);
+        List<Vector2> outlinePoints = PieceOutline.BuildPieceOutline(pieceData, pieceWidth, pieceHeight, pieceConfig);
 
         GameObject pieceObject = new GameObject($"Piece_{pieceData.Id}");
 
