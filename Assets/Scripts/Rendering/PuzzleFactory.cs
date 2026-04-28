@@ -64,7 +64,10 @@ public class PuzzleFactory : MonoBehaviour
     }
 
     private Vector3 GetPiecePosition(PieceData pieceData, float pieceWidth, float pieceHeight)
-    {
-        return new Vector3();
+    {        
+        float x = pieceData.Column  * pieceWidth;
+        float y = pieceData.Row * pieceWidth;
+
+        return new Vector3(x, y, 0f);
     }
 }
