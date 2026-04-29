@@ -20,7 +20,7 @@ namespace Puzzle.Geometry
 
             List<Vector2> points = new List<Vector2>(pieceCount + 1);
 
-            for (int i = 0; i < pieceCount; i++)
+            for (int i = 0; i <= pieceCount; i++)
             {
                 float t = i / (float)pieceCount;
                 points.Add(EvaluateCubicBezier(p0, p1, p2, p3, t));
@@ -88,7 +88,7 @@ namespace Puzzle.Geometry
 
             //0.35 my beloved
             Vector2 capLeft = Vector2.Lerp(usableStart, usableEnd, 0.5f - tabWidth * 0.35f) + tabOffset;
-            Vector2 capRight = Vector2.Lerp(usableStart, usableEnd, 0.5f + tabHeight * 0.35f) + tabOffset;
+            Vector2 capRight = Vector2.Lerp(usableStart, usableEnd, 0.5f + tabWidth * 0.35f) + tabOffset;
 
             List<Vector2> result = new List<Vector2>();
 
