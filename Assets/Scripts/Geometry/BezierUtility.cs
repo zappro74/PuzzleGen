@@ -44,7 +44,7 @@ namespace Puzzle.Geometry
             return (uCubed * p0) + (3f * uSquared * t * p1) + (3f * u * tSquared * p2) + (tCubed * p3);
         }
 
-        public static List<Vector2> GenerateEdgeCurve(Vector2 start, Vector2 end, EdgeType edgeType, float tabHeight, float edgeMargin, float tabWidth, int pointsPerCurveHalf)
+        public static List<Vector2> GenerateEdgeCurve(Vector2 start, Vector2 end, EdgeType edgeType, Vector2 outwardNormal, float tabHeight, float edgeMargin, float tabWidth, int pointsPerCurveHalf)
         {
             if (pointsPerCurveHalf < 1)
             {
@@ -73,53 +73,61 @@ namespace Puzzle.Geometry
                 return new List<Vector2> { start, end };
             }
 
-            Vector2 tangent = Vector2.Normalize(edge);
-            Vector2 normal = new Vector2(-tangent.y, tangent.x);
+            Vector2 tangent = edge.normalized;
+            Vector2 normal = outwardNormal.normalized;
 
             float directionMultiplier = edgeType == EdgeType.Extruded ? 1f : -1f;
-            
-            Vector2 curve1Start = Vector2.Lerp(start, end, edgeMargin);
-            Vector2 curve1End = Vector2.Lerp(start, end, 1f - edgeMargin);
-
-            Vector2 mid = Vector2.Lerp(start, end, 0.5f);
-            Vector2 Curve2Start = Vector2.Lerp(start, end, 0.5f - tabWidth);
-            Vector2 Curve2End = Vector2.Lerp(start, end, 0.5f + tabWidth);
-
             Vector2 tabOffset = normal * (tabHeight * directionMultiplier);
-            Vector2 peak = mid + tabOffset;
+            
+            //the middle portion of the edge not including the corners
+            Vector2 usableStart = Vector2.Lerp(start, end, edgeMargin);
+            Vector2 usableEnd = Vector2.Lerp(start, end, 1f - edgeMargin);
 
-            Vector2[] curve1 = new Vector2[4];
-            Vector2[] curve2 = new Vector2[4];
+            Vector2 tabStart = Vector2.Lerp(usableStart, usableEnd, 0.5f - tabWidth);
+            Vector2 tabEnd = Vector2.Lerp(usableStart, usableEnd, 0.5f + tabWidth);
 
-            curve1[0] = curve1Start;
-            curve1[1] = Vector2.Lerp(curve1Start, Curve2Start, 0.5f);
-            curve1[2] = Curve2Start + (tabOffset * 0.85f);
-            curve1[3] = peak;
-
-            curve2[0] = peak;
-            curve2[1] = Curve2End + (tabOffset * 0.85f);
-            curve2[2] = Vector2.Lerp(Curve2End, curve1End, 0.5f);
-            curve2[3] = curve1End;
+            //0.35 my beloved
+            Vector2 capLeft = Vector2.Lerp(usableStart, usableEnd, 0.5f - tabWidth * 0.35f) + tabOffset;
+            Vector2 capRight = Vector2.Lerp(usableStart, usableEnd, 0.5f + tabHeight * 0.35f) + tabOffset;
 
             List<Vector2> result = new List<Vector2>();
 
             result.Add(start);
+            result.Add(usableStart);
+            result.Add(tabStart);
 
-            if (start != curve1Start)
-            {
-                result.Add(curve1Start);
-            }
+            result.AddRange
+            (
+                CubicBezier(tabStart,
+                tabStart + tangent * (tabWidth * 0.25f), 
+                capLeft - tangent * (tabWidth * 0.25f), 
+                capLeft, 
+                pointsPerCurveHalf)
+            );
+            
+            result.AddRange
+            (
+                CubicBezier(
+                capLeft,
+                capLeft + tangent * (tabWidth * 0.35f),
+                capRight - tangent * (tabWidth * 0.35f),
+                capRight,
+                pointsPerCurveHalf)
+            );
 
-            List<Vector2> firstHalf = CubicBezier(curve1[0], curve1[1], curve1[2], curve1[3], pointsPerCurveHalf);
-            result.AddRange(firstHalf);
+            result.AddRange
+            (
+                CubicBezier(
+                capRight,
+                capRight + tangent * (tabWidth * 0.25f),
+                tabEnd - tangent * (tabWidth * 0.25f),
+                tabEnd,
+                pointsPerCurveHalf)
+            );
 
-            List<Vector2> secondHalf = CubicBezier(curve2[0], curve2[1], curve2[2], curve2[3], pointsPerCurveHalf);
-            result.AddRange(secondHalf);
-
-            if (curve1End != end)
-            {
-                result.Add(end);
-            }
+            result.Add(tabEnd);
+            result.Add(usableEnd);
+            result.Add(end);
 
             return result;
         }
