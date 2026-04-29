@@ -7,8 +7,9 @@ public class GameStateManager : MonoBehaviour
 {
     public enum State
     {
+        Inactive,
         Active,
-        Inactive
+        Paused
     }
     public State currentState;
 
@@ -25,10 +26,54 @@ public class GameStateManager : MonoBehaviour
     public void StartGame()
     {
         // Runs once a new game is started.
+        if (image == null)
+        {
+            Debug.LogWarning("Warning: Attempted to start game with no image loaded into unity.");
+            return;
+        }
+
         currentState = State.Active;
-        elapsedTime = 0;
+        elapsedTime = 0f;
 
         Debug.Log($"Game Started, State set to: {currentState}");
+    }
+    public void PauseGame()
+    {
+        // Anything that triggers during a paused game.
+        if (currentState == State.Active)
+        {
+            currentState = State.Paused;
+        }
+    }
+    public void ResumeGame()
+    {
+        // Anything that should trigger after resuming the game.
+        if (currentState == State.Paused)
+        {
+            currentState = State.Active;
+        }
+    }
+    public void RestartGame()
+    {
+        currentState = State.Inactive;
+        image = null;
+        elapsedTime = 0f;
+        
+        if (timer != null)
+        {
+            timer.text = "Time: 00:00"; 
+        }
+        
+        Debug.Log("Game reset called.");
+    }
+    public void RestartTimer()
+    {
+        if (image != null)
+        {
+            elapsedTime = 0f;
+            currentState = State.Active;
+            Debug.Log("Timer reset.");
+        }
     }
     public void Update()
     {
@@ -36,7 +81,16 @@ public class GameStateManager : MonoBehaviour
         if (currentState == State.Active)
         {
             // Anything requiring an active game should be put in here.
+
             elapsedTime += Time.deltaTime;
+
+            int minutes = Mathf.FloorToInt(elapsedTime / 60);
+            int seconds = Mathf.FloorToInt(elapsedTime % 60);
+
+            if (timer != null)
+            {
+                timer.text = string.Format("Time: {0:00}:{1:00}", minutes, seconds);
+            }
         }
     }
 
