@@ -47,7 +47,7 @@ public class PuzzleFactory : MonoBehaviour
 
         foreach (PieceData pieceData in pieceDataList)
         {
-            GameObject pieceObject = pieceFactory.CreatePiece(pieceData, puzzleConfig.pieceConfig, pieceWidth, pieceHeight);
+            GameObject pieceObject = pieceFactory.CreatePiece(pieceData, puzzleConfig);
 
             pieceObject.transform.SetParent(puzzleParent.transform);
             pieceObject.transform.localPosition = GetPiecePosition(pieceData, puzzleConfig, pieceWidth, pieceHeight);

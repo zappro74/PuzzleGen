@@ -4,11 +4,11 @@ using LibTessDotNet;
 
 public class PieceFactory : MonoBehaviour
 {
-
-
-    public GameObject CreatePiece(PieceData pieceData, PieceConfig pieceConfig, float pieceWidth, float pieceHeight)
+    public GameObject CreatePiece(PieceData pieceData, PuzzleConfig puzzleConfig)
     {
-        List<Vector2> outlinePoints = PieceOutline.BuildPieceOutline(pieceData, pieceWidth, pieceHeight, pieceConfig);
+        PieceConfig pieceConfig = puzzleConfig.pieceConfig;
+
+        List<Vector2> outlinePoints = PieceOutline.BuildPieceOutline(pieceData, pieceConfig.pieceWidth, pieceConfig.pieceHeight, pieceConfig);
 
         GameObject pieceObject = new GameObject($"Piece_{pieceData.Id}");
 
