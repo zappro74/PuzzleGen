@@ -98,6 +98,8 @@ public class GameStateManager : MonoBehaviour
     public void GenerateNewPuzzle(Texture2D loadedImage)
     {
         image = loadedImage;
+
+        Vector2 puzzleSize = GetBoardSize(image, boardWidth, boardHeight);
         
         pieceMaterial.mainTexture = loadedImage;
 
@@ -107,10 +109,12 @@ public class GameStateManager : MonoBehaviour
         PieceConfig pieceConfig = new PieceConfig
         {
             pieceMaterial = pieceMaterial,
+            pieceWidth = puzzleSize.x / 3,
+            pieceHeight = puzzleSize.y / 3,
             tabHeight = 0.2f,
             edgeMargin = 0.25f,
             tabWidth = 0.4f,
-            pointsPerCurveHalf = 8
+            pointsPerCurveHalf = 50
         };
 
         //Hard code values for testing purposes
@@ -121,8 +125,6 @@ public class GameStateManager : MonoBehaviour
             generationSeed = generationSeed,
             pieceConfig = pieceConfig
         };
-
-        Vector2 puzzleSize = GetBoardSize(image, boardWidth, boardHeight);
 
         List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, puzzleSize.x, puzzleSize.y);
     }
