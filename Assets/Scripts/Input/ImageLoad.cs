@@ -48,6 +48,8 @@ public class Image : MonoBehaviour
             {
                 imageReference.UpdateReferenceImages();
             }
+
+            stateManager.GenerateNewPuzzle(texture);
         }
         else
         {

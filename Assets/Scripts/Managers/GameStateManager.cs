@@ -28,6 +28,22 @@ public class GameStateManager : MonoBehaviour
         currentState = State.Active;
         elapsedTime = 0;
 
+        Debug.Log($"Game Started, State set to: {currentState}");
+    }
+    public void Update()
+    {
+        // Anything that updates as the game plays should be put into here.
+        if (currentState == State.Active)
+        {
+            // Anything requiring an active game should be put in here.
+            elapsedTime += Time.deltaTime;
+        }
+    }
+
+    public void GenerateNewPuzzle(Texture2D loadedImage)
+    {
+        image = loadedImage;
+
         int generationSeed = System.Guid.NewGuid().GetHashCode();
 
         //might need this to be scalable... 
@@ -50,17 +66,6 @@ public class GameStateManager : MonoBehaviour
         };
 
         List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, image.width, image.height);
-
-        Debug.Log($"Game Started, State set to: {currentState}");
-    }
-    public void Update()
-    {
-        // Anything that updates as the game plays should be put into here.
-        if (currentState == State.Active)
-        {
-            // Anything requiring an active game should be put in here.
-            elapsedTime += Time.deltaTime;
-        }
     }
 }
 
