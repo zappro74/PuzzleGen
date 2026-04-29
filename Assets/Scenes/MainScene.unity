@@ -232,8 +232,8 @@ MonoBehaviour:
   currentState: 0
   image: {fileID: 0}
   timer: {fileID: 1306186867}
-  puzzleFactory: {fileID: 0}
-  pieceMaterial: {fileID: 0}
+  puzzleFactory: {fileID: 1117236279}
+  pieceMaterial: {fileID: 2100000, guid: 46782fca045e80d48bea19b014ee051b, type: 2}
 --- !u!4 &629222927
 Transform:
   m_ObjectHideFlags: 0
@@ -1082,6 +1082,50 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!1 &1117236278
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1117236280}
+  - component: {fileID: 1117236279}
+  m_Layer: 0
+  m_Name: PuzzleFactory
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1117236279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1117236278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de1586accfbeccc43bb882648aca429f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleFactory
+--- !u!4 &1117236280
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1117236278}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 334.34143, y: 245.35637, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1306186865
 GameObject:
   m_ObjectHideFlags: 0
@@ -1230,3 +1274,4 @@ SceneRoots:
   - {fileID: 353218091}
   - {fileID: 629222927}
   - {fileID: 731536899}
+  - {fileID: 1117236280}
