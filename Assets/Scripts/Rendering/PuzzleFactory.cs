@@ -4,7 +4,7 @@ using UnityEngine;
 public class PuzzleFactory : MonoBehaviour
 {
     private PieceFactory pieceFactory;
-
+    [SerializeField] private Transform puzzleBoard;
     public List<GameObject> GeneratePuzzle(PuzzleConfig puzzleConfig, float imageWidth, float imageHeight)
     {
         if (puzzleConfig == null)
@@ -40,18 +40,17 @@ public class PuzzleFactory : MonoBehaviour
         List<PieceData> pieceDataList = generator.Generate();
 
         GameObject puzzleParent = new GameObject("Puzzle");
+
+        puzzleParent.transform.SetParent(puzzleBoard);
+
         List<GameObject> createdPieces = new List<GameObject>();
 
         foreach (PieceData pieceData in pieceDataList)
         {
-            GameObject pieceObject = pieceFactory.CreatePiece(
-                pieceData,
-                puzzleConfig.pieceConfig,
-                pieceWidth,
-                pieceHeight);
+            GameObject pieceObject = pieceFactory.CreatePiece(pieceData, puzzleConfig.pieceConfig, pieceWidth, pieceHeight);
 
             pieceObject.transform.SetParent(puzzleParent.transform);
-            pieceObject.transform.position = GetPiecePosition(pieceData, pieceWidth, pieceHeight);
+            pieceObject.transform.localPosition = GetPiecePosition(pieceData, puzzleConfig, pieceWidth, pieceHeight);
 
             createdPieces.Add(pieceObject);
         }
@@ -59,11 +58,16 @@ public class PuzzleFactory : MonoBehaviour
         return createdPieces;
     }
 
-    private Vector3 GetPiecePosition(PieceData pieceData, float pieceWidth, float pieceHeight)
-    {        
-        float x = pieceData.Column  * pieceWidth;
-        float y = pieceData.Row * pieceWidth;
+    private Vector3 GetPiecePosition(PieceData pieceData, PuzzleConfig config, float pieceWidth, float pieceHeight)
+    {
+        float puzzleWidth = config.columns * pieceWidth;
+        float puzzleHeight = config.rows * pieceHeight;
+
+        float x = (pieceData.Column - 1) * pieceWidth - puzzleWidth / 2f;
+        float y = -(pieceData.Row - 1) * pieceHeight + puzzleHeight / 2f - pieceHeight;
 
         return new Vector3(x, y, 0f);
     }
+
+    
 }

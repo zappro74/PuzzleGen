@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.U2D;
 
 public class GameStateManager : MonoBehaviour
 {
@@ -65,7 +66,24 @@ public class GameStateManager : MonoBehaviour
             pieceConfig = pieceConfig
         };
 
-        List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, image.width, image.height);
+        Vector2 puzzleSize = GetBoardSize(image, boardWidth, boardHeight);
+
+        List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, puzzleSize.x, puzzleSize.y);
+    }
+
+    [SerializeField] private float boardWidth = 8f;
+    [SerializeField] private float boardHeight = 6f;
+    private Vector2 GetBoardSize(Texture2D image, float maxWidth, float maxHeight)
+    {
+        float imageAspect = image.width / (float)image.height;
+        float boxAspect = maxWidth / maxHeight;
+
+        if (imageAspect > boxAspect)
+        {
+            return new Vector2(maxWidth, maxWidth / imageAspect);
+        }
+
+        return new Vector2(maxHeight * imageAspect, maxHeight);
     }
 }
 
