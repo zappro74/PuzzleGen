@@ -4,7 +4,7 @@ using SimpleFileBrowser;
 
 public class Image : MonoBehaviour
 {
-    [Header("Connections")]
+    [Header("Script Connections")]
     public GameStateManager stateManager; 
     public ImageReferencing imageReference;
 
@@ -16,7 +16,7 @@ public class Image : MonoBehaviour
     public void OpenImageBrowser()
     {
         FileBrowser.ShowLoadDialog((paths) => { OnFileSelected(paths[0]); },
-            () => { Debug.Log("File selection cancelled..."); },
+            () => { Debug.Log("File selection cancelled."); },
             FileBrowser.PickMode.Files, false, null, null, "Select Puzzle Image", "Load"
         );
     }
@@ -46,9 +46,11 @@ public class Image : MonoBehaviour
             
             if (imageReference != null) 
             {
-                imageReference.UpdateReferenceImages();
+                imageReference.UpdateImages();
             }
 
+            stateManager.StartGame();
+            
             stateManager.GenerateNewPuzzle(texture);
         }
         else
