@@ -65,7 +65,11 @@ public class GameStateManager : MonoBehaviour
             pieceConfig = pieceConfig
         };
 
-        List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, image.width, image.height);
+        //fit to camera view
+        float height = Camera.main.orthographicSize * 2f * 0.8f;
+        float width = height * Camera.main.aspect * 0.8f;
+
+        List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, width, height);
     }
 }
 
