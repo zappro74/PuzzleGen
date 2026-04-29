@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class GameStateManager : MonoBehaviour
 {
@@ -47,6 +48,8 @@ public class GameStateManager : MonoBehaviour
             generationSeed = generationSeed,
             pieceConfig = pieceConfig
         };
+
+        List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, image.width, image.height);
 
         Debug.Log($"Game Started, State set to: {currentState}");
     }
