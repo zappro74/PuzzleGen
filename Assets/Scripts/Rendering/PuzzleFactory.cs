@@ -4,7 +4,7 @@ using UnityEngine;
 public class PuzzleFactory : MonoBehaviour
 {
     private PieceFactory pieceFactory;
-
+    [SerializeField] private Transform puzzleBoard;
     public List<GameObject> GeneratePuzzle(PuzzleConfig puzzleConfig, float imageWidth, float imageHeight)
     {
         if (puzzleConfig == null)
@@ -40,15 +40,15 @@ public class PuzzleFactory : MonoBehaviour
         List<PieceData> pieceDataList = generator.Generate();
 
         GameObject puzzleParent = new GameObject("Puzzle");
+
+        puzzleParent.transform.SetParent(puzzleBoard);
+        puzzleParent.transform.localPosition = Vector3.zero;
+
         List<GameObject> createdPieces = new List<GameObject>();
 
         foreach (PieceData pieceData in pieceDataList)
         {
-            GameObject pieceObject = pieceFactory.CreatePiece(
-                pieceData,
-                puzzleConfig.pieceConfig,
-                pieceWidth,
-                pieceHeight);
+            GameObject pieceObject = pieceFactory.CreatePiece(pieceData, puzzleConfig.pieceConfig, pieceWidth, pieceHeight);
 
             pieceObject.transform.SetParent(puzzleParent.transform);
             pieceObject.transform.position = GetPiecePosition(pieceData, pieceWidth, pieceHeight);
