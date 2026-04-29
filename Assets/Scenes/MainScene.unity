@@ -232,6 +232,8 @@ MonoBehaviour:
   currentState: 0
   image: {fileID: 0}
   timer: {fileID: 1306186867}
+  puzzleFactory: {fileID: 0}
+  pieceMaterial: {fileID: 0}
 --- !u!4 &629222927
 Transform:
   m_ObjectHideFlags: 0
@@ -263,7 +265,7 @@ MonoBehaviour:
   imageReference: {fileID: 772613150}
   centerImage: {fileID: 1077990350}
   maxCenterSize: {x: 1000, y: 800}
-  maxImageReference: {x: 500, y: 500}
+  maxImageReference: {x: 200, y: 200}
 --- !u!114 &629222929
 MonoBehaviour:
   m_ObjectHideFlags: 0
