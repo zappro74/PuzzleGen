@@ -4,8 +4,6 @@ using LibTessDotNet;
 
 public class PieceFactory : MonoBehaviour
 {
-
-
     public GameObject CreatePiece(PieceData pieceData, PuzzleConfig puzzleConfig)
     {
         PieceConfig pieceConfig = puzzleConfig.pieceConfig;
