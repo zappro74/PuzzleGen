@@ -13,10 +13,10 @@ public static List<Vector2> BuildPieceOutline(PieceData piece, float pieceWidth,
         Vector2 bottomRight = new Vector2(pieceWidth, pieceHeight);
         Vector2 bottomLeft = new Vector2(0, pieceHeight);
 
-        List<Vector2> topEdge = BezierUtility.GenerateEdgeCurve(topLeft, topRight, piece.TopEdge, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
-        List<Vector2> rightEdge = BezierUtility.GenerateEdgeCurve(topRight, bottomRight, piece.RightEdge, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
-        List<Vector2> bottomEdge = BezierUtility.GenerateEdgeCurve(bottomRight, bottomLeft, piece.BottomEdge, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
-        List<Vector2> leftEdge = BezierUtility.GenerateEdgeCurve(bottomLeft, topLeft, piece.LeftEdge, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
+        List<Vector2> topEdge = BezierUtility.GenerateEdgeCurve(topLeft, topRight, piece.TopEdge, Vector2.down, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
+        List<Vector2> rightEdge = BezierUtility.GenerateEdgeCurve(topRight, bottomRight, piece.RightEdge, Vector2.right, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
+        List<Vector2> bottomEdge = BezierUtility.GenerateEdgeCurve(bottomRight, bottomLeft, piece.BottomEdge, Vector2.up, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
+        List<Vector2> leftEdge = BezierUtility.GenerateEdgeCurve(bottomLeft, topLeft, piece.LeftEdge, Vector2.left, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
 
         List<Vector2> outline = new List<Vector2>();
 
