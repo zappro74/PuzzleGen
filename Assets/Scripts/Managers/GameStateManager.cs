@@ -44,6 +44,8 @@ public class GameStateManager : MonoBehaviour
     public void GenerateNewPuzzle(Texture2D loadedImage)
     {
         image = loadedImage;
+        
+        pieceMaterial.mainTexture = loadedImage;
 
         int generationSeed = System.Guid.NewGuid().GetHashCode();
 
