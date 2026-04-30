@@ -29,11 +29,20 @@ public class PieceFactory : MonoBehaviour
         return pieceObject;
     }
 
-    private Mesh BuildMesh(List<Vector2> outlinePoints)
+    private Mesh BuildMesh(List<Vector2> outlinePoints, PieceData pieceData, PuzzleConfig puzzleConfig)
     {
         Mesh mesh = new Mesh();
 
+        PieceConfig pieceConfig = puzzleConfig.pieceConfig;
+
         Vector3[] vertices = new Vector3[outlinePoints.Count];
+        Vector2[] UVs = new Vector2[outlinePoints.Count];
+
+        float pieceWidth = pieceConfig.pieceWidth;
+        float pieceHeight = pieceConfig.pieceHeight;
+
+        float puzzleWidth = puzzleConfig.columns * pieceWidth;
+        float puzzleHeight = puzzleConfig.columns * pieceHeight;
 
         for (int i = 0; i < outlinePoints.Count; i++)
         {
@@ -51,7 +60,7 @@ public class PieceFactory : MonoBehaviour
 
     private int[] Triangulate(List<Vector2> outlinePoints)
     {
-        //LibTessDotNet is a library/plugin
+        //LibTessDotNet is the library/plugin I used here
         //Here's the github: https://github.com/speps/LibTessDotNet/releases
 
         Tess tess = new Tess();
