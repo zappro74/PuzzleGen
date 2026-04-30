@@ -43,7 +43,7 @@ public class PuzzleGenerator
         {
             for(int column = 1; column <= columns; column++)
             {
-                PieceData piece = new PieceData(idNumber, row, column);
+                PieceData piece = new PieceData(idNumber, row, column, idNumber);
 
                 //ASSIGNING FLAT EDGES
                 if(row == 1){ piece.TopEdge = EdgeType.Flat; }

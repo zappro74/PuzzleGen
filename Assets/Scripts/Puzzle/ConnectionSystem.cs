@@ -3,10 +3,16 @@ using UnityEngine;
 
 public class ConnectionSystem
 {
+    private GroupSystem groups;
+    public ConnectionSystem(GroupSystem groupSystem)
+    {
+        groups = groupSystem;
+    }
     public class PieceConnection
     {
         public int PieceAId;
         public int PieceBId;
+
         public PieceDirection Direction;
 
         public PieceConnection(int aId, int bId, PieceDirection direction)
@@ -20,6 +26,7 @@ public class ConnectionSystem
         {
             return (PieceAId == aId && PieceBId == bId) || (PieceAId == bId && PieceBId == aId);
         }
+
     }
     
     private List<PieceConnection> connections = new List<PieceConnection>();
@@ -53,6 +60,12 @@ public class ConnectionSystem
         {
             return;
         }
+
+        if(a.GroupId != b.GroupId)
+        {
+            groups.MergeGroups(a, b);
+        }
+
 
         PieceDirection direction = neighbors.GetRelativeDirection(a, b);
 
