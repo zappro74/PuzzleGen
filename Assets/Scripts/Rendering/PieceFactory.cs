@@ -4,11 +4,11 @@ using LibTessDotNet;
 
 public class PieceFactory : MonoBehaviour
 {
-
-
-    public GameObject CreatePiece(PieceData pieceData, Material pieceMaterial, float pieceWidth, float pieceHeight, float tabHeight, float edgeMargin, float tabWidth, int pointsPerCurveHalf)
+    public GameObject CreatePiece(PieceData pieceData, PuzzleConfig puzzleConfig)
     {
-        List<Vector2> outlinePoints = PieceOutline.BuildPieceOutline(pieceData, pieceWidth, pieceHeight, tabHeight, edgeMargin, tabWidth, pointsPerCurveHalf);
+        PieceConfig pieceConfig = puzzleConfig.pieceConfig;
+
+        List<Vector2> outlinePoints = PieceOutline.BuildPieceOutline(pieceData, pieceConfig.pieceWidth, pieceConfig.pieceHeight, pieceConfig);
 
         GameObject pieceObject = new GameObject($"Piece_{pieceData.Id}");
 
@@ -20,7 +20,7 @@ public class PieceFactory : MonoBehaviour
         Mesh pieceMesh = BuildMesh(outlinePoints);
         meshFilter.mesh = pieceMesh;
 
-        meshRenderer.material = pieceMaterial;
+        meshRenderer.material = pieceConfig.pieceMaterial;
 
         polygonCollider.points = outlinePoints.ToArray();
 

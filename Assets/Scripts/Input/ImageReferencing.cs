@@ -3,40 +3,41 @@ using UnityEngine.UI;
 
 public class ImageReferencing : MonoBehaviour
 {
-    [Header("Connections")]
+    [Header("Script Connections")]
     public GameStateManager stateManager;
     
-    [Header("UI Elements")]
+    [Header("UI Connections")]
     public RawImage imageReference;
     public RawImage centerImage;
 
-    [Header("Maximum Allowed Sizes")]
+    [Header("Maximum Image Sizes")]
     public Vector2 maxCenterSize = new Vector2(1000, 800);
     public Vector2 maxImageReference = new Vector2(250, 250);
 
-    public void UpdateReferenceImages()
+    public void UpdateImages()
     {
         if (stateManager.image != null)
         {
-            Texture2D tex = stateManager.image;
+            Debug.Log("Updating Image...");
+            Texture2D texture = stateManager.image;
             
-            imageReference.texture = tex;
-            centerImage.texture = tex;
+            imageReference.texture = texture;
+            centerImage.texture = texture;
 
-            Fit(imageReference, maxImageReference, tex);
-            Fit(centerImage, maxCenterSize, tex);
+            Fit(imageReference, maxImageReference, texture);
+            Fit(centerImage, maxCenterSize, texture);
         }
     }
 
-    private void Fit(RawImage img, Vector2 maxBounds, Texture2D tex)
+    private void Fit(RawImage image, Vector2 maxBounds, Texture2D texture)
     {
-        RectTransform imgRect = img.GetComponent<RectTransform>();
+        RectTransform imageRect = image.GetComponent<RectTransform>();
 
-        imgRect.localRotation = Quaternion.identity;
-        imgRect.localScale = Vector3.one;
+        imageRect.localRotation = Quaternion.identity;
+        imageRect.localScale = Vector3.one;
 
-        float widthRatio = maxBounds.x / tex.width;
-        float heightRatio = maxBounds.y / tex.height;
+        float widthRatio = maxBounds.x / texture.width;
+        float heightRatio = maxBounds.y / texture.height;
 
         float scaleFactor = Mathf.Min(widthRatio, heightRatio);
 
@@ -45,7 +46,7 @@ public class ImageReferencing : MonoBehaviour
             scaleFactor = 1f;
         }
 
-        imgRect.sizeDelta = new Vector2(tex.width * scaleFactor, tex.height * scaleFactor);
+        imageRect.sizeDelta = new Vector2(texture.width * scaleFactor, texture.height * scaleFactor);
     }
     public void OpenLargePreview()
     {

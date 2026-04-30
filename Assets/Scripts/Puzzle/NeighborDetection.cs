@@ -7,9 +7,9 @@ public class NeighborDetection
         int rowDiff = Mathf.Abs(a.Row - b.Row);
         int columnDiff = Mathf.Abs(a.Column - b.Column);
 
-        return(rowDiff + columnDiff == 1)
+        return(rowDiff + columnDiff == 1);
     }
-    public Direction GetRelativeDirection(PieceData a, PieceData b)
+    public PieceDirection GetRelativeDirection(PieceData a, PieceData b)
     {
         if (!AreNeighbors(a, b))
         {
