@@ -6,6 +6,7 @@ public class PieceData
     public int Id { get; set; }
     public int Row { get; set; }
     public int Column { get; set; }
+    public int GroupId { get; set; }
 
     public EdgeType TopEdge { get; set; }
     public EdgeType RightEdge { get; set; }
@@ -15,11 +16,13 @@ public class PieceData
     public Vector2 Position { get; set; }
     public float Rotation { get; set; }
 
-    public PieceData(int id, int row, int column)
+
+    public PieceData(int id, int row, int column, int groupId)
     {
         Id = id;
         Row = row;
         Column = column;
+        GroupId = groupId;
 
         TopEdge = EdgeType.Flat;
         RightEdge = EdgeType.Flat;
