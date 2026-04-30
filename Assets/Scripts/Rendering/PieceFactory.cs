@@ -17,7 +17,7 @@ public class PieceFactory : MonoBehaviour
         PolygonCollider2D polygonCollider = pieceObject.AddComponent<PolygonCollider2D>();
         PuzzlePiece puzzlePiece = pieceObject.AddComponent<PuzzlePiece>();
 
-        Mesh pieceMesh = BuildMesh(outlinePoints);
+        Mesh pieceMesh = BuildMesh(outlinePoints, pieceData, puzzleConfig);
         meshFilter.mesh = pieceMesh;
 
         meshRenderer.material = pieceConfig.pieceMaterial;
@@ -36,7 +36,7 @@ public class PieceFactory : MonoBehaviour
         PieceConfig pieceConfig = puzzleConfig.pieceConfig;
 
         Vector3[] vertices = new Vector3[outlinePoints.Count];
-        Vector2[] UVs = new Vector2[outlinePoints.Count];
+        Vector2[] uvs = new Vector2[outlinePoints.Count];
 
         float pieceWidth = pieceConfig.pieceWidth;
         float pieceHeight = pieceConfig.pieceHeight;
@@ -46,11 +46,22 @@ public class PieceFactory : MonoBehaviour
 
         for (int i = 0; i < outlinePoints.Count; i++)
         {
-            vertices[i] = new Vector3(outlinePoints[i].x, outlinePoints[i].y, 0f);
+            Vector2 localPoint = outlinePoints[i];
+
+            vertices[i] = new Vector3(localPoint.x, localPoint.y, 0f);
+
+            float imageX = pieceData.Column * pieceWidth + localPoint.x;
+            float imageY = pieceData.Row * pieceHeight + localPoint.y;
+
+            float u = imageX / puzzleWidth;
+            float v = 1f - (imageY / puzzleHeight);
+
+            uvs[i] = new Vector2(u, v);
         }
 
         mesh.vertices = vertices;
         mesh.triangles = Triangulate(outlinePoints);
+        mesh.uv=uvs;
 
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
