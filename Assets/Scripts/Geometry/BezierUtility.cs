@@ -100,8 +100,9 @@ namespace Puzzle.Geometry
             result.Add(usableStart);
             result.Add(tabStart);
 
-            result.AddRange
+            AddCurve
             (
+                result,
                 CubicBezier(tabStart,
                 tabStart + tangent * (tabWorldWidth * 0.25f), 
                 capLeft - tangent * (tabWorldWidth * 0.25f), 
@@ -109,8 +110,9 @@ namespace Puzzle.Geometry
                 pointsPerCurveHalf)
             );
             
-            result.AddRange
+            AddCurve
             (
+                result,
                 CubicBezier(
                 capLeft,
                 capLeft + tangent * (tabWorldWidth * 0.35f),
@@ -119,8 +121,9 @@ namespace Puzzle.Geometry
                 pointsPerCurveHalf)
             );
 
-            result.AddRange
+            AddCurve
             (
+                result,
                 CubicBezier(
                 capRight,
                 capRight + tangent * (tabWorldWidth * 0.25f),
@@ -134,6 +137,14 @@ namespace Puzzle.Geometry
             result.Add(end);
 
             return result;
+        }
+
+        private static void AddCurve(List<Vector2> result, List<Vector2> curve)
+        {
+            for (int i = 1; i < curve.Count; i++)
+            {
+                result.Add(curve[i]);
+            }
         }
     }
 }
