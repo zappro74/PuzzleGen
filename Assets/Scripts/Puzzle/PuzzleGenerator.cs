@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class PuzzleGenerator
@@ -38,55 +37,52 @@ public class PuzzleGenerator
         var generatedPieces = new List<PieceData>();
         var idNumber = 0;
 
-        for(int row = 1; row <= rows; row++)
+        for(int row = 0; row < rows; row++)
         {
-            for(int column = 1; column <= columns; column++)
+            for(int column = 0; column < columns; column++)
             {
                 PieceData piece = new PieceData(idNumber, row, column, idNumber);
 
-                //ASSIGNING FLAT EDGES
-                if(row == 1){ piece.TopEdge = EdgeType.Flat; }
-                if(row == rows){ piece.BottomEdge = EdgeType.Flat; }
-                if(column == 1){ piece.LeftEdge = EdgeType.Flat; }
-                if(column == columns){ piece.RightEdge = EdgeType.Flat; }
-
-
                 //ASSIGNING RIGHT EDGE
-                if(piece.RightEdge != EdgeType.Flat)
+                if(column == columns - 1)
+                {
+                    piece.RightEdge = EdgeType.Flat;
+                }
+                else
                 {
                     piece.RightEdge = GetSeededEdgeType(row, column, PieceDirection.Right);
                 }
                 
                 //ASSIGNING BOTTOM EDGE
-                if(piece.BottomEdge != EdgeType.Flat)
+                if(row == rows - 1)
+                {
+                    piece.BottomEdge = EdgeType.Flat;
+                }
+                else
                 {
                     piece.BottomEdge = GetSeededEdgeType(row, column, PieceDirection.Bottom);
                 }
 
                 //ASSIGNING LEFT EDGE
-                if(piece.LeftEdge != EdgeType.Flat)
+                if(column == 0)
                 {
-                    if(generatedPieces[idNumber - 1].RightEdge == EdgeType.Intruded)
-                    {
-                        piece.LeftEdge = EdgeType.Extruded;
-                    }
-                    else
-                    {
-                        piece.LeftEdge = EdgeType.Intruded;
-                    }
+                    piece.LeftEdge = EdgeType.Flat;
+                }
+                else
+                {
+                    PieceData pieceLeft = generatedPieces[idNumber - 1];
+                    piece.LeftEdge = InvertEdge(pieceLeft.RightEdge);
                 }
 
                 //ASSIGNING TOP EDGE
-                if(piece.TopEdge != EdgeType.Flat)
+                if(row == 0)
                 {
-                    if(generatedPieces[idNumber - columns].BottomEdge == EdgeType.Intruded)
-                    {
-                        piece.TopEdge = EdgeType.Extruded;
-                    }
-                    else
-                    {
-                        piece.TopEdge = EdgeType.Intruded;
-                    }
+                    piece.TopEdge = EdgeType.Flat;
+                }
+                else
+                {
+                    PieceData pieceUp = generatedPieces[idNumber - columns];
+                    piece.TopEdge = InvertEdge(pieceUp.BottomEdge);
                 }
 
                 generatedPieces.Add(piece);
