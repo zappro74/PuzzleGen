@@ -95,4 +95,19 @@ public class PuzzleGenerator
         }
         return generatedPieces;
     }
+
+    private EdgeType InvertEdge(EdgeType edge)
+    {
+        if (edge == EdgeType.Extruded)
+        {
+            return EdgeType.Intruded;
+        }
+
+        if (edge == EdgeType.Intruded)
+        {
+            return EdgeType.Extruded;
+        }
+
+        return EdgeType.Flat;
+    }
 }
