@@ -66,8 +66,8 @@ public class PuzzleFactory : MonoBehaviour
         float puzzleWidth = config.columns * pieceWidth;
         float puzzleHeight = config.rows * pieceHeight;
 
-        float x = (pieceData.Column - 1) * pieceWidth - puzzleWidth / 2f;
-        float y = -(pieceData.Row - 1) * pieceHeight + puzzleHeight / 2f - pieceHeight;
+        float x = pieceData.Column * pieceWidth - puzzleWidth / 2f;
+        float y = -pieceData.Row * pieceHeight + puzzleHeight / 2f - pieceHeight;
 
         return new Vector3(x, y, -1f);
     }
