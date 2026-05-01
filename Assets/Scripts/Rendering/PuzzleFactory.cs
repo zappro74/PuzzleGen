@@ -25,6 +25,9 @@ public class PuzzleFactory : MonoBehaviour
             return new List<GameObject>();
         }
 
+        puzzleConfig.pieceConfig.pieceWidth = imageWidth / puzzleConfig.columns;
+        puzzleConfig.pieceConfig.pieceHeight = imageHeight / puzzleConfig.rows;
+
         pieceFactory = GetComponent<PieceFactory>();
 
         if (pieceFactory == null)
@@ -66,8 +69,6 @@ public class PuzzleFactory : MonoBehaviour
         float x = (pieceData.Column - 1) * pieceWidth - puzzleWidth / 2f;
         float y = -(pieceData.Row - 1) * pieceHeight + puzzleHeight / 2f - pieceHeight;
 
-        return new Vector3(x, y, 0f);
+        return new Vector3(x, y, -1f);
     }
-
-    
 }

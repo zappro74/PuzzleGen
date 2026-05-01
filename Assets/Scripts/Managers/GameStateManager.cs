@@ -123,6 +123,7 @@ public class GameStateManager : MonoBehaviour
             rows = 3,
             columns = 3,
             generationSeed = generationSeed,
+            puzzleImage = loadedImage,
             pieceConfig = pieceConfig
         };
 
