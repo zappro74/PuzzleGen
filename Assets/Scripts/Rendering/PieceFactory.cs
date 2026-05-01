@@ -57,8 +57,8 @@ public class PieceFactory : MonoBehaviour
 
         for (int i = 0; i < vertices.Length; i++)
         {
-            float localX = Mathf.Clamp(vertices[i].x, 0f, pieceWidth);
-            float localY = Mathf.Clamp(vertices[i].y, 0f, pieceHeight);
+            float localX = vertices[i].x;
+            float localY = vertices[i].y;
 
             float imageX = pieceData.Column * pieceWidth + localX;
             float imageY = (puzzleConfig.rows - 1 - pieceData.Row) * pieceHeight + localY;
