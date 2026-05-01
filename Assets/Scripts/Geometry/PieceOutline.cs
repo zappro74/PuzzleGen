@@ -6,10 +6,10 @@ public class PieceOutline
 {
 public static List<Vector2> BuildPieceOutline(PieceData piece, float pieceWidth, float pieceHeight, PieceConfig config)
     {
-        Vector2 topLeft = new Vector2(0, 0);
-        Vector2 topRight = new Vector2(pieceWidth, 0);
-        Vector2 bottomRight = new Vector2(pieceWidth, pieceHeight);
-        Vector2 bottomLeft = new Vector2(0, pieceHeight);
+        Vector2 topLeft = new Vector2(0, pieceHeight);
+        Vector2 topRight = new Vector2(pieceWidth, pieceHeight);
+        Vector2 bottomRight = new Vector2(pieceWidth, 0);
+        Vector2 bottomLeft = new Vector2(0, 0);
 
         List<Vector2> topEdge = BezierUtility.GenerateEdgeCurve(topLeft, topRight, piece.TopEdge, Vector2.up, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
         List<Vector2> rightEdge = BezierUtility.GenerateEdgeCurve(topRight, bottomRight, piece.RightEdge, Vector2.right, config.tabHeight, config.edgeMargin, config.tabWidth, config.pointsPerCurveHalf);
