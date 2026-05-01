@@ -21,6 +21,8 @@ public class PieceFactory : MonoBehaviour
         meshFilter.mesh = pieceMesh;
 
         meshRenderer.material = pieceConfig.pieceMaterial;
+        meshRenderer.material.mainTexture = puzzleConfig.puzzleImage;
+        meshRenderer.sortingOrder = 10;
 
         polygonCollider.points = outlinePoints.ToArray();
 
@@ -33,35 +35,38 @@ public class PieceFactory : MonoBehaviour
     {
         Mesh mesh = new Mesh();
 
-        PieceConfig pieceConfig = puzzleConfig.pieceConfig;
+        Vector3[] vertices;
+        int[] triangles = Triangulate(outlinePoints, out vertices);
 
-        Vector3[] vertices = new Vector3[outlinePoints.Count];
-        Vector2[] uvs = new Vector2[outlinePoints.Count];
+        System.Array.Reverse(triangles);
+
+        Vector2[] uvs = new Vector2[vertices.Length];
+
+        PieceConfig pieceConfig = puzzleConfig.pieceConfig;
 
         float pieceWidth = pieceConfig.pieceWidth;
         float pieceHeight = pieceConfig.pieceHeight;
 
         float puzzleWidth = puzzleConfig.columns * pieceWidth;
-        float puzzleHeight = puzzleConfig.columns * pieceHeight;
+        float puzzleHeight = puzzleConfig.rows * pieceHeight;
 
-        for (int i = 0; i < outlinePoints.Count; i++)
+        for (int i = 0; i < vertices.Length; i++)
         {
-            Vector2 localPoint = outlinePoints[i];
+            float localX = Mathf.Clamp(vertices[i].x, 0f, pieceWidth);
+            float localY = Mathf.Clamp(vertices[i].y, 0f, pieceHeight);
 
-            vertices[i] = new Vector3(localPoint.x, localPoint.y, 0f);
-
-            float imageX = pieceData.Column * pieceWidth + localPoint.x;
-            float imageY = pieceData.Row * pieceHeight + localPoint.y;
+            float imageX = (pieceData.Column - 1) * pieceWidth + localX;
+            float imageY = (puzzleConfig.rows - pieceData.Row) * pieceHeight + localY;
 
             float u = imageX / puzzleWidth;
-            float v = 1f - (imageY / puzzleHeight);
+            float v = imageY / puzzleHeight;
 
             uvs[i] = new Vector2(u, v);
         }
-
+        
         mesh.vertices = vertices;
-        mesh.triangles = Triangulate(outlinePoints);
-        mesh.uv=uvs;
+        mesh.triangles = triangles;
+        mesh.uv = uvs;
 
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();
@@ -69,7 +74,7 @@ public class PieceFactory : MonoBehaviour
         return mesh;
     }
 
-    private int[] Triangulate(List<Vector2> outlinePoints)
+    private int[] Triangulate(List<Vector2> outlinePoints, out Vector3[] vertices)
     {
         //LibTessDotNet is the library/plugin I used here
         //Here's the github: https://github.com/speps/LibTessDotNet/releases
@@ -85,6 +90,13 @@ public class PieceFactory : MonoBehaviour
 
         tess.AddContour(contour, ContourOrientation.Original);
         tess.Tessellate(WindingRule.EvenOdd, ElementType.Polygons, 3);
+
+        vertices = new Vector3[tess.Vertices.Length];
+
+        for (int i = 0; i < tess.Vertices.Length; i++)
+        {
+            vertices[i] = new Vector3(tess.Vertices[i].Position.X, tess.Vertices[i].Position.Y, 0f);
+        }
 
         return tess.Elements;
     }
