@@ -10,6 +10,11 @@ public class PieceFactory : MonoBehaviour
 
         List<Vector2> outlinePoints = PieceOutline.BuildPieceOutline(pieceData, pieceConfig.pieceWidth, pieceConfig.pieceHeight, pieceConfig);
 
+        //for testing
+        //found out that all edges were generated as flat... pretty sure the issue could be in puzzle generator
+        Debug.Log($"Piece {pieceData.Id} outline points: {outlinePoints.Count}");
+        Debug.Log($"Edges: T={pieceData.TopEdge}, R={pieceData.RightEdge}, B={pieceData.BottomEdge}, L={pieceData.LeftEdge}");
+
         GameObject pieceObject = new GameObject($"Piece_{pieceData.Id}");
 
         MeshFilter meshFilter = pieceObject.AddComponent<MeshFilter>();

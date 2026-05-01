@@ -37,7 +37,6 @@ public class PuzzleGenerator
     {
         var generatedPieces = new List<PieceData>();
         var idNumber = 0;
-        var rand = new System.Random(generationSeed);
 
         for(int row = 1; row <= rows; row++)
         {
