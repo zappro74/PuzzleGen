@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 //Just an FYI:
 //t is the progress along the curve
@@ -62,6 +63,7 @@ namespace Puzzle.Geometry
             }
 
             Vector2 edge = end - start;
+            float edgeLength = edge.magnitude;
 
             if (edge.magnitude <= 0.0001f)
             {
@@ -75,6 +77,8 @@ namespace Puzzle.Geometry
 
             Vector2 tangent = edge.normalized;
             Vector2 normal = outwardNormal.normalized;
+
+            float tabWorldWidth = edgeLength * tabWidth;
 
             float directionMultiplier = edgeType == EdgeType.Extruded ? 1f : -1f;
             Vector2 tabOffset = normal * (tabHeight * directionMultiplier);
@@ -99,8 +103,8 @@ namespace Puzzle.Geometry
             result.AddRange
             (
                 CubicBezier(tabStart,
-                tabStart + tangent * (tabWidth * 0.25f), 
-                capLeft - tangent * (tabWidth * 0.25f), 
+                tabStart + tangent * (tabWorldWidth * 0.25f), 
+                capLeft - tangent * (tabWorldWidth * 0.25f), 
                 capLeft, 
                 pointsPerCurveHalf)
             );
@@ -109,8 +113,8 @@ namespace Puzzle.Geometry
             (
                 CubicBezier(
                 capLeft,
-                capLeft + tangent * (tabWidth * 0.35f),
-                capRight - tangent * (tabWidth * 0.35f),
+                capLeft + tangent * (tabWorldWidth * 0.35f),
+                capRight - tangent * (tabWorldWidth * 0.35f),
                 capRight,
                 pointsPerCurveHalf)
             );
@@ -119,8 +123,8 @@ namespace Puzzle.Geometry
             (
                 CubicBezier(
                 capRight,
-                capRight + tangent * (tabWidth * 0.25f),
-                tabEnd - tangent * (tabWidth * 0.25f),
+                capRight + tangent * (tabWorldWidth * 0.25f),
+                tabEnd - tangent * (tabWorldWidth * 0.25f),
                 tabEnd,
                 pointsPerCurveHalf)
             );
@@ -132,5 +136,4 @@ namespace Puzzle.Geometry
             return result;
         }
     }
-
 }
