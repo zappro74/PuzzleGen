@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -80,6 +81,9 @@ namespace Puzzle.Geometry
 
             float tabWorldWidth = edgeLength * tabWidth;
 
+            float capWidthMult = 0.75f;
+            float handleStrength = 0.45f;
+
             float directionMultiplier = edgeType == EdgeType.Extruded ? 1f : -1f;
             Vector2 tabOffset = normal * (tabHeight * directionMultiplier);
             
@@ -87,12 +91,12 @@ namespace Puzzle.Geometry
             Vector2 usableStart = Vector2.Lerp(start, end, edgeMargin);
             Vector2 usableEnd = Vector2.Lerp(start, end, 1f - edgeMargin);
 
-            Vector2 tabStart = Vector2.Lerp(usableStart, usableEnd, 0.5f - tabWidth);
-            Vector2 tabEnd = Vector2.Lerp(usableStart, usableEnd, 0.5f + tabWidth);
+            Vector2 tabStart = Vector2.Lerp(usableStart, usableEnd, 0.5f - tabWorldWidth);
+            Vector2 tabEnd = Vector2.Lerp(usableStart, usableEnd, 0.5f + tabWorldWidth);
 
             //0.35 my beloved
-            Vector2 capLeft = Vector2.Lerp(usableStart, usableEnd, 0.5f - tabWidth * 0.35f) + tabOffset;
-            Vector2 capRight = Vector2.Lerp(usableStart, usableEnd, 0.5f + tabWidth * 0.35f) + tabOffset;
+            Vector2 capLeft = Vector2.Lerp(usableStart, usableEnd, 0.5f - tabWorldWidth * capWidthMult) + tabOffset;
+            Vector2 capRight = Vector2.Lerp(usableStart, usableEnd, 0.5f + tabWorldWidth * capWidthMult) + tabOffset;
 
             List<Vector2> result = new List<Vector2>();
 
@@ -104,8 +108,8 @@ namespace Puzzle.Geometry
             (
                 result,
                 CubicBezier(tabStart,
-                tabStart + tangent * (tabWorldWidth * 0.25f), 
-                capLeft - tangent * (tabWorldWidth * 0.25f), 
+                tabStart + tangent * (tabWorldWidth * handleStrength), 
+                capLeft - tangent * (tabWorldWidth * handleStrength), 
                 capLeft, 
                 pointsPerCurveHalf)
             );
@@ -115,8 +119,8 @@ namespace Puzzle.Geometry
                 result,
                 CubicBezier(
                 capLeft,
-                capLeft + tangent * (tabWorldWidth * 0.35f),
-                capRight - tangent * (tabWorldWidth * 0.35f),
+                capLeft + tangent * (tabWorldWidth * 0.6f),
+                capRight - tangent * (tabWorldWidth * 0.6f),
                 capRight,
                 pointsPerCurveHalf)
             );
@@ -126,8 +130,8 @@ namespace Puzzle.Geometry
                 result,
                 CubicBezier(
                 capRight,
-                capRight + tangent * (tabWorldWidth * 0.25f),
-                tabEnd - tangent * (tabWorldWidth * 0.25f),
+                capRight + tangent * (tabWorldWidth * handleStrength),
+                tabEnd - tangent * (tabWorldWidth * handleStrength),
                 tabEnd,
                 pointsPerCurveHalf)
             );

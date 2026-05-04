@@ -111,10 +111,10 @@ public class GameStateManager : MonoBehaviour
             pieceMaterial = pieceMaterial,
             pieceWidth = puzzleSize.x / 3,
             pieceHeight = puzzleSize.y / 3,
-            tabHeight = 0.2f,
-            edgeMargin = 0.25f,
-            tabWidth = 0.4f,
-            pointsPerCurveHalf = 50
+            tabHeight = 0.5f,
+            edgeMargin = 0.35f,
+            tabWidth = 0.35f,
+            pointsPerCurveHalf = 100
         };
 
         //Hard code values for testing purposes
