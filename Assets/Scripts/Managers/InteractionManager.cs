@@ -6,6 +6,8 @@ public class InteractionManager : MonoBehaviour
     private Camera camera;
     private Transform selection;
     private Vector3 offset;
+    private Renderer renderer;
+    private int order = 1;
 
     void Start()
     {
@@ -14,14 +16,13 @@ public class InteractionManager : MonoBehaviour
 
     void Update()
     {
-        var leftButton = Mouse.current.leftButton;
-        var mousePosition = camera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-
-
         if (Mouse.current == null) 
         {
             return;
         }
+
+        var leftButton = Mouse.current.leftButton;
+        var mousePosition = camera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
         if (leftButton.wasPressedThisFrame)
         {
@@ -31,6 +32,13 @@ public class InteractionManager : MonoBehaviour
             {
                 selection = hit.transform;
                 offset = selection.position - mousePosition;
+
+                renderer = selection.GetComponent<Renderer>();
+                if (renderer != null)
+                {
+                    order++;
+                    renderer.sortingOrder = order;
+                }
             }
         }
 
