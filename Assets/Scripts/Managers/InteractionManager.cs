@@ -4,11 +4,16 @@ using UnityEngine.InputSystem;
 
 public class InteractionManager : MonoBehaviour
 {
+    private Camera gameCamera;
     private Transform selection;
     private Vector3 offset;
     private Renderer render;
     private int order = 1;
   
+    void Start()
+    {
+        gameCamera = Camera.main;
+    }
     void Update()
     {
         if (Mouse.current == null) 
@@ -17,7 +22,7 @@ public class InteractionManager : MonoBehaviour
         }
 
         var leftButton = Mouse.current.leftButton;
-        var mousePosition = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        var mousePosition = gameCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
         if (leftButton.wasPressedThisFrame)
         {
@@ -37,9 +42,9 @@ public class InteractionManager : MonoBehaviour
         if (leftButton.isPressed && selection != null)
         {
             var movement = mousePosition + offset;
-            var screenHeight = Camera.main.orthographicSize;
-            var screenWidth = screenHeight * Camera.main.aspect;
-            var cameraPosition = Camera.main.transform.position;
+            var screenHeight = gameCamera.orthographicSize;
+            var screenWidth = screenHeight * gameCamera.aspect;
+            var cameraPosition = gameCamera.transform.position;
             var left = cameraPosition.x - screenWidth;
             var right = cameraPosition.x + screenWidth;
             var bottom = cameraPosition.y - screenHeight;
