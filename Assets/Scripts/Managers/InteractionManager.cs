@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,19 +27,16 @@ public class InteractionManager : MonoBehaviour
 
         if (leftButton.wasPressedThisFrame)
         {
-            var hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+            // we love linq
+            var topPiece = Physics2D.RaycastAll(mousePosition, Vector2.zero).Where(hit => hit.collider.CompareTag("Piece")).OrderByDescending(hit => hit.transform.GetComponent<Renderer>().sortingOrder).FirstOrDefault();
 
-            if (hit.collider != null && hit.collider.CompareTag("Piece"))
+            if (topPiece.collider != null)
             {
-                selection = hit.transform;
+                selection = topPiece.transform;
                 offset = selection.position - mousePosition;
-
-                renderer = selection.GetComponent<Renderer>();
-                if (renderer != null)
-                {
-                    order++;
-                    renderer.sortingOrder = order;
-                }
+                renderer = topPiece.transform.GetComponent<Renderer>();
+                order = Mathf.Max(order, renderer.sortingOrder) + 1;
+                renderer.sortingOrder = order;
             }
         }
 
