@@ -128,6 +128,11 @@ public class GameStateManager : MonoBehaviour
         };
 
         List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, puzzleSize.x, puzzleSize.y);
+
+        foreach (GameObject piece in pieces)
+        {
+            piece.tag = "Piece";
+        }
     }
 
     [SerializeField] private float boardWidth = 8f;
