@@ -40,7 +40,7 @@ public class InteractionManager : MonoBehaviour
 
         if (leftButton.isPressed && selection != null && render != null)
         {
-            Vector3 movement = mousePosition;
+            Vector3 movement = mousePosition + offset;
             dragTargetPosition = ScreenBoundaries(movement);
 
             selection.position = Vector3.SmoothDamp(selection.position, dragTargetPosition, ref dragVelocity, dragSmoothTime);
@@ -85,7 +85,9 @@ public class InteractionManager : MonoBehaviour
         if (topPiece.collider != null)
         {
             selection = GetRoot(topPiece.transform);
-            offset = Vector3.zero;
+            render = topPiece.transform.GetComponent<Renderer>();
+            Vector3 centerOffset = selection.position - render.bounds.center;
+            offset =  centerOffset;
             order++;
 
             dragTargetPosition = selection.position;
@@ -97,9 +99,6 @@ public class InteractionManager : MonoBehaviour
             {
                 renderer.sortingOrder = order;
             }
-
-            render = topPiece.transform.GetComponent<Renderer>();
-
         }
     }
     private Vector3 ScreenBoundaries(Vector3 movement)
