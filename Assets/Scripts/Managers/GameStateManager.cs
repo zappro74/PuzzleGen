@@ -126,23 +126,29 @@ public class GameStateManager : MonoBehaviour
 
         int generationSeed = System.Guid.NewGuid().GetHashCode();
 
-        //might need this to be scalable... 
+        int rows = 5;
+        int columns = 5;
+
+        float pieceWidth = puzzleSize.x / columns;
+        float pieceHeight = puzzleSize.y / rows;
+        float smallestSide = Mathf.Min(pieceWidth, pieceHeight);
+
         PieceConfig pieceConfig = new PieceConfig
         {
             pieceMaterial = pieceMaterial,
-            pieceWidth = puzzleSize.x / 3,
-            pieceHeight = puzzleSize.y / 3,
-            tabHeight = 0.5f,
-            edgeMargin = 0.35f,
-            tabWidth = 0.35f,
+            pieceWidth = pieceWidth,
+            pieceHeight = pieceHeight,
+            tabWidth = 0.22f,
+            edgeMargin = 0.1f,
+            tabHeight = Mathf.Min(pieceWidth, pieceHeight) * 0.25f,
             pointsPerCurveHalf = 10
         };
 
         //Hard code values for testing purposes
         PuzzleConfig puzzleConfig = new PuzzleConfig
         {
-            rows = 3,
-            columns = 3,
+            rows = columns,
+            columns = columns,
             generationSeed = generationSeed,
             puzzleImage = loadedImage,
             pieceConfig = pieceConfig
