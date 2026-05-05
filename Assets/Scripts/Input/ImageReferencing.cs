@@ -9,6 +9,7 @@ public class ImageReferencing : MonoBehaviour
     [Header("UI Connections")]
     public RawImage imageReference;
     public RawImage centerImage;
+    public GameObject centerPanel;
 
     [Header("Maximum Image Sizes")]
     public Vector2 maxCenterSize = new Vector2(1000, 800);
@@ -19,7 +20,8 @@ public class ImageReferencing : MonoBehaviour
         if (stateManager.image != null)
         {
             Debug.Log("Updating Image...");
-            Texture2D texture = stateManager.image;
+            
+            var texture = stateManager.image;
             
             imageReference.texture = texture;
             centerImage.texture = texture;
@@ -31,15 +33,13 @@ public class ImageReferencing : MonoBehaviour
 
     private void Fit(RawImage image, Vector2 maxBounds, Texture2D texture)
     {
-        RectTransform imageRect = image.GetComponent<RectTransform>();
+        var imageRect = image.GetComponent<RectTransform>();
+        var widthRatio = maxBounds.x / texture.width;
+        var heightRatio = maxBounds.y / texture.height;
+        var scaleFactor = Mathf.Min(widthRatio, heightRatio);
 
         imageRect.localRotation = Quaternion.identity;
         imageRect.localScale = Vector3.one;
-
-        float widthRatio = maxBounds.x / texture.width;
-        float heightRatio = maxBounds.y / texture.height;
-
-        float scaleFactor = Mathf.Min(widthRatio, heightRatio);
 
         if (scaleFactor > 1f)
         {
@@ -50,13 +50,13 @@ public class ImageReferencing : MonoBehaviour
     }
     public void OpenLargePreview()
     {
-        centerImage.gameObject.SetActive(true);
+        centerPanel.gameObject.SetActive(true);
         imageReference.gameObject.SetActive(false);
         Debug.Log("Center image opened, reference closed.");
     }
     public void CloseLargePreview()
     {
-        centerImage.gameObject.SetActive(false);
+        centerPanel.gameObject.SetActive(false);
         imageReference.gameObject.SetActive(true);
         Debug.Log($"Center image closed, reference opened.");
     }

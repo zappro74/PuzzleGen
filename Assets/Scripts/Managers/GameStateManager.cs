@@ -20,6 +20,9 @@ public class GameStateManager : MonoBehaviour
     [Header("UI Connections")]
     public TextMeshProUGUI timer;
 
+    [Header("Script Connections")]
+    public SnappingManager snappingManager;
+
     private float elapsedTime = 0f;
 
     [SerializeField] private PuzzleFactory puzzleFactory;
@@ -56,16 +59,32 @@ public class GameStateManager : MonoBehaviour
     }
     public void RestartGame()
     {
+        Debug.Log("Game restarting.");
+
         currentState = State.Inactive;
         image = null;
         elapsedTime = 0f;
         
         if (timer != null)
         {
-            timer.text = "Time: 00:00"; 
+            timer.text = "00:00"; 
         }
+
+        ClearPuzzle();
         
-        Debug.Log("Game reset called.");
+    }
+    public void ResetPuzzle()
+    {
+        if (image == null) 
+        {
+            Debug.LogWarning("No image loaded.");
+            return;
+        }
+
+        GenerateNewPuzzle(image);
+        StartGame();
+
+        Debug.Log("Puzzle reset.");
     }
     public void RestartTimer()
     {
@@ -82,21 +101,23 @@ public class GameStateManager : MonoBehaviour
         if (currentState == State.Active)
         {
             // Anything requiring an active game should be put in here.
-
             elapsedTime += Time.deltaTime;
 
             int minutes = Mathf.FloorToInt(elapsedTime / 60);
             int seconds = Mathf.FloorToInt(elapsedTime % 60);
+            int milliseconds = Mathf.FloorToInt(elapsedTime * 1000 % 1000);
 
             if (timer != null)
             {
-                timer.text = string.Format("Time: {0:00}:{1:00}", minutes, seconds);
+                timer.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
             }
         }
     }
 
     public void GenerateNewPuzzle(Texture2D loadedImage)
     {
+        ClearPuzzle();
+
         image = loadedImage;
 
         Vector2 puzzleSize = GetBoardSize(image, boardWidth, boardHeight);
@@ -114,7 +135,7 @@ public class GameStateManager : MonoBehaviour
             tabHeight = 0.5f,
             edgeMargin = 0.35f,
             tabWidth = 0.35f,
-            pointsPerCurveHalf = 100
+            pointsPerCurveHalf = 10
         };
 
         //Hard code values for testing purposes
@@ -128,6 +149,54 @@ public class GameStateManager : MonoBehaviour
         };
 
         List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, puzzleSize.x, puzzleSize.y);
+        var piecesData = new List<PieceData>();
+
+        foreach (GameObject piece in pieces)
+        {
+            piece.tag = "Piece";
+
+            var script = piece.GetComponent<PuzzlePiece>();
+
+            if (script != null)
+            {
+                script.UpdatePosition(); 
+
+                if (script.Data != null)
+                {
+                    piecesData.Add(script.Data);
+                }
+            }
+        }
+
+        var groupSystem = new GroupSystem();
+        var connectionSystem = new ConnectionSystem(groupSystem);
+
+        groupSystem.Initialize(piecesData);
+
+        if (snappingManager != null)
+        {
+            snappingManager.connectionSystem = connectionSystem;
+        }
+        else
+        {
+            Debug.LogWarning("SnappingManager not assigned.");
+        }
+    }
+
+    public void ClearPuzzle()
+    {
+        var pieces = GameObject.FindGameObjectsWithTag("Piece");
+
+        foreach (GameObject piece in pieces)
+        {
+            Destroy(piece);
+        }
+        if (pieceMaterial != null)
+        {
+            pieceMaterial.mainTexture = null;
+        }
+
+        Debug.Log($"Cleared pieces from board.");
     }
 
     [SerializeField] private float boardWidth = 8f;
