@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class SnappingManager : MonoBehaviour
@@ -59,6 +61,7 @@ public class SnappingManager : MonoBehaviour
             }
         }
     }
+
     private IEnumerator Animate(Transform piece, Vector3 start, Vector3 end)
     {
         var elapsedTime = 0f;
@@ -78,6 +81,8 @@ public class SnappingManager : MonoBehaviour
 
         piece.localPosition = end;
 
+        RebuildMesh(GetRoot(piece));
+
         foreach (var collider in colliders)
         {
             collider.enabled = true;
@@ -92,5 +97,57 @@ public class SnappingManager : MonoBehaviour
         }
 
         return piece;
+    }
+
+    private void RebuildMesh(Transform groupRoot)
+    {
+        PuzzlePiece[] pieces = groupRoot.GetComponentsInChildren<PuzzlePiece>();
+
+        if (pieces.Length == 0)
+        {
+            return;
+        }
+
+        List<CombineInstance> combines = new List<CombineInstance>();
+
+        foreach (PuzzlePiece puzzlePiece in pieces)
+        {
+            MeshFilter meshFilter = puzzlePiece.GetComponent<MeshFilter>();
+            MeshRenderer meshRenderer = puzzlePiece.GetComponent<MeshRenderer>();
+
+            if ((meshFilter == null) || (meshRenderer == null))
+            {
+                continue;
+            }
+
+            combines.Add(new CombineInstance
+            {
+                mesh = meshFilter.sharedMesh,
+                transform = groupRoot.worldToLocalMatrix * meshFilter.transform.localToWorldMatrix
+            });
+
+            meshRenderer.enabled = false;
+        }
+
+        MeshFilter groupMeshFilter = groupRoot.GetComponent<MeshFilter>();
+        MeshRenderer groupMeshRenderer = groupRoot.GetComponent<MeshRenderer>();
+
+        if (groupMeshFilter == null)
+        {
+            groupMeshFilter = groupRoot.gameObject.AddComponent<MeshFilter>();
+        }
+
+        if (groupMeshRenderer == null)
+        {
+            groupMeshRenderer = groupRoot.gameObject.AddComponent<MeshRenderer>();
+        }
+
+        Mesh combinedMesh = new Mesh();
+
+        combinedMesh.CombineMeshes(combines.ToArray(), true, true);
+
+        groupMeshFilter.mesh = combinedMesh;
+        groupMeshRenderer.sharedMaterial = pieces[0].GetComponent<MeshRenderer>().sharedMaterial;
+        groupMeshRenderer.sortingOrder = 10;
     }
 }
