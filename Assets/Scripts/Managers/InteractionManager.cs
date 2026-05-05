@@ -6,17 +6,23 @@ public class InteractionManager : MonoBehaviour
     [Header("Script Connections")]
     public SnappingManager snapManager;
 
-    [Header("Drag")]
+    [Header("Drag Settings")]
     [SerializeField] private float dragSmoothTime = 0.08f;
+
+    [Header("Zoom Settings")]
+    [SerializeField] private float minZoom = 2f;
+    [SerializeField] private float maxZoom = 15f;
+    [SerializeField] private float zoomSpeed = 0.02f; // smaller is typically better here
 
     private Camera gameCamera;
     private Transform selection;
     private Vector3 offset;
     private Renderer render;
     private int order = 1;
-
     private Vector3 dragTargetPosition;
     private Vector3 dragVelocity;
+    private Vector3 origin;
+    private bool isPanning = false;
   
     void Start()
     {
@@ -30,23 +36,39 @@ public class InteractionManager : MonoBehaviour
         }
 
         var leftButton = Mouse.current.leftButton;
+        var scrollY = Mouse.current.scroll.ReadValue().y;
         Vector3 mousePosition = gameCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mousePosition.z = 0f;
+
+        if (Mathf.Abs(scrollY) > 0.01f)
+        {
+            ZoomCamera(scrollY);
+        }
 
         if (leftButton.wasPressedThisFrame)
         {
             TryPickup(mousePosition);
-        }
 
-        if (leftButton.isPressed && selection != null && render != null)
+            if (selection == null)
+            {
+                isPanning = true;
+                origin = mousePosition;
+            }
+        }
+        else if (leftButton.isPressed)
         {
-            Vector3 movement = mousePosition + offset;
-            dragTargetPosition = ScreenBoundaries(movement);
-
-            selection.position = Vector3.SmoothDamp(selection.position, dragTargetPosition, ref dragVelocity, dragSmoothTime);
+            if (selection != null && render != null) 
+            {
+                Vector3 movement = mousePosition + offset;
+                dragTargetPosition = ScreenBoundaries(movement);
+                selection.position = Vector3.SmoothDamp(selection.position, dragTargetPosition, ref dragVelocity, dragSmoothTime);
+            }
+            else if (isPanning)
+            {
+                PanCamera(mousePosition);
+            }
         }
-
-        if (leftButton.wasReleasedThisFrame)
+        else if (leftButton.wasReleasedThisFrame)
         {
             if (selection != null && snapManager != null)
             {
@@ -56,6 +78,17 @@ public class InteractionManager : MonoBehaviour
 
             dragVelocity = Vector3.zero;
         }
+    }
+    private void ZoomCamera(float scrollY)
+    {
+        var zoomAmount = scrollY * zoomSpeed;
+        gameCamera.orthographicSize = Mathf.Clamp(gameCamera.orthographicSize - zoomAmount, minZoom, maxZoom);
+    }
+    private void PanCamera(Vector3 mousePosition)
+    {
+        var difference = origin - mousePosition;
+        difference.z = 0f;
+        gameCamera.transform.position += difference;
     }
     private RaycastHit2D GrabPiece(Vector3 mousePosition)
     {
