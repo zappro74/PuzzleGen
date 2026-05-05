@@ -14,6 +14,9 @@ public class InteractionManager : MonoBehaviour
     [SerializeField] private float maxZoom = 15f;
     [SerializeField] private float zoomSpeed = 0.02f; // smaller is typically better here
 
+    [Header("Boundary Settings")]
+    public Vector2 boundaries = new Vector2(30f, 20f);
+
     private Camera gameCamera;
     private Transform selection;
     private Vector3 offset;
@@ -36,13 +39,13 @@ public class InteractionManager : MonoBehaviour
         }
 
         var leftButton = Mouse.current.leftButton;
-        var scrollY = Mouse.current.scroll.ReadValue().y;
+        var y = Mouse.current.scroll.ReadValue().y;
         Vector3 mousePosition = gameCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mousePosition.z = 0f;
 
-        if (Mathf.Abs(scrollY) > 0.01f)
+        if (Mathf.Abs(y) > 0.01f)
         {
-            ZoomCamera(scrollY);
+            ZoomCamera(y);
         }
 
         if (leftButton.wasPressedThisFrame)
@@ -60,7 +63,7 @@ public class InteractionManager : MonoBehaviour
             if (selection != null && render != null) 
             {
                 Vector3 movement = mousePosition + offset;
-                dragTargetPosition = ScreenBoundaries(movement);
+                dragTargetPosition = WorldBoundaries(movement);
                 selection.position = Vector3.SmoothDamp(selection.position, dragTargetPosition, ref dragVelocity, dragSmoothTime);
             }
             else if (isPanning)
@@ -79,16 +82,20 @@ public class InteractionManager : MonoBehaviour
             dragVelocity = Vector3.zero;
         }
     }
-    private void ZoomCamera(float scrollY)
+    private void ZoomCamera(float y)
     {
-        var zoomAmount = scrollY * zoomSpeed;
-        gameCamera.orthographicSize = Mathf.Clamp(gameCamera.orthographicSize - zoomAmount, minZoom, maxZoom);
+        var maxHeight = boundaries.y / 2f;
+        var maxWidth = (boundaries.x / 2f) / gameCamera.aspect;
+
+        gameCamera.orthographicSize = Mathf.Clamp(gameCamera.orthographicSize - (y * zoomSpeed), minZoom, Mathf.Min(maxZoom, maxHeight, maxWidth));
+        CameraBoundaries();
     }
     private void PanCamera(Vector3 mousePosition)
     {
         var difference = origin - mousePosition;
         difference.z = 0f;
         gameCamera.transform.position += difference;
+        CameraBoundaries();
     }
     private RaycastHit2D GrabPiece(Vector3 mousePosition)
     {
@@ -134,20 +141,28 @@ public class InteractionManager : MonoBehaviour
             }
         }
     }
-    private Vector3 ScreenBoundaries(Vector3 movement)
+    private void CameraBoundaries()
     {
-        var screenHeight = gameCamera.orthographicSize;
-        var screenWidth = screenHeight * gameCamera.aspect;
+        var x = Mathf.Max(0, (boundaries.x / 2f) - (gameCamera.orthographicSize * gameCamera.aspect));
+        var y = Mathf.Max(0, (boundaries.y / 2f) - gameCamera.orthographicSize);
         var cameraPosition = gameCamera.transform.position;
-        var left = cameraPosition.x - screenWidth;
-        var right = cameraPosition.x + screenWidth;
-        var bottom = cameraPosition.y - screenHeight;
-        var top = cameraPosition.y + screenHeight;
+
+        cameraPosition.x = Mathf.Clamp(cameraPosition.x, -x, x);
+        cameraPosition.y = Mathf.Clamp(cameraPosition.y, -y, y);
+
+        gameCamera.transform.position = cameraPosition;
+    }
+    private Vector3 WorldBoundaries(Vector3 movement)
+    {
+        var left = -boundaries.x / 2f;
+        var right = boundaries.x / 2f;
+        var bottom = -boundaries.y / 2f;
+        var top = boundaries.y / 2f;
 
         movement.x = Mathf.Clamp(movement.x, left, right - render.bounds.size.x);
         movement.y = Mathf.Clamp(movement.y, bottom, top - render.bounds.size.y);
 
-        return movement;
+        return movement;    
     }
     private Transform GetRoot(Transform piece)
     {
