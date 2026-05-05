@@ -129,10 +129,10 @@ public class InteractionManager : MonoBehaviour
         renderer.positionCount = 4;
         renderer.SetPositions(new Vector3[] 
         { 
-            new Vector3(-x, -y, 0),
-            new Vector3(-x, y, 0),  
-            new Vector3(x, y, 0),  
-            new Vector3(x, -y, 0)   
+            new(-x, -y, 0),
+            new(-x, y, 0),  
+            new(x, y, 0),  
+            new(x, -y, 0)   
         });
         
         renderer.loop = true;    
