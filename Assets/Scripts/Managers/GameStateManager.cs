@@ -20,6 +20,9 @@ public class GameStateManager : MonoBehaviour
     [Header("UI Connections")]
     public TextMeshProUGUI timer;
 
+    [Header("Script Connections")]
+    public SnappingManager snappingManager;
+
     private float elapsedTime = 0f;
 
     [SerializeField] private PuzzleFactory puzzleFactory;
@@ -146,16 +149,43 @@ public class GameStateManager : MonoBehaviour
         };
 
         List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, puzzleSize.x, puzzleSize.y);
+        var piecesData = new List<PieceData>();
 
         foreach (GameObject piece in pieces)
         {
             piece.tag = "Piece";
+
+            var script = piece.GetComponent<PuzzlePiece>();
+
+            if (script != null)
+            {
+                script.UpdatePosition(); 
+
+                if (script.Data != null)
+                {
+                    piecesData.Add(script.Data);
+                }
+            }
+        }
+
+        var groupSystem = new GroupSystem();
+        var connectionSystem = new ConnectionSystem(groupSystem);
+
+        groupSystem.Initialize(piecesData);
+
+        if (snappingManager != null)
+        {
+            snappingManager.connectionSystem = connectionSystem;
+        }
+        else
+        {
+            Debug.LogWarning("SnappingManager not assigned.");
         }
     }
 
     public void ClearPuzzle()
     {
-        GameObject[] pieces = GameObject.FindGameObjectsWithTag("Piece");
+        var pieces = GameObject.FindGameObjectsWithTag("Piece");
 
         foreach (GameObject piece in pieces)
         {

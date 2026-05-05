@@ -10,36 +10,50 @@ public class SnappingManager : MonoBehaviour
 
     public void TrySnap(Transform pieceGroup)
     {
-        var activePieces = pieceGroup.GetComponentsInChildren<PuzzlePiece>();
-        var allPieces = FindObjectsByType<PuzzlePiece>();
+        if (connectionSystem == null)
+        {
+            Debug.LogWarning("Missing connection system.");
+            return;
+        }
+        var groupedPieces = pieceGroup.GetComponentsInChildren<PuzzlePiece>();
+        var allPieces = FindObjectsByType<PuzzlePiece>(FindObjectsInactive.Exclude);
 
-        foreach (var activePiece in activePieces)
+        foreach (var groupPiece in groupedPieces)
         {
             foreach (var piece in allPieces)
             {
-                if (activePiece == piece || activePiece.transform.root == piece.transform.root)
+                if (groupPiece == piece || groupPiece.Data.GroupId == piece.Data.GroupId)
                 {
                     continue;
                 }
 
-                if (snapValidator.CanSnap(activePiece.Data, piece.Data, snappingTolerance))
-                {
-                    var offset = activePiece.SolvedPosition - piece.SolvedPosition;
-                    var piecePosition = piece.transform.position + offset;
+                if (snapValidator.CanSnap(groupPiece.Data, piece.Data, snappingTolerance))
+                {    
+    
+                    var snappingPosition = (Vector2)piece.transform.position + ((Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition);
+                    var distance = Vector2.Distance(groupPiece.transform.position, snappingPosition);
 
-                    if (Vector3.Distance(activePiece.transform.position, piecePosition) <= snappingTolerance)
+                    if (distance <= snappingTolerance)
                     {
-                        var snapAdjustment = piecePosition - activePiece.transform.position;
+                    
+                        pieceGroup.position += (Vector3)snappingPosition - groupPiece.transform.position;;
+                        pieceGroup.SetParent(GetRoot(piece.transform));
+                        connectionSystem.AddConnection(groupPiece.Data, piece.Data);
 
-                        pieceGroup.position += snapAdjustment;
-                        pieceGroup.SetParent(piece.transform.root);
-                        connectionSystem.AddConnection(activePiece.Data, piece.Data);
-
-                        Debug.Log($"Snapped Piece {activePiece.Data.Id} to Piece {piece.Data.Id}");
+                        Debug.Log($"Snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
                         return;
                     }
                 }
             }
         }
+    }
+    private Transform GetRoot(Transform piece)
+    {
+        while (piece.parent != null && piece.parent.GetComponent<PuzzlePiece>() != null)
+        {
+            piece = piece.parent;
+        }
+
+        return piece;
     }
 }

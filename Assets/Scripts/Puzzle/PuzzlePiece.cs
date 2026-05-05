@@ -12,4 +12,8 @@ public class PuzzlePiece : MonoBehaviour
         Data = pieceData;
         SolvedPosition = transform.position;
     }
+    public void UpdatePosition()
+    {
+        SolvedPosition = transform.position;
+    }
 }

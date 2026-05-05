@@ -581,6 +581,7 @@ MonoBehaviour:
   currentState: 0
   image: {fileID: 0}
   timer: {fileID: 1306186867}
+  snappingManager: {fileID: 629222932}
   puzzleFactory: {fileID: 1117236279}
   pieceMaterial: {fileID: 2100000, guid: 46782fca045e80d48bea19b014ee051b, type: 2}
   boardWidth: 8
@@ -672,7 +673,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a8f4a84f0829dc4ca8e1352ed7ed9fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SnappingManager
-  snappingTolerance: 0.5
+  snappingTolerance: 0.1
 --- !u!1 &731536898
 GameObject:
   m_ObjectHideFlags: 0
