@@ -617,7 +617,7 @@ MonoBehaviour:
   imageReference: {fileID: 772613150}
   centerImage: {fileID: 1077990350}
   centerPanel: {fileID: 304034181}
-  maxCenterSize: {x: 1000, y: 800}
+  maxCenterSize: {x: 1300, y: 1100}
   maxImageReference: {x: 200, y: 200}
 --- !u!114 &629222929
 MonoBehaviour:
@@ -661,7 +661,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceInteractionManager
   snapManager: {fileID: 629222932}
+  menuController: {fileID: 629222930}
   dragSmoothTime: 0.08
+  minZoom: 2
+  maxZoom: 20
+  zoomSpeed: 0.4
+  boundaries: {x: 50, y: 50}
+  boundaryColor: {r: 1, g: 0, b: 0, a: 1}
+  boundaryThickness: 0.5
 --- !u!114 &629222932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1004,7 +1011,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.19215688, g: 0.4745098, b: 0.29486433, a: 0}
+  m_BackGroundColor: {r: 0.5566038, g: 0.5566038, b: 0.5566038, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1303,17 +1310,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1306186865}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 885647016}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.019125, y: 0.8752593}
-  m_AnchorMax: {x: 0.20179167, y: 0.97137046}
-  m_AnchoredPosition: {x: 107.55597, y: -1.5789185}
-  m_SizeDelta: {x: 226.1299, y: -3.1579}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: 0, y: -57.939087}
+  m_SizeDelta: {x: 612.15, y: 87.1468}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1306186867
 MonoBehaviour:
@@ -1335,7 +1342,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Time: 00:00
+  m_text: '00:00:00
 
 '
   m_isRightToLeft: 0
@@ -1349,7 +1356,7 @@ MonoBehaviour:
     rgba: 4294967295
   m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
-  m_colorMode: 3
+  m_colorMode: 1
   m_fontColorGradient:
     topLeft: {r: 1, g: 1, b: 1, a: 1}
     topRight: {r: 1, g: 1, b: 1, a: 1}
@@ -1364,17 +1371,17 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 70
-  m_fontSizeBase: 70
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
-  m_HorizontalAlignment: 1
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 5.92
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -1403,7 +1410,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 8.079315, y: 0, z: 2.6655576, w: 0}
+  m_margin: {x: 8.079315, y: 0, z: -3.0140076, w: 14.19873}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2071,8 +2078,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 169.10394, y: 21.5}
-  m_SizeDelta: {x: 296.2079, y: 43}
+  m_AnchoredPosition: {x: 177.9, y: 17.3}
+  m_SizeDelta: {x: 316.0861, y: 74.042}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1793572920
 MonoBehaviour:
@@ -2121,8 +2128,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
-  m_fontSizeBase: 25
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

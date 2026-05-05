@@ -32,7 +32,7 @@ public class GameStateManager : MonoBehaviour
         // Runs once a new game is started.
         if (image == null)
         {
-            Debug.LogWarning("Warning: Attempted to start game with no image loaded into unity.");
+            Debug.LogWarning("Warning: Attempted to start game with no image loaded.");
             return;
         }
 

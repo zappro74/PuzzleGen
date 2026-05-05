@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using SimpleFileBrowser;
 
 public class InteractionManager : MonoBehaviour
 {
     [Header("Script Connections")]
     public SnappingManager snapManager;
+    public MenuController menuController;
 
     [Header("Drag Settings")]
     [SerializeField] private float dragSmoothTime = 0.08f;
@@ -12,7 +14,7 @@ public class InteractionManager : MonoBehaviour
     [Header("Zoom Settings")]
     [SerializeField] private float minZoom = 2f;
     [SerializeField] private float maxZoom = 15f;
-    [SerializeField] private float zoomSpeed = 0.02f; // smaller is typically better here
+    [SerializeField] private float zoomSpeed = 0.2f; // smaller is typically better here
 
     [Header("Boundary Settings")]
     public Vector2 boundaries = new Vector2(30f, 20f);
@@ -36,7 +38,7 @@ public class InteractionManager : MonoBehaviour
     }
     void Update()
     {
-        if (Mouse.current == null || gameCamera == null)
+        if (Mouse.current == null || gameCamera == null || FileBrowser.IsOpen || menuController.MenuCheck())
         {
             return;
         }

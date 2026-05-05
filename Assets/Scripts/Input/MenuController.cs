@@ -54,5 +54,9 @@ public class MenuController : MonoBehaviour
         Debug.Log("Exiting Application");
         Application.Quit(); 
     }
+    public bool MenuCheck()
+    {
+        if (menuOpen) return true; else return false;
+    }
 
 }
