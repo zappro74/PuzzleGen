@@ -6,11 +6,17 @@ public class InteractionManager : MonoBehaviour
     [Header("Script Connections")]
     public SnappingManager snapManager;
 
+    [Header("Drag")]
+    [SerializeField] private float dragSmoothTime = 0.05f;
+
     private Camera gameCamera;
     private Transform selection;
     private Vector3 offset;
     private Renderer render;
     private int order = 1;
+
+    private Vector3 dragTargetPosition;
+    private Vector3 dragVelocity;
   
     void Start()
     {
