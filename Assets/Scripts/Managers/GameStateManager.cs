@@ -135,7 +135,7 @@ public class GameStateManager : MonoBehaviour
             tabHeight = 0.5f,
             edgeMargin = 0.35f,
             tabWidth = 0.35f,
-            pointsPerCurveHalf = 100
+            pointsPerCurveHalf = 10
         };
 
         //Hard code values for testing purposes
