@@ -7,7 +7,7 @@ public class InteractionManager : MonoBehaviour
     public SnappingManager snapManager;
 
     [Header("Drag")]
-    [SerializeField] private float dragSmoothTime = 0.05f;
+    [SerializeField] private float dragSmoothTime = 0.08f;
 
     private Camera gameCamera;
     private Transform selection;
