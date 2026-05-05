@@ -558,6 +558,7 @@ GameObject:
   - component: {fileID: 629222929}
   - component: {fileID: 629222930}
   - component: {fileID: 629222931}
+  - component: {fileID: 629222932}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -658,6 +659,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 296d2572084a0428eb9bf89f0965b031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceInteractionManager
+  snapManager: {fileID: 629222932}
+--- !u!114 &629222932
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a8f4a84f0829dc4ca8e1352ed7ed9fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SnappingManager
+  snappingTolerance: 0.5
 --- !u!1 &731536898
 GameObject:
   m_ObjectHideFlags: 0
