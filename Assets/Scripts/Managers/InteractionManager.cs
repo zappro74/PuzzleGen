@@ -19,7 +19,6 @@ public class InteractionManager : MonoBehaviour
     [SerializeField] private Color boundaryColor = Color.red;
     [SerializeField] private float boundaryThickness = 0.15f;
 
-    private LineRenderer[] boundaryLines;
     private Camera gameCamera;
     private Transform selection;
     private Vector3 offset;
@@ -49,7 +48,7 @@ public class InteractionManager : MonoBehaviour
 
         if (Mathf.Abs(y) > 0.01f)
         {
-            ZoomCamera(y);
+            ZoomCamera(y, mousePosition);
         }
 
         if (leftButton.wasPressedThisFrame)
@@ -86,13 +85,23 @@ public class InteractionManager : MonoBehaviour
             dragVelocity = Vector3.zero;
         }
     }
-    private void ZoomCamera(float y)
+    private void ZoomCamera(float y, Vector3 mousePosition)
     {
-        var maxHeight = boundaries.y / 2f;
-        var maxWidth = (boundaries.x / 2f) / gameCamera.aspect;
+        var size = Mathf.Clamp(gameCamera.orthographicSize - (y * zoomSpeed), minZoom, Mathf.Min(maxZoom, boundaries.y / 2f, boundaries.x / 2f / gameCamera.aspect));
 
-        gameCamera.orthographicSize = Mathf.Clamp(gameCamera.orthographicSize - (y * zoomSpeed), minZoom, Mathf.Min(maxZoom, maxHeight, maxWidth));
-        CameraBoundaries();
+        if (Mathf.Approximately(gameCamera.orthographicSize, size)) 
+        {
+            return;
+        }
+
+        gameCamera.orthographicSize = size;
+
+        var mousePostZoom = gameCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        mousePostZoom.z = 0f;
+
+        gameCamera.transform.position += (mousePosition - mousePostZoom);
+
+        CameraBoundaries();    
     }
     private void PanCamera(Vector3 mousePosition)
     {
