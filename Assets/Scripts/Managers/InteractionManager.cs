@@ -8,6 +8,9 @@ public class InteractionManager : MonoBehaviour
     public SnappingManager snapManager;
     public MenuController menuController;
 
+    [Header("UI Connections")]
+    public GameObject centerPanel;
+
     [Header("Drag Settings")]
     [SerializeField] private float dragSmoothTime = 0.08f;
 
@@ -38,7 +41,7 @@ public class InteractionManager : MonoBehaviour
     }
     void Update()
     {
-        if (Mouse.current == null || gameCamera == null || FileBrowser.IsOpen || menuController.MenuCheck())
+        if (Mouse.current == null || gameCamera == null || FileBrowser.IsOpen || menuController.MenuCheck() || centerPanel.gameObject.activeInHierarchy)
         {
             return;
         }
