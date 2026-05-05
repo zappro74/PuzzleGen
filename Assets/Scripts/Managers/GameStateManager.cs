@@ -67,7 +67,7 @@ public class GameStateManager : MonoBehaviour
         
         if (timer != null)
         {
-            timer.text = "Time: 00:00"; 
+            timer.text = "00:00"; 
         }
 
         ClearPuzzle();
@@ -101,15 +101,15 @@ public class GameStateManager : MonoBehaviour
         if (currentState == State.Active)
         {
             // Anything requiring an active game should be put in here.
-
             elapsedTime += Time.deltaTime;
 
             int minutes = Mathf.FloorToInt(elapsedTime / 60);
             int seconds = Mathf.FloorToInt(elapsedTime % 60);
+            int milliseconds = Mathf.FloorToInt(elapsedTime * 1000 % 1000);
 
             if (timer != null)
             {
-                timer.text = string.Format("Time: {0:00}:{1:00}", minutes, seconds);
+                timer.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
             }
         }
     }
