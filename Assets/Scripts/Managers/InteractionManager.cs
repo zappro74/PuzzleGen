@@ -30,17 +30,22 @@ public class InteractionManager : MonoBehaviour
         }
 
         var leftButton = Mouse.current.leftButton;
-        var mousePosition = gameCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        Vector3 mousePosition = gameCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        mousePosition.z = 0f;
 
         if (leftButton.wasPressedThisFrame)
         {
             TryPickup(mousePosition);
         }
+
         if (leftButton.isPressed && selection != null && render != null)
         {
-            var movement = mousePosition + offset;
-            selection.position = ScreenBoundaries(movement);
+            Vector3 movement = mousePosition + offset;
+            dragTargetPosition = ScreenBoundaries(movement);
+
+            selection.position = Vector3.SmoothDamp(selection.position, dragTargetPosition, ref dragVelocity, dragSmoothTime);
         }
+
         if (leftButton.wasReleasedThisFrame)
         {
             if (selection != null && snapManager != null)
