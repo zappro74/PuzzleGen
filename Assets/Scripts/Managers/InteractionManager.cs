@@ -53,6 +53,8 @@ public class InteractionManager : MonoBehaviour
                 snapManager.TrySnap(selection);
             }
             selection = null;
+
+            dragVelocity = Vector3.zero;
         }
     }
     private RaycastHit2D GrabPiece(Vector3 mousePosition)
@@ -85,6 +87,9 @@ public class InteractionManager : MonoBehaviour
             selection = GetRoot(topPiece.transform);
             offset = selection.position - mousePosition;
             order++;
+
+            dragTargetPosition = selection.position;
+            dragVelocity = Vector3.zero;
 
             var renderers = selection.GetComponentsInChildren<Renderer>();
 
