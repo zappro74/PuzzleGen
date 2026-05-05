@@ -40,7 +40,7 @@ public class InteractionManager : MonoBehaviour
 
         if (leftButton.isPressed && selection != null && render != null)
         {
-            Vector3 movement = mousePosition + offset;
+            Vector3 movement = mousePosition;
             dragTargetPosition = ScreenBoundaries(movement);
 
             selection.position = Vector3.SmoothDamp(selection.position, dragTargetPosition, ref dragVelocity, dragSmoothTime);
@@ -85,7 +85,7 @@ public class InteractionManager : MonoBehaviour
         if (topPiece.collider != null)
         {
             selection = GetRoot(topPiece.transform);
-            offset = selection.position - mousePosition;
+            offset = Vector3.zero;
             order++;
 
             dragTargetPosition = selection.position;
