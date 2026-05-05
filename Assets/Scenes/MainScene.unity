@@ -661,6 +661,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceInteractionManager
   snapManager: {fileID: 629222932}
+  dragSmoothTime: 0.08
 --- !u!114 &629222932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -673,7 +674,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a8f4a84f0829dc4ca8e1352ed7ed9fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SnappingManager
-  snappingTolerance: 0.1
+  snappingTolerance: 0.3
+  snapSpeed: 0.25
+  snapCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.014687924
+      value: 0.064437546
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.9999965
+      value: 1.0000005
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &731536898
 GameObject:
   m_ObjectHideFlags: 0
