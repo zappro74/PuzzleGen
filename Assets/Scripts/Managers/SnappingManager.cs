@@ -1,9 +1,14 @@
+using System.Collections;
 using UnityEngine;
 
 public class SnappingManager : MonoBehaviour
 {
     [Header("Snapping Settings")]
     public float snappingTolerance = 0.5f;
+
+    [Header("Animation Settings")]
+    public float snapSpeed = 0.25f; // the speed value of snapping
+    public AnimationCurve snapCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // the curve inside the inspector that controls the snapping speed
 
     public ConnectionSystem connectionSystem;
     private SnapValidation snapValidator = new SnapValidation();
@@ -35,10 +40,17 @@ public class SnappingManager : MonoBehaviour
 
                     if (distance <= snappingTolerance)
                     {
-                    
-                        pieceGroup.position += (Vector3)snappingPosition - groupPiece.transform.position;;
+                        var adjustment = (Vector3)snappingPosition - groupPiece.transform.position;
+
                         pieceGroup.SetParent(GetRoot(piece.transform));
                         connectionSystem.AddConnection(groupPiece.Data, piece.Data);
+
+                        var startLocalPosition = pieceGroup.localPosition;
+                        pieceGroup.position += adjustment;
+                        var endLocalPosition = pieceGroup.localPosition;
+                        pieceGroup.localPosition = startLocalPosition;
+
+                        StartCoroutine(Animate(pieceGroup, startLocalPosition, endLocalPosition));
 
                         Debug.Log($"Snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
                         return;
@@ -46,6 +58,31 @@ public class SnappingManager : MonoBehaviour
                 }
             }
         }
+    }
+    private IEnumerator Animate(Transform piece, Vector3 start, Vector3 end)
+    {
+        var elapsedTime = 0f;
+        var colliders = piece.GetComponentsInChildren<Collider2D>();
+
+        foreach (var collider in colliders)
+        {
+            collider.enabled = false;
+        }
+
+        while (elapsedTime < snapSpeed)
+        {
+            elapsedTime += Time.deltaTime;
+            piece.localPosition = Vector3.Lerp(start, end, snapCurve.Evaluate(elapsedTime / snapSpeed));
+            yield return null; 
+        }
+
+        piece.localPosition = end;
+
+        foreach (var collider in colliders)
+        {
+            collider.enabled = true;
+        }
+
     }
     private Transform GetRoot(Transform piece)
     {
