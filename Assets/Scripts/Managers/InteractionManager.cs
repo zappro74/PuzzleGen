@@ -88,7 +88,7 @@ public class InteractionManager : MonoBehaviour
             render = topPiece.transform.GetComponent<Renderer>();
             Vector3 centerOffset = selection.position - render.bounds.center;
             offset =  centerOffset;
-            order++;
+            order = Mathf.Max(order, render.sortingOrder) + 1;
 
             dragTargetPosition = selection.position;
             dragVelocity = Vector3.zero;
