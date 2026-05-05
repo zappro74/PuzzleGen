@@ -56,6 +56,8 @@ public class GameStateManager : MonoBehaviour
     }
     public void RestartGame()
     {
+        Debug.Log("Game restarting.");
+
         currentState = State.Inactive;
         image = null;
         elapsedTime = 0f;
@@ -64,8 +66,22 @@ public class GameStateManager : MonoBehaviour
         {
             timer.text = "Time: 00:00"; 
         }
+
+        ClearPuzzle();
         
-        Debug.Log("Game reset called.");
+    }
+    public void ResetPuzzle()
+    {
+        if (image == null) 
+        {
+            Debug.LogWarning("No image loaded.");
+            return;
+        }
+
+        GenerateNewPuzzle(image);
+        StartGame();
+
+        Debug.Log("Puzzle reset.");
     }
     public void RestartTimer()
     {
@@ -97,6 +113,8 @@ public class GameStateManager : MonoBehaviour
 
     public void GenerateNewPuzzle(Texture2D loadedImage)
     {
+        ClearPuzzle();
+
         image = loadedImage;
 
         Vector2 puzzleSize = GetBoardSize(image, boardWidth, boardHeight);
@@ -133,6 +151,22 @@ public class GameStateManager : MonoBehaviour
         {
             piece.tag = "Piece";
         }
+    }
+
+    public void ClearPuzzle()
+    {
+        GameObject[] pieces = GameObject.FindGameObjectsWithTag("Piece");
+
+        foreach (GameObject piece in pieces)
+        {
+            Destroy(piece);
+        }
+        if (pieceMaterial != null)
+        {
+            pieceMaterial.mainTexture = null;
+        }
+
+        Debug.Log($"Cleared pieces from board.");
     }
 
     [SerializeField] private float boardWidth = 8f;

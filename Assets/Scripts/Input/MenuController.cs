@@ -1,20 +1,24 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using SimpleFileBrowser;
 
 public class MenuController : MonoBehaviour
 {
     [Header("Script Connections")]
     public GameStateManager stateManager;
-    public Image imageLoad; // We need this to trigger the file browser
+    public Image imageLoad; 
 
     [Header("UI Connections")]
     public GameObject pauseMenu;
-
     private bool menuOpen = false;
 
     void Update()
     {
-        // Continuously looks for the esc key
+        if (FileBrowser.IsOpen) 
+        {
+            return;
+        }
+
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             OpenMenu();
@@ -42,8 +46,8 @@ public class MenuController : MonoBehaviour
     }
     public void RestartGame()
     {
-        OpenMenu(); 
-        stateManager.RestartTimer();
+        OpenMenu();
+        stateManager.ResetPuzzle();
     }
     public void ExitGame()
     {
