@@ -16,7 +16,10 @@ public class InteractionManager : MonoBehaviour
 
     [Header("Boundary Settings")]
     public Vector2 boundaries = new Vector2(30f, 20f);
+    [SerializeField] private Color boundaryColor = Color.red;
+    [SerializeField] private float boundaryThickness = 0.15f;
 
+    private LineRenderer[] boundaryLines;
     private Camera gameCamera;
     private Transform selection;
     private Vector3 offset;
@@ -30,6 +33,7 @@ public class InteractionManager : MonoBehaviour
     void Start()
     {
         gameCamera = Camera.main;
+        BoundaryLines();
     }
     void Update()
     {
@@ -97,26 +101,51 @@ public class InteractionManager : MonoBehaviour
         gameCamera.transform.position += difference;
         CameraBoundaries();
     }
+    private void BoundaryLines()
+    {
+        var x = boundaries.x / 2f;
+        var y = boundaries.y / 2f;
+        var lineObject = new GameObject("BoundaryBox");
+        var renderer = lineObject.AddComponent<LineRenderer>();
+
+        lineObject.transform.SetParent(transform); 
+        
+        renderer.material = new Material(Shader.Find("Sprites/Default")); 
+        renderer.startWidth = boundaryThickness;
+        renderer.endWidth = boundaryThickness;
+        renderer.sortingOrder = 500; 
+        renderer.startColor = boundaryColor;
+        renderer.endColor = boundaryColor;
+
+        renderer.positionCount = 4;
+        renderer.SetPositions(new Vector3[] 
+        { 
+            new Vector3(-x, -y, 0),
+            new Vector3(-x, y, 0),  
+            new Vector3(x, y, 0),  
+            new Vector3(x, -y, 0)   
+        });
+        
+        renderer.loop = true;    
+    }
     private RaycastHit2D GrabPiece(Vector3 mousePosition)
     {
-        var hitPieces = Physics2D.RaycastAll(mousePosition, Vector2.zero);
-        int highestOrder = int.MinValue;
-        var topPiece = new RaycastHit2D();
+        var pieces = Physics2D.RaycastAll(mousePosition, Vector2.zero);
+        int highest = int.MinValue;
+        var top = new RaycastHit2D();
 
-        foreach (var piece in hitPieces)
+        foreach (var piece in pieces)
         {
             if (piece.collider != null && piece.collider.CompareTag("Piece"))
             {
-                var render = piece.transform.GetComponent<Renderer>();
-
-                if (render != null && render.sortingOrder > highestOrder)
+                if (piece.transform.TryGetComponent(out Renderer render) && render.sortingOrder > highest)
                 {
-                    highestOrder = render.sortingOrder;
-                    topPiece = piece;
+                    highest = render.sortingOrder;
+                    top = piece;
                 }
             }
         }
-        return topPiece;
+        return top;
     }
     private void TryPickup(Vector3 mousePosition)
     {
