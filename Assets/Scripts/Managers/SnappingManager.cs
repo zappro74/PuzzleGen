@@ -129,17 +129,30 @@ public class SnappingManager : MonoBehaviour
             meshRenderer.enabled = false;
         }
 
-        MeshFilter groupMeshFilter = groupRoot.GetComponent<MeshFilter>();
-        MeshRenderer groupMeshRenderer = groupRoot.GetComponent<MeshRenderer>();
+        Transform combinedVisual = groupRoot.Find("CombinedVisual");
+
+        if (combinedVisual == null)
+        {
+            GameObject visualObject = new GameObject("CombinedVisual");
+            visualObject.transform.SetParent(groupRoot);
+            visualObject.transform.localPosition = Vector3.zero;
+            visualObject.transform.localRotation = Quaternion.identity;
+            visualObject.transform.localScale = Vector3.one;
+
+            combinedVisual = visualObject.transform;
+        }
+
+        MeshFilter groupMeshFilter = combinedVisual.GetComponent<MeshFilter>();
+        MeshRenderer groupMeshRenderer = combinedVisual.GetComponent<MeshRenderer>();
 
         if (groupMeshFilter == null)
         {
-            groupMeshFilter = groupRoot.gameObject.AddComponent<MeshFilter>();
+            groupMeshFilter = combinedVisual.gameObject.AddComponent<MeshFilter>();
         }
 
         if (groupMeshRenderer == null)
         {
-            groupMeshRenderer = groupRoot.gameObject.AddComponent<MeshRenderer>();
+            groupMeshRenderer = combinedVisual.gameObject.AddComponent<MeshRenderer>();
         }
 
         Mesh combinedMesh = new Mesh();
