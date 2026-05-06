@@ -81,7 +81,8 @@ public class SnappingManager : MonoBehaviour
 
         piece.localPosition = end;
 
-        RebuildMesh(GetRoot(piece));
+        //RebuildMesh(GetRoot(piece));
+        RestorePieceRenderers(GetRoot(piece));
 
         foreach (var collider in colliders)
         {
@@ -97,6 +98,28 @@ public class SnappingManager : MonoBehaviour
         }
 
         return piece;
+    }
+
+    private void RestorePieceRenderers(Transform groupRoot)
+    {
+        PuzzlePiece[] pieces = groupRoot.GetComponentsInChildren<PuzzlePiece>();
+
+        foreach (PuzzlePiece puzzlePiece in pieces)
+        {
+            MeshRenderer meshRenderer = puzzlePiece.GetComponent<MeshRenderer>();
+
+            if (meshRenderer != null)
+            {
+                meshRenderer.enabled = true;
+            }
+        }
+
+        Transform combinedVisual = groupRoot.Find("CombinedVisual");
+
+        if (combinedVisual != null)
+        {
+            combinedVisual.gameObject.SetActive(false);
+        }
     }
 
     private void RebuildMesh(Transform groupRoot)
