@@ -197,8 +197,10 @@ public class GameStateManager : MonoBehaviour
 
         int generationSeed = System.Guid.NewGuid().GetHashCode();
 
-        int rows = 10;
-        int columns = 10;
+        GameModeSettings modeSettings = GetCurrentGameModeSettings();
+
+        int rows = modeSettings.rows;
+        int columns = modeSettings.columns;
 
         float pieceWidth = puzzleSize.x / columns;
         float pieceHeight = puzzleSize.y / rows;
@@ -218,7 +220,7 @@ public class GameStateManager : MonoBehaviour
         //Hard code values for testing purposes
         PuzzleConfig puzzleConfig = new PuzzleConfig
         {
-            rows = columns,
+            rows = rows,
             columns = columns,
             generationSeed = generationSeed,
             puzzleImage = loadedImage,
@@ -297,7 +299,7 @@ public class GameStateManager : MonoBehaviour
         return new Vector2(maxHeight * imageAspect, maxHeight);
     }
 
-    private GameModeSettings GetCurrentGameMode()
+    private GameModeSettings GetCurrentGameModeSettings()
     {
         switch (currentGameMode)
         {
