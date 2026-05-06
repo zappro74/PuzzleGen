@@ -21,14 +21,6 @@ public class PieceFactory : MonoBehaviour
         PolygonCollider2D polygonCollider = pieceObject.AddComponent<PolygonCollider2D>();
         PuzzlePiece puzzlePiece = pieceObject.AddComponent<PuzzlePiece>();
         
-        Rigidbody2D rigidBody = pieceObject.AddComponent<Rigidbody2D>();
-        rigidBody.gravityScale = 0f;
-        rigidBody.freezeRotation = true;
-        rigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        rigidBody.interpolation = RigidbodyInterpolation2D.Interpolate;
-        rigidBody.linearDamping = 6f;
-        rigidBody.angularDamping = 6f;
-
         Mesh pieceMesh = BuildMesh(outlinePoints, pieceData, puzzleConfig);
         meshFilter.mesh = pieceMesh;
 
