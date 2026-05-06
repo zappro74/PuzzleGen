@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using LibTessDotNet;
-
 public class PieceFactory : MonoBehaviour
 {
     public GameObject CreatePiece(PieceData pieceData, PuzzleConfig puzzleConfig)
@@ -21,7 +20,7 @@ public class PieceFactory : MonoBehaviour
         MeshRenderer meshRenderer = pieceObject.AddComponent<MeshRenderer>();
         PolygonCollider2D polygonCollider = pieceObject.AddComponent<PolygonCollider2D>();
         PuzzlePiece puzzlePiece = pieceObject.AddComponent<PuzzlePiece>();
-
+        
         Mesh pieceMesh = BuildMesh(outlinePoints, pieceData, puzzleConfig);
         meshFilter.mesh = pieceMesh;
 

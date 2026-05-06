@@ -27,6 +27,7 @@ public class GameStateManager : MonoBehaviour
 
     [SerializeField] private PuzzleFactory puzzleFactory;
     [SerializeField] private Material pieceMaterial;
+    [SerializeField] private ExplosionShuffle explosionShuffle;
     public void StartGame()
     {
         // Runs once a new game is started.
@@ -155,6 +156,12 @@ public class GameStateManager : MonoBehaviour
         };
 
         List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, puzzleSize.x, puzzleSize.y);
+
+        if (explosionShuffle != null)
+        {
+            explosionShuffle.ExplodePieces(pieces);
+        }
+
         var piecesData = new List<PieceData>();
 
         foreach (GameObject piece in pieces)
