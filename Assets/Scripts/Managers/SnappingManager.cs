@@ -159,6 +159,11 @@ public class SnappingManager : MonoBehaviour
 
         combinedMesh.CombineMeshes(combines.ToArray(), true, true);
 
+        combinedMesh.RecalculateBounds();
+        combinedMesh.RecalculateNormals();
+
+        combinedMesh.bounds = new Bounds(Vector3.zero, Vector3.one * 1000f);
+
         groupMeshFilter.mesh = combinedMesh;
         groupMeshRenderer.sharedMaterial = pieces[0].GetComponent<MeshRenderer>().sharedMaterial;
         groupMeshRenderer.sortingOrder = 10;

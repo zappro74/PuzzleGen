@@ -67,9 +67,14 @@ public class InteractionManager : MonoBehaviour
         {
             if (selection != null && render != null) 
             {
-                Vector3 movement = mousePosition + offset;
-                dragTargetPosition = WorldBoundaries(movement);
-                selection.position = Vector3.SmoothDamp(selection.position, dragTargetPosition, ref dragVelocity, dragSmoothTime);
+                Vector3 groupCenter = GetGroupCenter(selection);
+
+                Vector3 centerToRoot = selection.position - groupCenter;
+                Vector3 targetPosition = mousePosition + centerToRoot;
+
+                targetPosition.z = selection.position.z;
+
+                selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, dragSmoothTime);
             }
             else if (isPanning)
             {
@@ -84,7 +89,10 @@ public class InteractionManager : MonoBehaviour
             }
             selection = null;
 
+            selection = null;
+            render = null;
             dragVelocity = Vector3.zero;
+            isPanning = false;
         }
     }
     private void ZoomCamera(float y, Vector3 mousePosition)
@@ -166,21 +174,38 @@ public class InteractionManager : MonoBehaviour
         {
             selection = GetRoot(topPiece.transform);
             render = topPiece.transform.GetComponent<Renderer>();
-            Vector3 centerOffset = selection.position - render.bounds.center;
-            offset =  centerOffset;
-            order = Mathf.Max(order, render.sortingOrder) + 1;
 
-            dragTargetPosition = selection.position;
+            order = Mathf.Max(order, render.sortingOrder) + 1;
             dragVelocity = Vector3.zero;
 
             var renderers = selection.GetComponentsInChildren<Renderer>();
 
-            foreach (var renderer in renderers)
+            for (int i = 0; i < renderers.Length; i++)
             {
-                renderer.sortingOrder = order;
+                renderers[i].sortingOrder = order + i;
             }
         }
     }
+
+    private Vector3 GetGroupCenter(Transform group)
+    {
+        Collider2D[] colliders = group.GetComponentsInChildren<Collider2D>();
+
+        if (colliders.Length == 0)
+        {
+            return group.position;
+        }
+
+        Bounds bounds = colliders[0].bounds;
+
+        for (int i = 1; i < colliders.Length; i++)
+        {
+            bounds.Encapsulate(colliders[i].bounds);
+        }
+
+        return bounds.center;
+    }
+
     private void CameraBoundaries()
     {
         var x = Mathf.Max(0, (boundaries.x / 2f) - (gameCamera.orthographicSize * gameCamera.aspect));
@@ -206,7 +231,7 @@ public class InteractionManager : MonoBehaviour
     }
     private Transform GetRoot(Transform piece)
     {
-        while (piece.parent != null && piece.parent.GetComponent<PuzzlePiece>() != null)
+        while (piece.parent != null && piece.parent.CompareTag("Piece"))
         {
             piece = piece.parent;
         }
