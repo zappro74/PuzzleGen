@@ -316,5 +316,25 @@ public class GameStateManager : MonoBehaviour
                 return easyMode;
         }
     }
+
+    public void SelectEasyMode()
+    {
+        currentGameMode = GameMode.Easy;
+
+        Debug.Log("Selected Easy Mode");
+    }
+    public void SelectMediumMode()
+    {
+        currentGameMode = GameMode.Medium;
+
+        Debug.Log("Selected Medium Mode");
+    }
+
+    public void SelectHardMode()
+    {
+        currentGameMode = GameMode.Hard;
+
+        Debug.Log("Selected Hard Mode");
+    }
 }
 
