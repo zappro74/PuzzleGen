@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class SnappingManager : MonoBehaviour
@@ -12,6 +14,8 @@ public class SnappingManager : MonoBehaviour
 
     public ConnectionSystem connectionSystem;
     private SnapValidation snapValidator = new SnapValidation();
+
+    public float snapSearchRadius = 1.5f;
 
     public void TrySnap(Transform pieceGroup)
     {
@@ -59,6 +63,7 @@ public class SnappingManager : MonoBehaviour
             }
         }
     }
+
     private IEnumerator Animate(Transform piece, Vector3 start, Vector3 end)
     {
         var elapsedTime = 0f;
@@ -78,6 +83,9 @@ public class SnappingManager : MonoBehaviour
 
         piece.localPosition = end;
 
+        //RebuildMesh(GetRoot(piece));
+        RestorePieceRenderers(GetRoot(piece));
+
         foreach (var collider in colliders)
         {
             collider.enabled = true;
@@ -92,5 +100,97 @@ public class SnappingManager : MonoBehaviour
         }
 
         return piece;
+    }
+
+    private void RestorePieceRenderers(Transform groupRoot)
+    {
+        PuzzlePiece[] pieces = groupRoot.GetComponentsInChildren<PuzzlePiece>();
+
+        foreach (PuzzlePiece puzzlePiece in pieces)
+        {
+            MeshRenderer meshRenderer = puzzlePiece.GetComponent<MeshRenderer>();
+
+            if (meshRenderer != null)
+            {
+                meshRenderer.enabled = true;
+            }
+        }
+
+        Transform combinedVisual = groupRoot.Find("CombinedVisual");
+
+        if (combinedVisual != null)
+        {
+            combinedVisual.gameObject.SetActive(false);
+        }
+    }
+
+    private void RebuildMesh(Transform groupRoot)
+    {
+        PuzzlePiece[] pieces = groupRoot.GetComponentsInChildren<PuzzlePiece>();
+
+        if (pieces.Length == 0)
+        {
+            return;
+        }
+
+        List<CombineInstance> combines = new List<CombineInstance>();
+
+        foreach (PuzzlePiece puzzlePiece in pieces)
+        {
+            MeshFilter meshFilter = puzzlePiece.GetComponent<MeshFilter>();
+            MeshRenderer meshRenderer = puzzlePiece.GetComponent<MeshRenderer>();
+
+            if ((meshFilter == null) || (meshRenderer == null))
+            {
+                continue;
+            }
+
+            combines.Add(new CombineInstance
+            {
+                mesh = meshFilter.sharedMesh,
+                transform = groupRoot.worldToLocalMatrix * meshFilter.transform.localToWorldMatrix
+            });
+
+            meshRenderer.enabled = false;
+        }
+
+        Transform combinedVisual = groupRoot.Find("CombinedVisual");
+
+        if (combinedVisual == null)
+        {
+            GameObject visualObject = new GameObject("CombinedVisual");
+            visualObject.transform.SetParent(groupRoot);
+            visualObject.transform.localPosition = Vector3.zero;
+            visualObject.transform.localRotation = Quaternion.identity;
+            visualObject.transform.localScale = Vector3.one;
+
+            combinedVisual = visualObject.transform;
+        }
+
+        MeshFilter groupMeshFilter = combinedVisual.GetComponent<MeshFilter>();
+        MeshRenderer groupMeshRenderer = combinedVisual.GetComponent<MeshRenderer>();
+
+        if (groupMeshFilter == null)
+        {
+            groupMeshFilter = combinedVisual.gameObject.AddComponent<MeshFilter>();
+        }
+
+        if (groupMeshRenderer == null)
+        {
+            groupMeshRenderer = combinedVisual.gameObject.AddComponent<MeshRenderer>();
+        }
+
+        Mesh combinedMesh = new Mesh();
+
+        combinedMesh.CombineMeshes(combines.ToArray(), true, true);
+
+        combinedMesh.RecalculateBounds();
+        combinedMesh.RecalculateNormals();
+
+        combinedMesh.bounds = new Bounds(Vector3.zero, Vector3.one * 1000f);
+
+        groupMeshFilter.mesh = combinedMesh;
+        groupMeshRenderer.sharedMaterial = pieces[0].GetComponent<MeshRenderer>().sharedMaterial;
+        groupMeshRenderer.sortingOrder = 10;
     }
 }

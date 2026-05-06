@@ -27,7 +27,7 @@ public class PieceFactory : MonoBehaviour
 
         meshRenderer.material = pieceConfig.pieceMaterial;
         meshRenderer.material.mainTexture = puzzleConfig.puzzleImage;
-        meshRenderer.sortingOrder = 10;
+        meshRenderer.sortingOrder = pieceData.Id;
 
         polygonCollider.points = outlinePoints.ToArray();
 

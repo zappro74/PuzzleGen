@@ -126,8 +126,8 @@ public class GameStateManager : MonoBehaviour
 
         int generationSeed = System.Guid.NewGuid().GetHashCode();
 
-        int rows = 15;
-        int columns = 15;
+        int rows = 10;
+        int columns = 10;
 
         float pieceWidth = puzzleSize.x / columns;
         float pieceHeight = puzzleSize.y / rows;
