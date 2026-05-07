@@ -87,8 +87,16 @@ public class InteractionManager : MonoBehaviour
                 targetPosition.z = selection.position.z;
 
                 selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, dragSmoothTime);
+                
+                float speed = (selection.position - lastDragPosition).magnitude / Time.deltaTime;
 
-                UpdateDragAudio();
+                int groupSize = selection.GetComponentsInChildren<Collider2D>().Length;
+
+                bool isSnapping = false;
+
+                UpdateDragAudio(speed, groupSize, isSnapping);
+
+                lastDragPosition = selection.position;
             }
             else if (isPanning)
             {
@@ -186,15 +194,6 @@ public class InteractionManager : MonoBehaviour
     private void TryPickup(Vector3 mousePosition)
     {
         var topPiece = GrabPiece(mousePosition);
-        lastDragPosition = selection.position;
-
-        dragAudio.loop = true;
-        dragAudio.volume = 0f;
-
-        if (!dragAudio.isPlaying)
-        {
-            dragAudio.Play();
-        }
 
         if (topPiece.collider != null)
         {
@@ -209,6 +208,16 @@ public class InteractionManager : MonoBehaviour
             for (int i = 0; i < renderers.Length; i++)
             {
                 renderers[i].sortingOrder = order + i;
+            }
+
+            lastDragPosition = selection.position;
+
+            dragAudio.loop = true;
+            dragAudio.volume = 0f;
+
+            if (!dragAudio.isPlaying)
+            {
+                dragAudio.Play();
             }
         }
     }
@@ -265,17 +274,27 @@ public class InteractionManager : MonoBehaviour
         return piece;
     }
 
-    private void UpdateDragAudio()
+    private void UpdateDragAudio(float speed, int groupSize, bool isSnapping)
     {
-        float speed = (selection.position - lastDragPosition).magnitude / Time.deltaTime;
-
         float speed01 = Mathf.Clamp01(speed / maxDragSpeed);
 
-        dragAudio.volume = Mathf.Lerp(dragAudio.volume, speed01 * maxDragVolume, Time.deltaTime * 10f);
+        float groupVolumeBoost = Mathf.Clamp01(groupSize / 10f) * 0.2f;
 
-        dragAudio.pitch = Mathf.Lerp(minPitch, maxPitch, speed01);
+        float targetVolume = (speed01 * maxDragVolume) + groupVolumeBoost;
 
-        lastDragPosition = selection.position;
+        float groupPitchDrop = Mathf.Clamp01(groupSize / 10f) * 0.15f;
+
+        float targetPitch = Mathf.Lerp(minPitch, maxPitch, speed01) - groupPitchDrop;
+
+        if (isSnapping)
+        {
+            targetVolume *= 0.5f;
+            targetPitch *= 1.1f;
+        }
+
+        dragAudio.volume = Mathf.Lerp(dragAudio.volume, targetVolume, Time.deltaTime * 10f);
+
+        dragAudio.pitch = Mathf.Lerp(dragAudio.pitch, targetPitch, Time.deltaTime * 10f);
     }
 
     private IEnumerator FadeOutDragAudio()
