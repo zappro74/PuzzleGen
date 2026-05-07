@@ -70,7 +70,7 @@ public class InteractionManager : MonoBehaviour
             ZoomCamera(y, mousePosition);
         }
 
-        if (rightButton.wasPressedThisFrame)
+        if (Mouse.current.rightButton.wasPressedThisFrame)
         {
             TryRotate(mousePosition);
         }
@@ -243,7 +243,7 @@ public class InteractionManager : MonoBehaviour
     private float GetZAngle(Quaternion rotation)
     {
         Vector3 right = rotation * Vector3.right;
-        return Math.Atan2(right.y, right.x) * Mathf.Rad2Deg;
+        return Mathf.Atan2(right.y, right.x) * Mathf.Rad2Deg;
     }
     private void TryRotate(Vector3 mousePosition)
     {
