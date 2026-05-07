@@ -24,7 +24,7 @@ public class GameStateManager : MonoBehaviour
     public State currentState;
 
     [Header("Puzzle Image")]
-    public Texture2D image; 
+    public Texture image; 
 
     [Header("UI Connections")]
     public TextMeshProUGUI timer;
@@ -185,7 +185,7 @@ public class GameStateManager : MonoBehaviour
         }
     }
 
-    public void GenerateNewPuzzle(Texture2D loadedImage)
+    public void GenerateNewPuzzle(Texture loadedImage)
     {
         ClearPuzzle();
 
@@ -286,7 +286,7 @@ public class GameStateManager : MonoBehaviour
 
     [SerializeField] private float boardWidth = 8f;
     [SerializeField] private float boardHeight = 6f;
-    private Vector2 GetBoardSize(Texture2D image, float maxWidth, float maxHeight)
+    private Vector2 GetBoardSize(Texture image, float maxWidth, float maxHeight)
     {
         float imageAspect = image.width / (float)image.height;
         float boxAspect = maxWidth / maxHeight;
