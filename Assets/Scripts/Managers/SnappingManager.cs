@@ -56,40 +56,9 @@ public class SnappingManager : MonoBehaviour
                         pieceGroup.position += adjustment;
                         var endLocalPosition = pieceGroup.localPosition;
 
-                        if (snapParticles != null)
-                        {
-                            if (groupPiece.TryGetComponent(out Renderer groupRenderer) && piece.TryGetComponent(out Renderer targetRenderer))
-                            {                                                                     
-                                float spread = 0.9f;
-
-                                var direction = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;  
-                                var connectionDirection = new Vector3(direction.x, direction.y, 0f).normalized;
-                                var seam = new Vector3(-connectionDirection.y, connectionDirection.x, 0f);
-                                var center = (groupRenderer.bounds.center + targetRenderer.bounds.center) / 2f;
-
-                                center.z = 0f; 
-
-                                var particle1 = Instantiate(snapParticles, center + (seam * spread), Quaternion.LookRotation(seam));
-                                var particle2 = Instantiate(snapParticles, center - (seam * spread), Quaternion.LookRotation(-seam));
-
-                                
-                                if (particle1.TryGetComponent(out ParticleSystemRenderer r1))
-                                {
-                                    r1.sortingOrder = Mathf.Max(groupRenderer.sortingOrder, targetRenderer.sortingOrder) + 10;
-                                }
-                                if (particle2.TryGetComponent(out ParticleSystemRenderer r2))
-                                {
-                                    r2.sortingOrder = Mathf.Max(groupRenderer.sortingOrder, targetRenderer.sortingOrder) + 10;
-                                } 
-
-                                Destroy(particle1.gameObject, 1f); 
-                                Destroy(particle2.gameObject, 1f);                            
-                            }                        
-                        }
-
                         pieceGroup.localPosition = startLocalPosition;
 
-                        StartCoroutine(Animate(pieceGroup, startLocalPosition, endLocalPosition));
+                        StartCoroutine(Animate(pieceGroup, startLocalPosition, endLocalPosition, groupPiece, piece));
 
                         Debug.Log($"Snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
                         return;
@@ -99,10 +68,10 @@ public class SnappingManager : MonoBehaviour
         }
     }
 
-    private IEnumerator Animate(Transform piece, Vector3 start, Vector3 end)
+    private IEnumerator Animate(Transform pieceGroup, Vector3 start, Vector3 end, PuzzlePiece groupPiece, PuzzlePiece piece)
     {
         var elapsedTime = 0f;
-        var colliders = piece.GetComponentsInChildren<Collider2D>();
+        var colliders = pieceGroup.GetComponentsInChildren<Collider2D>();
 
         foreach (var collider in colliders)
         {
@@ -112,18 +81,54 @@ public class SnappingManager : MonoBehaviour
         while (elapsedTime < snapSpeed)
         {
             elapsedTime += Time.deltaTime;
-            piece.localPosition = Vector3.Lerp(start, end, snapCurve.Evaluate(elapsedTime / snapSpeed));
+            pieceGroup.localPosition = Vector3.Lerp(start, end, snapCurve.Evaluate(elapsedTime / snapSpeed));
             yield return null; 
         }
 
-        piece.localPosition = end;
+        pieceGroup.localPosition = end;
+
+        Particles(groupPiece, piece);
 
         //RebuildMesh(GetRoot(piece));
-        RestorePieceRenderers(GetRoot(piece));
+        RestorePieceRenderers(GetRoot(pieceGroup));
 
         foreach (var collider in colliders)
         {
             collider.enabled = true;
+        }
+
+    }
+    private void Particles(PuzzlePiece groupPiece, PuzzlePiece piece)
+    {
+        if (snapParticles != null)
+        {
+            if (groupPiece.TryGetComponent(out Renderer groupRenderer) && piece.TryGetComponent(out Renderer targetRenderer))
+            {                                                                     
+                float spread = 0.9f;
+
+                var direction = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;  
+                var connectionDirection = new Vector3(direction.x, direction.y, 0f).normalized;
+                var seam = new Vector3(-connectionDirection.y, connectionDirection.x, 0f);
+                var center = (groupRenderer.bounds.center + targetRenderer.bounds.center) / 2f;
+
+                center.z = 0f; 
+
+                var particle1 = Instantiate(snapParticles, center + (seam * spread), Quaternion.LookRotation(seam));
+                var particle2 = Instantiate(snapParticles, center - (seam * spread), Quaternion.LookRotation(-seam));
+
+                
+                if (particle1.TryGetComponent(out ParticleSystemRenderer r1))
+                {
+                    r1.sortingOrder = Mathf.Max(groupRenderer.sortingOrder, targetRenderer.sortingOrder) + 10;
+                }
+                if (particle2.TryGetComponent(out ParticleSystemRenderer r2))
+                {
+                    r2.sortingOrder = Mathf.Max(groupRenderer.sortingOrder, targetRenderer.sortingOrder) + 10;
+                } 
+
+                Destroy(particle1.gameObject, 1f); 
+                Destroy(particle2.gameObject, 1f);                            
+            }                        
         }
 
     }

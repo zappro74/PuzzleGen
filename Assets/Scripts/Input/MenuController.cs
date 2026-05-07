@@ -10,7 +10,7 @@ public class MenuController : MonoBehaviour
 
     [Header("UI Connections")]
     public GameObject pauseMenu;
-    private bool menuOpen = false;
+    private bool menuOpen = true;
 
     void Update()
     {
@@ -29,7 +29,7 @@ public class MenuController : MonoBehaviour
         menuOpen = !menuOpen;
         pauseMenu.SetActive(menuOpen);
 
-        if (menuOpen)
+        if (MenuCheck())
         {
             stateManager.PauseGame();
         }
