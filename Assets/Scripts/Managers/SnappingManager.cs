@@ -23,8 +23,6 @@ public class SnappingManager : MonoBehaviour
 
     [SerializeField] private AudioClip[] snapSounds;
 
-    private float snapSearchRadius = 1.5f;
-
     public void TrySnap(Transform pieceGroup)
     {
         if (connectionSystem == null)
