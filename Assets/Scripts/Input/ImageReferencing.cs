@@ -31,7 +31,7 @@ public class ImageReferencing : MonoBehaviour
         }
     }
 
-    private void Fit(RawImage image, Vector2 maxBounds, Texture2D texture)
+    private void Fit(RawImage image, Vector2 maxBounds, Texture texture)
     {
         var imageRect = image.GetComponent<RectTransform>();
         var widthRatio = maxBounds.x / texture.width;

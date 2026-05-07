@@ -26,10 +26,8 @@ public class InteractionManager : MonoBehaviour
 
     private Camera gameCamera;
     private Transform selection;
-    private Vector3 offset;
     private Renderer render;
     private int order = 1;
-    private Vector3 dragTargetPosition;
     private Vector3 dragVelocity;
     private Vector3 origin;
     private bool isPanning = false;
@@ -76,6 +74,7 @@ public class InteractionManager : MonoBehaviour
                 Vector3 targetPosition = mousePosition + centerToRoot;
 
                 targetPosition.z = selection.position.z;
+                targetPosition = WorldBoundaries(targetPosition);
 
                 selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, dragSmoothTime);
             }
