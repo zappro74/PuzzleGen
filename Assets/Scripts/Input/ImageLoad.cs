@@ -69,9 +69,7 @@ public class Image : MonoBehaviour
                 imageReference.UpdateImages();
             }
 
-            stateManager.StartGame();
-            
-            stateManager.GenerateNewPuzzle(texture);
+            stateManager.PrepareNewGame(texture);
         }
         else
         {

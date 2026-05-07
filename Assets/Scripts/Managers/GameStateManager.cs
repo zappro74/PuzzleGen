@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.U2D;
 using Unity.VisualScripting;
+using System.Collections;
 
 public enum State
 {
@@ -28,11 +29,12 @@ public class GameStateManager : MonoBehaviour
 
     [Header("UI Connections")]
     public TextMeshProUGUI timer;
+    public GameObject modeSelectionPanel;
 
     [Header("Script Connections")]
     public SnappingManager snappingManager;
+    public GameModeController modeController;
 
-    private float elapsedTime = 0f;
 
     [Header("Puzzle Generation")]
     [SerializeField] private PuzzleFactory puzzleFactory;
@@ -41,62 +43,8 @@ public class GameStateManager : MonoBehaviour
     [Header("Shuffling")]
     [SerializeField] private ExplosionShuffle explosionShuffle;
 
-    [Header("Game Modes")]
-    [SerializeField] public GameMode currentGameMode = GameMode.Easy;
-
-    [SerializeField] private GameModeSettings easyMode = new GameModeSettings
-    {
-        modeName = "Easy",
-        rows = 4,
-        columns = 4,
-        allowRotation = false,
-        allowShuffle = false,
-        allowPieceCollision = false,
-        snapTolerance = 0.6f,
-        explosionForce = 10f,
-        randomForce = 5f,
-        torqueForce = 5f,
-        shuffleDuration = 5f,
-        showFullImagePreview = true,
-        allowGroupBreaking = false,
-        randomizeInitialRotation = false
-    };
-
-    [SerializeField] private GameModeSettings mediumMode = new GameModeSettings
-    {
-        modeName = "Medium",
-        rows = 6,
-        columns = 6,
-        allowRotation = false,
-        allowShuffle = true,
-        allowPieceCollision = false,
-        snapTolerance = 0.45f,
-        explosionForce = 10f,
-        randomForce = 5f,
-        torqueForce = 5f,
-        shuffleDuration = 5f,
-        showFullImagePreview = true,
-        allowGroupBreaking = false,
-        randomizeInitialRotation = false
-    };
-
-    [SerializeField] private GameModeSettings hardMode = new GameModeSettings
-    {
-        modeName = "Hard",
-        rows = 10,
-        columns = 10,
-        allowRotation = true,
-        allowShuffle = true,
-        allowPieceCollision = false,
-        snapTolerance = 0.3f,
-        explosionForce = 10f,
-        randomForce = 5f,
-        torqueForce = 5f,
-        shuffleDuration = 5f,
-        showFullImagePreview = true,
-        allowGroupBreaking = true,
-        randomizeInitialRotation = true
-    };
+    private bool modeSelected = false;
+    private float elapsedTime = 0f;
 
     public void StartGame()
     {
@@ -111,6 +59,16 @@ public class GameStateManager : MonoBehaviour
         elapsedTime = 0f;
 
         Debug.Log($"Game Started, State set to: {currentState}");
+    }
+    public void PrepareNewGame(Texture loadedImage)
+    {
+        image = loadedImage;
+        ClearPuzzle();
+        
+        if (modeSelectionPanel != null)
+        {
+            modeSelectionPanel.SetActive(true);
+        }
     }
     public void PauseGame()
     {
@@ -152,10 +110,8 @@ public class GameStateManager : MonoBehaviour
             return;
         }
 
-        GenerateNewPuzzle(image);
-        StartGame();
-
         Debug.Log("Puzzle reset.");
+        modeSelectionPanel.SetActive(true);    
     }
     public void RestartTimer()
     {
@@ -197,7 +153,7 @@ public class GameStateManager : MonoBehaviour
 
         int generationSeed = System.Guid.NewGuid().GetHashCode();
 
-        GameModeSettings modeSettings = GetCurrentGameModeSettings();
+        GameModeSettings modeSettings = modeController.GetCurrentGameModeSettings();
 
         int rows = modeSettings.rows;
         int columns = modeSettings.columns;
@@ -297,44 +253,6 @@ public class GameStateManager : MonoBehaviour
         }
 
         return new Vector2(maxHeight * imageAspect, maxHeight);
-    }
-
-    private GameModeSettings GetCurrentGameModeSettings()
-    {
-        switch (currentGameMode)
-        {
-            case GameMode.Easy:
-                return easyMode;
-
-            case GameMode.Medium:
-                return mediumMode;
-
-            case GameMode.Hard:
-                return hardMode;
-
-            default:
-                return easyMode;
-        }
-    }
-
-    public void SelectEasyMode()
-    {
-        currentGameMode = GameMode.Easy;
-
-        Debug.Log("Selected Easy Mode");
-    }
-    public void SelectMediumMode()
-    {
-        currentGameMode = GameMode.Medium;
-
-        Debug.Log("Selected Medium Mode");
-    }
-
-    public void SelectHardMode()
-    {
-        currentGameMode = GameMode.Hard;
-
-        Debug.Log("Selected Hard Mode");
     }
 }
 

@@ -54,7 +54,7 @@ public class GifLoader : MonoBehaviour
         if (frames.Count > 0)
         {
             gifProjector.StartProjection(frames, delays, frames[0].width, frames[0].height);
-            gameStateManager.GenerateNewPuzzle(gifProjector.canvas);
+            gameStateManager.PrepareNewGame(gifProjector.canvas);
         }
     }
 }

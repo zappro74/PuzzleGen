@@ -9,6 +9,7 @@ public class InteractionManager : MonoBehaviour
     public SnappingManager snapManager;
     public MenuController menuController;
     public GameStateManager gameStateManager;
+    public GameModeController modeController;
 
     [Header("UI Connections")]
     public GameObject centerPanel;
@@ -110,7 +111,7 @@ public class InteractionManager : MonoBehaviour
 
                 lastDragPosition = selection.position;
 
-                if (snapManager != null && gameStateManager.currentGameMode == GameMode.Easy)
+                if (snapManager != null && modeController.currentGameMode == GameMode.Easy)
                 {
                     bool didSnap = snapManager.TryAutoSnap(selection);
 
@@ -134,7 +135,7 @@ public class InteractionManager : MonoBehaviour
         
         if (leftButton.wasReleasedThisFrame)
         {
-            if (selection != null && snapManager != null && gameStateManager != null && gameStateManager.currentGameMode != GameMode.Easy)
+            if (selection != null && snapManager != null && gameStateManager != null && modeController.currentGameMode != GameMode.Easy)
             {
                 snapManager.TrySnap(selection);
             }
