@@ -73,6 +73,58 @@ public class SnappingManager : MonoBehaviour
         }
     }
 
+    public bool TryAutoSnap(Transform pieceGroup)
+    {
+        if (connectionSystem == null)
+        {
+            Debug.LogWarning("Missing connection system.");
+            return false;
+        }
+
+        PuzzlePiece[] groupedPieces = pieceGroup.GetComponentsInChildren<PuzzlePiece>();
+        PuzzlePiece[] allPieces = FindObjectsByType<PuzzlePiece>(FindObjectsInactive.Exclude);
+
+        foreach (PuzzlePiece groupPiece in groupedPieces)
+        {
+            foreach (PuzzlePiece piece in allPieces)
+            {
+                if (groupPiece == piece || groupPiece.Data.GroupId == piece.Data.GroupId)
+                {
+                    continue;
+                }
+
+                if (snapValidator.CanSnap(groupPiece.Data, piece.Data, snappingTolerance))
+                {
+                    Vector2 snappingPosition = (Vector2)piece.transform.position + ((Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition);
+
+                    float distance = Vector2.Distance(groupPiece.transform.position, snappingPosition);
+
+                    if (distance <= snappingTolerance)
+                    {
+                        if (!IsValidSnapRotation(pieceGroup, piece.transform))
+                        {
+                            continue;
+                        }
+                        Vector3 adjustment = (Vector3)snappingPosition - groupPiece.transform.position;
+
+                        pieceGroup.SetParent(GetRoot(piece.transform));
+                        connectionSystem.AddConnection(groupPiece.Data, piece.Data);
+
+                        pieceGroup.position += adjustment;
+
+                        PlaySnapSound();
+                        Particles(groupPiece, piece);
+                        RestorePieceRenderers(GetRoot(pieceGroup));
+
+                        Debug.Log($"Auto snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     private IEnumerator Animate(Transform pieceGroup, Vector3 start, Vector3 end, PuzzlePiece groupPiece, PuzzlePiece piece)
     {
         var elapsedTime = 0f;
@@ -246,5 +298,15 @@ public class SnappingManager : MonoBehaviour
         snapAudioSource.pitch = Random.Range(0.95f, 1.05f);
 
         snapAudioSource.PlayOneShot(snapSounds[randomIndex]);
+    }
+
+    private bool IsValidSnapRotation(Transform pieceGroup, Transform targetPiece)
+    {
+        float angleA = Mathf.Round(pieceGroup.eulerAngles.z);
+        float angleB = Mathf.Round(targetPiece.eulerAngles.z);
+
+        float difference = Mathf.Abs(Mathf.DeltaAngle(angleA, angleB));
+
+        return difference <= 2f;
     }
 }

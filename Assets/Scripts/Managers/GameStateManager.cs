@@ -42,7 +42,7 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private ExplosionShuffle explosionShuffle;
 
     [Header("Game Modes")]
-    [SerializeField] private GameMode currentGameMode = GameMode.Easy;
+    [SerializeField] public GameMode currentGameMode = GameMode.Easy;
 
     [SerializeField] private GameModeSettings easyMode = new GameModeSettings
     {

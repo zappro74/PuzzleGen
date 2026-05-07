@@ -1559,6 +1559,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PieceInteractionManager
   snapManager: {fileID: 629222932}
   menuController: {fileID: 629222930}
+  gameStateManager: {fileID: 629222926}
   centerPanel: {fileID: 304034181}
   dragSmoothTime: 0.08
   rotationStep: 90
@@ -1634,10 +1635,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExplosionShuffle
   delayBeforeExplosion: 1.5
-  explosionForce: 10
-  randomForce: 50
-  torqueForce: 10
-  shuffleDuration: 5
+  explosionForce: 5
+  randomForce: 1
+  torqueForce: 1
+  shuffleDuration: 3
   explosionAudio: {fileID: 629222935}
 --- !u!82 &629222934
 AudioSource:

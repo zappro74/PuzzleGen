@@ -8,6 +8,7 @@ public class InteractionManager : MonoBehaviour
     [Header("Script Connections")]
     public SnappingManager snapManager;
     public MenuController menuController;
+    public GameStateManager gameStateManager;
 
     [Header("UI Connections")]
     public GameObject centerPanel;
@@ -108,22 +109,37 @@ public class InteractionManager : MonoBehaviour
                 UpdateDragAudio(speed, groupSize, isSnapping);
 
                 lastDragPosition = selection.position;
+
+                if (snapManager != null && gameStateManager.currentGameMode == GameMode.Easy)
+                {
+                    bool didSnap = snapManager.TryAutoSnap(selection);
+
+                    if (didSnap)
+                    {
+                        selection = null;
+                        render = null;
+                        dragVelocity = Vector3.zero;
+                        isPanning = false;
+
+                        StartCoroutine(FadeOutDragAudio());
+                        return;
+                    }
+                }
             }
             else if (isPanning)
             {
                 PanCamera(mousePosition);
             }
         }
-        else if (leftButton.wasReleasedThisFrame)
+        
+        if (leftButton.wasReleasedThisFrame)
         {
-            if (selection != null && snapManager != null)
+            if (selection != null && snapManager != null && gameStateManager != null && gameStateManager.currentGameMode != GameMode.Easy)
             {
                 snapManager.TrySnap(selection);
             }
 
             StartCoroutine(FadeOutDragAudio());
-
-            selection = null;
 
             selection = null;
             render = null;
