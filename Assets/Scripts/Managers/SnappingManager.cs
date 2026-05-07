@@ -59,18 +59,31 @@ public class SnappingManager : MonoBehaviour
                         if (snapParticles != null)
                         {
                             if (groupPiece.TryGetComponent(out Renderer groupRenderer) && piece.TryGetComponent(out Renderer targetRenderer))
-                            {                                
-                                var emit = (groupRenderer.bounds.center + targetRenderer.bounds.center) / 2f;
-                                emit.z = 0f; 
+                            {                                                                     
+                                float spread = 0.9f;
 
-                                var particles = Instantiate(snapParticles, emit, Quaternion.identity);
+                                var direction = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;  
+                                var connectionDirection = new Vector3(direction.x, direction.y, 0f).normalized;
+                                var seam = new Vector3(-connectionDirection.y, connectionDirection.x, 0f);
+                                var center = (groupRenderer.bounds.center + targetRenderer.bounds.center) / 2f;
 
-                                if (particles.TryGetComponent(out ParticleSystemRenderer psRenderer))
+                                center.z = 0f; 
+
+                                var particle1 = Instantiate(snapParticles, center + (seam * spread), Quaternion.LookRotation(seam));
+                                var particle2 = Instantiate(snapParticles, center - (seam * spread), Quaternion.LookRotation(-seam));
+
+                                
+                                if (particle1.TryGetComponent(out ParticleSystemRenderer r1))
                                 {
-                                    psRenderer.sortingOrder = Mathf.Max(groupRenderer.sortingOrder, targetRenderer.sortingOrder) + 10;
+                                    r1.sortingOrder = Mathf.Max(groupRenderer.sortingOrder, targetRenderer.sortingOrder) + 10;
                                 }
+                                if (particle2.TryGetComponent(out ParticleSystemRenderer r2))
+                                {
+                                    r2.sortingOrder = Mathf.Max(groupRenderer.sortingOrder, targetRenderer.sortingOrder) + 10;
+                                } 
 
-                                Destroy(particles.gameObject, 1f);
+                                Destroy(particle1.gameObject, 1f); 
+                                Destroy(particle2.gameObject, 1f);                            
                             }                        
                         }
 
