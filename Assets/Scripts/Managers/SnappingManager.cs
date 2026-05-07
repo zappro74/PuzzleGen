@@ -12,6 +12,9 @@ public class SnappingManager : MonoBehaviour
     public float snapSpeed = 0.25f; // the speed value of snapping
     public AnimationCurve snapCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // the curve inside the inspector that controls the snapping speed
 
+    [Header("Effects")]
+    public ParticleSystem snapParticles;
+
     public ConnectionSystem connectionSystem;
     private SnapValidation snapValidator = new SnapValidation();
 
@@ -52,6 +55,25 @@ public class SnappingManager : MonoBehaviour
                         var startLocalPosition = pieceGroup.localPosition;
                         pieceGroup.position += adjustment;
                         var endLocalPosition = pieceGroup.localPosition;
+
+                        if (snapParticles != null)
+                        {
+                            if (groupPiece.TryGetComponent(out Renderer groupRenderer) && piece.TryGetComponent(out Renderer targetRenderer))
+                            {                                
+                                var emit = (groupRenderer.bounds.center + targetRenderer.bounds.center) / 2f;
+                                emit.z = 0f; 
+
+                                var particles = Instantiate(snapParticles, emit, Quaternion.identity);
+
+                                if (particles.TryGetComponent(out ParticleSystemRenderer psRenderer))
+                                {
+                                    psRenderer.sortingOrder = Mathf.Max(groupRenderer.sortingOrder, targetRenderer.sortingOrder) + 10;
+                                }
+
+                                Destroy(particles.gameObject, 1f);
+                            }                        
+                        }
+
                         pieceGroup.localPosition = startLocalPosition;
 
                         StartCoroutine(Animate(pieceGroup, startLocalPosition, endLocalPosition));

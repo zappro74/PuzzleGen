@@ -1189,7 +1189,7 @@ MonoBehaviour:
   snappingManager: {fileID: 629222932}
   puzzleFactory: {fileID: 1117236279}
   pieceMaterial: {fileID: 2100000, guid: 46782fca045e80d48bea19b014ee051b, type: 2}
-  explosionShuffle: {fileID: 629222933}
+  explosionShuffle: {fileID: 0}
   currentGameMode: 0
   easyMode:
     modeName: Easy
@@ -1360,6 +1360,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  snapParticles: {fileID: 5237722873583603243, guid: 7f4822cf754344463868aed6baf87573, type: 3}
   snapSearchRadius: 1.5
 --- !u!114 &629222933
 MonoBehaviour:
@@ -2127,7 +2128,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -57.939087}
+  m_AnchoredPosition: {x: 0, y: -57.938965}
   m_SizeDelta: {x: 612.15, y: 87.1468}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1306186867
@@ -3026,7 +3027,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 177.9, y: 17.3}
+  m_AnchoredPosition: {x: 177.8999, y: 17.300049}
   m_SizeDelta: {x: 316.0861, y: 74.042}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1793572920
