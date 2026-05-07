@@ -10,6 +10,9 @@ public class ExplosionShuffle : MonoBehaviour
     public float torqueForce = .5f;
     public float shuffleDuration = 1.5f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource explosionAudio;
+
     public void ExplodePieces(List<GameObject> pieces)
     {
         StartCoroutine(ExplodeRoutine(pieces));
@@ -18,6 +21,13 @@ public class ExplosionShuffle : MonoBehaviour
     private IEnumerator ExplodeRoutine(List<GameObject> pieces)
     {
         yield return new WaitForSeconds(delayBeforeExplosion);
+
+
+        if (explosionAudio != null)
+        {
+            explosionAudio.pitch = Random.Range(0.9f, 1.1f);
+            explosionAudio.Play();
+        }
 
         Vector2 center = GetCenter(pieces);
 
