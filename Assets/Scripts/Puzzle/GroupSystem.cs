@@ -56,5 +56,10 @@ public class GroupSystem
         groups.Remove(groupBId);
     }
 
+    public bool IsPuzzleComplete(int numberOfPieces)
+    {
+        return groups.Count == 1;
+    }
+
 
 }
