@@ -18,6 +18,11 @@ public class SnappingManager : MonoBehaviour
     public ConnectionSystem connectionSystem;
     private SnapValidation snapValidator = new SnapValidation();
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource snapAudioSource;
+
+    [SerializeField] private AudioClip[] snapSounds;
+
     private float snapSearchRadius = 1.5f;
 
     public void TrySnap(Transform pieceGroup)
@@ -86,6 +91,8 @@ public class SnappingManager : MonoBehaviour
         }
 
         pieceGroup.localPosition = end;
+
+        PlaySnapSound();
 
         Particles(groupPiece, piece);
 
@@ -225,5 +232,19 @@ public class SnappingManager : MonoBehaviour
         groupMeshFilter.mesh = combinedMesh;
         groupMeshRenderer.sharedMaterial = pieces[0].GetComponent<MeshRenderer>().sharedMaterial;
         groupMeshRenderer.sortingOrder = 10;
+    }
+
+    private void PlaySnapSound()
+    {
+        if (snapAudioSource == null || snapSounds.Length == 0)
+        {
+            return;
+        }
+
+        int randomIndex = Random.Range(0, snapSounds.Length);
+
+        snapAudioSource.pitch = Random.Range(0.95f, 1.05f);
+
+        snapAudioSource.PlayOneShot(snapSounds[randomIndex]);
     }
 }

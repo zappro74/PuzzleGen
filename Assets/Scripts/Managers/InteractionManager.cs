@@ -27,10 +27,12 @@ public class InteractionManager : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] private AudioSource dragAudio;
+    [SerializeField] private AudioSource grabAudioSource;
+    [SerializeField] private AudioClip[] grabSounds;
     [SerializeField] private float maxDragSpeed = 10f;
-    [SerializeField] private float maxDragVolume = 1f;
+    [SerializeField] private float maxDragVolume = .8f;
     [SerializeField] private float minPitch = 0.5f;
-    [SerializeField] private float maxPitch = 1f;
+    [SerializeField] private float maxPitch = 1.3f;
 
     private Vector3 lastDragPosition;
     private Camera gameCamera;
@@ -136,7 +138,7 @@ public class InteractionManager : MonoBehaviour
 
         gameCamera.transform.position += (mousePosition - mousePostZoom);
 
-        CameraBoundaries();    
+        CameraBoundaries();
     }
     private void PanCamera(Vector3 mousePosition)
     {
@@ -193,6 +195,7 @@ public class InteractionManager : MonoBehaviour
     }
     private void TryPickup(Vector3 mousePosition)
     {
+        PlayGrabSound();
         var topPiece = GrabPiece(mousePosition);
 
         if (topPiece.collider != null)
@@ -312,5 +315,19 @@ public class InteractionManager : MonoBehaviour
         dragAudio.volume = 0f;
     }
 
+    private void PlayGrabSound()
+    {
+        if (grabAudioSource == null || grabSounds == null || grabSounds.Length == 0)
+        {
+            return;
+        }
 
+        int randomIndex = Random.Range(0, grabSounds.Length);
+
+        grabAudioSource.volume = 4f;
+
+        grabAudioSource.pitch = Random.Range(0.95f, 1.05f);
+
+        grabAudioSource.PlayOneShot(grabSounds[randomIndex]);
+    }
 }
