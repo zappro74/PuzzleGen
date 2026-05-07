@@ -43,62 +43,7 @@ public class GameStateManager : MonoBehaviour
     [Header("Shuffling")]
     [SerializeField] private ExplosionShuffle explosionShuffle;
 
-    [Header("Game Modes")]
-    [SerializeField] public GameMode currentGameMode = GameMode.Easy;
-
-    [SerializeField] private GameModeSettings easyMode = new GameModeSettings
-    {
-        modeName = "Easy",
-        rows = 4,
-        columns = 4,
-        allowRotation = false,
-        allowShuffle = false,
-        allowPieceCollision = false,
-        snapTolerance = 0.6f,
-        explosionForce = 10f,
-        randomForce = 5f,
-        torqueForce = 5f,
-        shuffleDuration = 5f,
-        showFullImagePreview = true,
-        allowGroupBreaking = false,
-        randomizeInitialRotation = false
-    };
-
-    [SerializeField] private GameModeSettings mediumMode = new GameModeSettings
-    {
-        modeName = "Medium",
-        rows = 6,
-        columns = 6,
-        allowRotation = false,
-        allowShuffle = true,
-        allowPieceCollision = false,
-        snapTolerance = 0.45f,
-        explosionForce = 10f,
-        randomForce = 5f,
-        torqueForce = 5f,
-        shuffleDuration = 5f,
-        showFullImagePreview = true,
-        allowGroupBreaking = false,
-        randomizeInitialRotation = false
-    };
-
-    [SerializeField] private GameModeSettings hardMode = new GameModeSettings
-    {
-        modeName = "Hard",
-        rows = 10,
-        columns = 10,
-        allowRotation = true,
-        allowShuffle = true,
-        allowPieceCollision = false,
-        snapTolerance = 0.3f,
-        explosionForce = 10f,
-        randomForce = 5f,
-        torqueForce = 5f,
-        shuffleDuration = 5f,
-        showFullImagePreview = true,
-        allowGroupBreaking = true,
-        randomizeInitialRotation = true
-    };
+    private float elapsedTime = 0f;
 
     public void StartGame()
     {
