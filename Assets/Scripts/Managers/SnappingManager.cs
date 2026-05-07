@@ -12,10 +12,13 @@ public class SnappingManager : MonoBehaviour
     public float snapSpeed = 0.25f; // the speed value of snapping
     public AnimationCurve snapCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // the curve inside the inspector that controls the snapping speed
 
+    [Header("Effects")]
+    public ParticleSystem snapParticles;
+
     public ConnectionSystem connectionSystem;
     private SnapValidation snapValidator = new SnapValidation();
 
-    public float snapSearchRadius = 1.5f;
+    private float snapSearchRadius = 1.5f;
 
     public void TrySnap(Transform pieceGroup)
     {
@@ -52,9 +55,10 @@ public class SnappingManager : MonoBehaviour
                         var startLocalPosition = pieceGroup.localPosition;
                         pieceGroup.position += adjustment;
                         var endLocalPosition = pieceGroup.localPosition;
+
                         pieceGroup.localPosition = startLocalPosition;
 
-                        StartCoroutine(Animate(pieceGroup, startLocalPosition, endLocalPosition));
+                        StartCoroutine(Animate(pieceGroup, startLocalPosition, endLocalPosition, groupPiece, piece));
 
                         Debug.Log($"Snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
                         return;
@@ -64,10 +68,10 @@ public class SnappingManager : MonoBehaviour
         }
     }
 
-    private IEnumerator Animate(Transform piece, Vector3 start, Vector3 end)
+    private IEnumerator Animate(Transform pieceGroup, Vector3 start, Vector3 end, PuzzlePiece groupPiece, PuzzlePiece piece)
     {
         var elapsedTime = 0f;
-        var colliders = piece.GetComponentsInChildren<Collider2D>();
+        var colliders = pieceGroup.GetComponentsInChildren<Collider2D>();
 
         foreach (var collider in colliders)
         {
@@ -77,20 +81,49 @@ public class SnappingManager : MonoBehaviour
         while (elapsedTime < snapSpeed)
         {
             elapsedTime += Time.deltaTime;
-            piece.localPosition = Vector3.Lerp(start, end, snapCurve.Evaluate(elapsedTime / snapSpeed));
+            pieceGroup.localPosition = Vector3.Lerp(start, end, snapCurve.Evaluate(elapsedTime / snapSpeed));
             yield return null; 
         }
 
-        piece.localPosition = end;
+        pieceGroup.localPosition = end;
+
+        Particles(groupPiece, piece);
 
         //RebuildMesh(GetRoot(piece));
-        RestorePieceRenderers(GetRoot(piece));
+        RestorePieceRenderers(GetRoot(pieceGroup));
 
         foreach (var collider in colliders)
         {
             collider.enabled = true;
         }
 
+    }
+    private void Particles(PuzzlePiece groupPiece, PuzzlePiece piece)
+    {          
+        if (snapParticles == null || !groupPiece.TryGetComponent(out Renderer gRender) || !piece.TryGetComponent(out Renderer tRender))
+        {
+            return;
+        }
+
+        var spreadFrom = 0.9f;
+
+        var direction = groupPiece.SolvedPosition - piece.SolvedPosition;
+        var seam = new Vector3(-direction.y, direction.x, 0f).normalized;
+        
+        Vector3 center = ((Vector2)gRender.bounds.center + (Vector2)tRender.bounds.center) / 2f;
+
+        Vector3[] directions = { seam, -seam };
+        
+        foreach (var d in directions)
+        {
+            var particleSys = Instantiate(snapParticles, center + (d * spreadFrom), Quaternion.LookRotation(d));
+            if (particleSys.TryGetComponent(out ParticleSystemRenderer renderer)) 
+            {
+                renderer.sortingOrder = Mathf.Max(gRender.sortingOrder, tRender.sortingOrder) + 10;
+            }
+            Destroy(particleSys.gameObject, 1f);
+        }            
+                                
     }
     private Transform GetRoot(Transform piece)
     {

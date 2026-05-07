@@ -138,7 +138,7 @@ public class GameStateManager : MonoBehaviour
         
         if (timer != null)
         {
-            timer.text = "00:00"; 
+            timer.text = "00:00:00"; 
         }
 
         ClearPuzzle();
