@@ -15,6 +15,9 @@ public class InteractionManager : MonoBehaviour
     [Header("Drag Settings")]
     [SerializeField] private float dragSmoothTime = 0.08f;
 
+    [Header("Rotation Settings")]
+    [SerializeField] private float rotationStep = 90f;
+
     [Header("Zoom Settings")]
     [SerializeField] private float minZoom = 2f;
     [SerializeField] private float maxZoom = 15f;
@@ -65,6 +68,11 @@ public class InteractionManager : MonoBehaviour
         if (Mathf.Abs(y) > 0.01f)
         {
             ZoomCamera(y, mousePosition);
+        }
+
+        if (rightButton.wasPressedThisFrame)
+        {
+            TryRotate(mousePosition);
         }
 
         if (leftButton.wasPressedThisFrame)
@@ -203,6 +211,8 @@ public class InteractionManager : MonoBehaviour
             selection = GetRoot(topPiece.transform);
             render = topPiece.transform.GetComponent<Renderer>();
 
+            SnapRotation(selection);
+
             order = Mathf.Max(order, render.sortingOrder) + 1;
             dragVelocity = Vector3.zero;
 
@@ -223,6 +233,30 @@ public class InteractionManager : MonoBehaviour
                 dragAudio.Play();
             }
         }
+    }
+    private void SnapRotation(Transform target)
+    {
+        float angle = GetZAngle(target.rotation);
+        float snapped = Mathf.Round(angle / rotationStep) * rotationStep;
+        target.rotation = Quaternion.AngleAxis(snapped, Vector3.forward);
+    }
+    private float GetZAngle(Quaternion rotation)
+    {
+        Vector3 right = rotation * Vector3.right;
+        return Math.Atan2(right.y, right.x) * Mathf.Rad2Deg;
+    }
+    private void TryRotate(Vector3 mousePosition)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+
+        if (hit.collider == null || !hit.collider.CompareTag("Piece"))
+        {
+            return;
+        }
+
+        Transform root = GetRoot(hit.transform);
+        root.rotation *= Quaternion.AngleAxis(-rotationStep, Vector3.forward);
+
     }
 
     private Vector3 GetGroupCenter(Transform group)
