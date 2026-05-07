@@ -18,7 +18,7 @@ public class SnappingManager : MonoBehaviour
     public ConnectionSystem connectionSystem;
     private SnapValidation snapValidator = new SnapValidation();
 
-    public float snapSearchRadius = 1.5f;
+    private float snapSearchRadius = 1.5f;
 
     public void TrySnap(Transform pieceGroup)
     {
