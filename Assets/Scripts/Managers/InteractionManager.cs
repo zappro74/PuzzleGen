@@ -250,18 +250,19 @@ public class InteractionManager : MonoBehaviour
     {
         RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
 
+        if (isRotating)
+        {
+            return;
+        }
+
         if (hit.collider == null || !hit.collider.CompareTag("Piece"))
         {
             return;
         }
 
         Transform root = GetRoot(hit.transform);
-        Vector3 center = GetGroupCenter(root);
 
-        root.RotateAround(center, Vector3.forward, -rotationStep);
-
-        SnapRotation(root);
-
+        StartCoroutine(RotationAnimation(root, -rotationStep));
     }
 
     private Vector3 GetGroupCenter(Transform group)
@@ -368,5 +369,38 @@ public class InteractionManager : MonoBehaviour
         grabAudioSource.pitch = Random.Range(0.95f, 1.05f);
 
         grabAudioSource.PlayOneShot(grabSounds[randomIndex]);
+    }
+
+    private IEnumerator RotationAnimation(Transform target, float totalAngle)
+    {
+        isRotating = true;
+
+        float elapsed = 0f;
+        float rotatedAmount = 0f;
+
+        while (elapsed < rotationDuration)
+        {
+            float progress = elapsed / rotationDuration;
+            float erasedProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            float targetAngle = Mathf.Lerp(0f, totalAngle, erasedProgress);
+            float angleThisFrame = targetAngle - rotatedAmount;
+
+            Vector3 center = GetGroupCenter(target);
+
+            target.RotateAround(center, Vector3.forward, angleThisFrame);
+
+            rotatedAmount = targetAngle;
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        Vector3 finalCenter = GetGroupCenter(target);
+        target.RotateAround(finalCenter, Vector3.forward, totalAngle - rotatedAmount);
+
+        SnapRotation(target);
+
+        isRotating = false;
     }
 }
