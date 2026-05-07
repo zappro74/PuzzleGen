@@ -47,10 +47,9 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private GameModeSettings easyMode = new GameModeSettings
     {
         modeName = "Easy",
-        rows = 4,
-        columns = 4,
+        rows = 3,
+        columns = 3,
         allowRotation = false,
-        allowShuffle = false,
         allowPieceCollision = false,
         snapTolerance = 0.6f,
         explosionForce = 10f,
@@ -65,10 +64,9 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private GameModeSettings mediumMode = new GameModeSettings
     {
         modeName = "Medium",
-        rows = 6,
-        columns = 6,
+        rows = 5,
+        columns = 5,
         allowRotation = false,
-        allowShuffle = true,
         allowPieceCollision = false,
         snapTolerance = 0.45f,
         explosionForce = 10f,
@@ -86,7 +84,6 @@ public class GameStateManager : MonoBehaviour
         rows = 10,
         columns = 10,
         allowRotation = true,
-        allowShuffle = true,
         allowPieceCollision = false,
         snapTolerance = 0.3f,
         explosionForce = 10f,
