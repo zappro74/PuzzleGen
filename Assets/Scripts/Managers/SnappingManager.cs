@@ -99,38 +99,31 @@ public class SnappingManager : MonoBehaviour
 
     }
     private void Particles(PuzzlePiece groupPiece, PuzzlePiece piece)
-    {
-        if (snapParticles != null)
+    {          
+        if (snapParticles == null || !groupPiece.TryGetComponent(out Renderer gRender) || !piece.TryGetComponent(out Renderer tRender))
         {
-            if (groupPiece.TryGetComponent(out Renderer groupRenderer) && piece.TryGetComponent(out Renderer targetRenderer))
-            {                                                                     
-                float spread = 0.9f;
-
-                var direction = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;  
-                var connectionDirection = new Vector3(direction.x, direction.y, 0f).normalized;
-                var seam = new Vector3(-connectionDirection.y, connectionDirection.x, 0f);
-                var center = (groupRenderer.bounds.center + targetRenderer.bounds.center) / 2f;
-
-                center.z = 0f; 
-
-                var particle1 = Instantiate(snapParticles, center + (seam * spread), Quaternion.LookRotation(seam));
-                var particle2 = Instantiate(snapParticles, center - (seam * spread), Quaternion.LookRotation(-seam));
-
-                
-                if (particle1.TryGetComponent(out ParticleSystemRenderer r1))
-                {
-                    r1.sortingOrder = Mathf.Max(groupRenderer.sortingOrder, targetRenderer.sortingOrder) + 10;
-                }
-                if (particle2.TryGetComponent(out ParticleSystemRenderer r2))
-                {
-                    r2.sortingOrder = Mathf.Max(groupRenderer.sortingOrder, targetRenderer.sortingOrder) + 10;
-                } 
-
-                Destroy(particle1.gameObject, 1f); 
-                Destroy(particle2.gameObject, 1f);                            
-            }                        
+            return;
         }
 
+        var spreadFrom = 0.9f;
+
+        var direction = groupPiece.SolvedPosition - piece.SolvedPosition;
+        var seam = new Vector3(-direction.y, direction.x, 0f).normalized;
+        
+        Vector3 center = ((Vector2)gRender.bounds.center + (Vector2)tRender.bounds.center) / 2f;
+
+        Vector3[] directions = { seam, -seam };
+        
+        foreach (var d in directions)
+        {
+            var particleSys = Instantiate(snapParticles, center + (d * spreadFrom), Quaternion.LookRotation(d));
+            if (particleSys.TryGetComponent(out ParticleSystemRenderer renderer)) 
+            {
+                renderer.sortingOrder = Mathf.Max(gRender.sortingOrder, tRender.sortingOrder) + 10;
+            }
+            Destroy(particleSys.gameObject, 1f);
+        }            
+                                
     }
     private Transform GetRoot(Transform piece)
     {
