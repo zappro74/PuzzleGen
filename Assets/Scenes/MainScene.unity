@@ -1634,7 +1634,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExplosionShuffle
   delayBeforeExplosion: 1.5
-  explosionForce: 10
+  explosionForce: 200
   randomForce: 50
   torqueForce: 10
   shuffleDuration: 5

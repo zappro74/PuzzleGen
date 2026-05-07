@@ -30,6 +30,7 @@ public class ExplosionShuffle : MonoBehaviour
         }
 
         Vector2 center = GetCenter(pieces);
+        var colliders = new List<Collider2D>();
 
         foreach (GameObject piece in pieces)
         {
@@ -40,11 +41,10 @@ public class ExplosionShuffle : MonoBehaviour
                 rb = piece.AddComponent<Rigidbody2D>();
             }
 
-            Collider2D colider = piece.GetComponent<Collider2D>();
-
+            var colider = piece.GetComponent<Collider2D>();
             if (colider != null)
             {
-                colider.enabled = false;
+                colliders.Add(colider);
             }
 
             rb.bodyType = RigidbodyType2D.Dynamic;
@@ -52,8 +52,20 @@ public class ExplosionShuffle : MonoBehaviour
             rb.linearDamping = 2f;
             rb.angularDamping = 3f;
             rb.constraints = RigidbodyConstraints2D.None;
+        }
 
-            Vector2 direction = ((Vector2)piece.transform.position - center).normalized;
+        for (int i = 0; i < colliders.Count; i++)
+        {
+            for (int j = i + 1; j < colliders.Count; j++)
+            {
+                Physics2D.IgnoreCollision(colliders[i], colliders[j], true);
+            }
+        }
+
+        foreach (GameObject piece in pieces)
+        {
+            var rb = piece.GetComponent<Rigidbody2D>();
+            var direction = ((Vector2)piece.transform.position - center).normalized;
 
             if (direction == Vector2.zero)
             {
@@ -78,15 +90,15 @@ public class ExplosionShuffle : MonoBehaviour
                 rb.gravityScale = 0f;
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
             }
-
-            Collider2D colider = piece.GetComponent<Collider2D>();
-
-            if (colider != null)
-            {
-                colider.enabled = true;
-            }
-
             piece.tag = "Piece";
+        }
+
+        for (int i = 0; i < colliders.Count; i++)
+        {
+            for (int j = i + 1; j < colliders.Count; j++)
+            {
+                Physics2D.IgnoreCollision(colliders[i], colliders[j], false);
+            }
         }
     }
 
