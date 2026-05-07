@@ -17,6 +17,8 @@ public class InteractionManager : MonoBehaviour
 
     [Header("Rotation Settings")]
     [SerializeField] private float rotationStep = 90f;
+    [SerializeField] private float rotationDuration = 0.15f;
+    private bool isRotating = false;
 
     [Header("Zoom Settings")]
     [SerializeField] private float minZoom = 2f;
@@ -255,7 +257,11 @@ public class InteractionManager : MonoBehaviour
         }
 
         Transform root = GetRoot(hit.transform);
-        root.rotation *= Quaternion.AngleAxis(-rotationStep, Vector3.forward);
+        Vector3 center = GetGroupCenter(root);
+
+        root.RotateAround(center, Vector3.forward, -rotationStep);
+
+        SnapRotation(root);
 
     }
 
