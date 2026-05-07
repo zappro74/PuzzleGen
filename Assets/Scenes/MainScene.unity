@@ -1496,6 +1496,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Image
   stateManager: {fileID: 629222926}
   imageReference: {fileID: 629222928}
+  gifLoader: {fileID: 0}
 --- !u!114 &629222930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1527,6 +1528,8 @@ MonoBehaviour:
   menuController: {fileID: 629222930}
   centerPanel: {fileID: 304034181}
   dragSmoothTime: 0.08
+  rotationStep: 90
+  rotationDuration: 0.15
   minZoom: 2
   maxZoom: 20
   zoomSpeed: 0.4
@@ -1597,11 +1600,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 736eb7fb34d26344cbf951e97c170a8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExplosionShuffle
-  delayBeforeExplosion: 0.75
-  explosionForce: 20
-  randomForce: 5
-  torqueForce: 4
-  shuffleDuration: 3
+  delayBeforeExplosion: 1.5
+  explosionForce: 10
+  randomForce: 50
+  torqueForce: 10
+  shuffleDuration: 5
   explosionAudio: {fileID: 629222935}
 --- !u!82 &629222934
 AudioSource:
