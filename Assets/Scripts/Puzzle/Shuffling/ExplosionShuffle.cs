@@ -52,6 +52,9 @@ public class ExplosionShuffle : MonoBehaviour
             rb.linearDamping = 2f;
             rb.angularDamping = 3f;
             rb.constraints = RigidbodyConstraints2D.None;
+
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; 
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
         }
 
         for (int i = 0; i < colliders.Count; i++)
@@ -89,6 +92,8 @@ public class ExplosionShuffle : MonoBehaviour
                 rb.bodyType = RigidbodyType2D.Kinematic;
                 rb.gravityScale = 0f;
                 rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+                rb.collisionDetectionMode = CollisionDetectionMode2D.Discrete;
             }
             piece.tag = "Piece";
         }

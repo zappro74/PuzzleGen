@@ -210,7 +210,7 @@ public class InteractionManager : MonoBehaviour
         collider.points = points;
 
         var bounce = new PhysicsMaterial2D("Wall");
-        bounce.bounciness = 0.5f; 
+        bounce.bounciness = 1f; 
         bounce.friction = 0.1f;
         
         collider.sharedMaterial = bounce;
