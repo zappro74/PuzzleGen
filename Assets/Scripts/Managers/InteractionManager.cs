@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using SimpleFileBrowser;
@@ -24,6 +25,16 @@ public class InteractionManager : MonoBehaviour
     [SerializeField] private Color boundaryColor = Color.red;
     [SerializeField] private float boundaryThickness = 0.15f;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource dragAudio;
+    [SerializeField] private AudioSource grabAudioSource;
+    [SerializeField] private AudioClip[] grabSounds;
+    [SerializeField] private float maxDragSpeed = 10f;
+    [SerializeField] private float maxDragVolume = .8f;
+    [SerializeField] private float minPitch = 0.5f;
+    [SerializeField] private float maxPitch = 1.3f;
+
+    private Vector3 lastDragPosition;
     private Camera gameCamera;
     private Transform selection;
     private Vector3 offset;
@@ -78,6 +89,16 @@ public class InteractionManager : MonoBehaviour
                 targetPosition.z = selection.position.z;
 
                 selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, dragSmoothTime);
+                
+                float speed = (selection.position - lastDragPosition).magnitude / Time.deltaTime;
+
+                int groupSize = selection.GetComponentsInChildren<Collider2D>().Length;
+
+                bool isSnapping = false;
+
+                UpdateDragAudio(speed, groupSize, isSnapping);
+
+                lastDragPosition = selection.position;
             }
             else if (isPanning)
             {
@@ -90,6 +111,9 @@ public class InteractionManager : MonoBehaviour
             {
                 snapManager.TrySnap(selection);
             }
+
+            StartCoroutine(FadeOutDragAudio());
+
             selection = null;
 
             selection = null;
@@ -114,7 +138,7 @@ public class InteractionManager : MonoBehaviour
 
         gameCamera.transform.position += (mousePosition - mousePostZoom);
 
-        CameraBoundaries();    
+        CameraBoundaries();
     }
     private void PanCamera(Vector3 mousePosition)
     {
@@ -171,6 +195,7 @@ public class InteractionManager : MonoBehaviour
     }
     private void TryPickup(Vector3 mousePosition)
     {
+        PlayGrabSound();
         var topPiece = GrabPiece(mousePosition);
 
         if (topPiece.collider != null)
@@ -186,6 +211,16 @@ public class InteractionManager : MonoBehaviour
             for (int i = 0; i < renderers.Length; i++)
             {
                 renderers[i].sortingOrder = order + i;
+            }
+
+            lastDragPosition = selection.position;
+
+            dragAudio.loop = true;
+            dragAudio.volume = 0f;
+
+            if (!dragAudio.isPlaying)
+            {
+                dragAudio.Play();
             }
         }
     }
@@ -240,5 +275,59 @@ public class InteractionManager : MonoBehaviour
         }
 
         return piece;
+    }
+
+    private void UpdateDragAudio(float speed, int groupSize, bool isSnapping)
+    {
+        float speed01 = Mathf.Clamp01(speed / maxDragSpeed);
+
+        float groupVolumeBoost = Mathf.Clamp01(groupSize / 10f) * 0.2f;
+
+        float targetVolume = (speed01 * maxDragVolume) + groupVolumeBoost;
+
+        float groupPitchDrop = Mathf.Clamp01(groupSize / 10f) * 0.15f;
+
+        float targetPitch = Mathf.Lerp(minPitch, maxPitch, speed01) - groupPitchDrop;
+
+        if (isSnapping)
+        {
+            targetVolume *= 0.5f;
+            targetPitch *= 1.1f;
+        }
+
+        dragAudio.volume = Mathf.Lerp(dragAudio.volume, targetVolume, Time.deltaTime * 10f);
+
+        dragAudio.pitch = Mathf.Lerp(dragAudio.pitch, targetPitch, Time.deltaTime * 10f);
+    }
+
+    private IEnumerator FadeOutDragAudio()
+    {
+        float startVolume = dragAudio.volume;
+
+        while (dragAudio.volume > 0.01f)
+        {
+            dragAudio.volume = Mathf.Lerp(dragAudio.volume, 0f, Time.deltaTime * 12f);
+
+            yield return null;
+        }
+
+        dragAudio.Stop();
+        dragAudio.volume = 0f;
+    }
+
+    private void PlayGrabSound()
+    {
+        if (grabAudioSource == null || grabSounds == null || grabSounds.Length == 0)
+        {
+            return;
+        }
+
+        int randomIndex = Random.Range(0, grabSounds.Length);
+
+        grabAudioSource.volume = 4f;
+
+        grabAudioSource.pitch = Random.Range(0.95f, 1.05f);
+
+        grabAudioSource.PlayOneShot(grabSounds[randomIndex]);
     }
 }
