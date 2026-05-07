@@ -196,8 +196,24 @@ public class InteractionManager : MonoBehaviour
             new(x, y, 0),  
             new(x, -y, 0)   
         });
-        
         renderer.loop = true;    
+
+        var collider = lineObject.AddComponent<EdgeCollider2D>();
+        var points = new Vector2[] 
+        {
+            new(-x, -y),
+            new(-x, y),
+            new(x, y),
+            new(x, -y),
+            new(-x, -y)
+        };
+        collider.points = points;
+
+        var bounce = new PhysicsMaterial2D("Wall");
+        bounce.bounciness = 0.5f; 
+        bounce.friction = 0.1f;
+        
+        collider.sharedMaterial = bounce;
     }
     private RaycastHit2D GrabPiece(Vector3 mousePosition)
     {
@@ -313,15 +329,17 @@ public class InteractionManager : MonoBehaviour
     }
     private Vector3 WorldBoundaries(Vector3 movement)
     {
-        var left = -boundaries.x / 2f;
-        var right = boundaries.x / 2f;
-        var bottom = -boundaries.y / 2f;
-        var top = boundaries.y / 2f;
+        var center = movement - (selection.position - GetGroupCenter(selection));
 
-        movement.x = Mathf.Clamp(movement.x, left, right - render.bounds.size.x);
-        movement.y = Mathf.Clamp(movement.y, bottom, top - render.bounds.size.y);
+        var left = (-boundaries.x / 2f) + render.bounds.extents.x;
+        var right = (boundaries.x / 2f) - render.bounds.extents.x;
+        var bottom = (-boundaries.y / 2f) + render.bounds.extents.y;
+        var top = (boundaries.y / 2f) - render.bounds.extents.y;
 
-        return movement;    
+        center.x = Mathf.Clamp(center.x, left, right);
+        center.y = Mathf.Clamp(center.y, bottom, top);
+
+        return center + (selection.position - GetGroupCenter(selection));    
     }
     private Transform GetRoot(Transform piece)
     {
