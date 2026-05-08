@@ -2,11 +2,16 @@ using UnityEngine;
 
 public class SnapValidation
 {
-    public bool CanSnap(PieceData a, PieceData b, float snapTolerance)
+    public bool CanSnap(PieceData a, PieceData b, Transform aTransform, Transform bTransform, float snapTolerance)
     {
         NeighborDetection neighborDetection = new NeighborDetection();
 
         if (!neighborDetection.AreNeighbors(a, b))
+        {
+            return false;
+        }
+
+        if (!SameRotation(aTransform, bTransform))
         {
             return false;
         }
@@ -42,17 +47,36 @@ public class SnapValidation
                 return false;
         }
 
-        if ((edgeA == EdgeType.Extruded && edgeB == EdgeType.Intruded) ||
-            (edgeA == EdgeType.Intruded && edgeB == EdgeType.Extruded))
+        return (edgeA == EdgeType.Extruded && edgeB == EdgeType.Intruded) || (edgeA == EdgeType.Intruded && edgeB == EdgeType.Extruded) || (edgeA == EdgeType.Flat && edgeB == EdgeType.Flat);
+    }
+
+    private bool SameRotation(Transform a, Transform b)
+    {
+        Transform aRoot = GetRoot(a);
+        Transform bRoot = GetRoot(b);
+
+        int aRotation = NormalizeRotation(aRoot.eulerAngles.z);
+        int bRotation = NormalizeRotation(bRoot.eulerAngles.z);
+
+        return aRotation == bRotation;
+    }
+
+    private int NormalizeRotation(float zRotation)
+    {
+        int rounded = Mathf.RoundToInt(zRotation);
+
+        rounded = ((rounded % 360) + 360) % 360;
+
+        return rounded;
+    }
+
+    private Transform GetRoot(Transform piece)
+    {
+        while (piece.parent != null && piece.parent.CompareTag("Piece"))
         {
-            return true;
+            piece = piece.parent;
         }
 
-        if (edgeA == EdgeType.Flat && edgeB == EdgeType.Flat)
-        {
-            return true;
-        }
-
-        return false;
+        return piece;
     }
 }
