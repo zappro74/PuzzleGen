@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using SimpleFileBrowser;
+using System.Text.RegularExpressions;
 
 public class InteractionManager : MonoBehaviour
 {
@@ -99,11 +100,13 @@ public class InteractionManager : MonoBehaviour
                 targetPosition.z = selection.position.z;
                 targetPosition = WorldBoundaries(targetPosition);
 
-                selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, dragSmoothTime);
+                int groupSize = selection.GetComponentsInChildren<PuzzlePiece>().Length;
+
+                float adjustedSmoothTime = dragSmoothTime * (1f + ((groupSize - 1) * 0.08f));
+
+                selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, adjustedSmoothTime);
                 
                 float speed = (selection.position - lastDragPosition).magnitude / Time.deltaTime;
-
-                int groupSize = selection.GetComponentsInChildren<Collider2D>().Length;
 
                 bool isSnapping = false;
 
@@ -247,7 +250,7 @@ public class InteractionManager : MonoBehaviour
 
             SnapRotation(selection);
 
-            order = Mathf.Max(order, render.sortingOrder) + 1;
+            order = GetHighestSortingOrder() + 1;
             dragVelocity = Vector3.zero;
 
             var renderers = selection.GetComponentsInChildren<Renderer>();
@@ -437,5 +440,22 @@ public class InteractionManager : MonoBehaviour
         SnapRotation(target);
 
         isRotating = false;
+    }
+
+    private int GetHighestSortingOrder()
+    {
+        int highest = int.MinValue;
+
+        Renderer[] renderers = FindObjectsByType<Renderer>(FindObjectsInactive.Exclude);
+
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer.CompareTag("Piece"));
+            {
+                highest = Mathf.Max(highest, renderer.sortingOrder);
+            }
+        }
+
+        return highest == int.MinValue ? 0 : highest;
     }
 }
