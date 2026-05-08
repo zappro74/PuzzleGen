@@ -45,25 +45,28 @@ public class SnappingManager : MonoBehaviour
                 if (snapValidator.CanSnap(groupPiece.Data, piece.Data, groupPiece.transform, piece.transform, snappingTolerance))
                 {    
     
-                    var snappingPosition = (Vector2)piece.transform.position + ((Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition);
+                    Vector2 solvedOffset = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;
+                    Quaternion rotation = GetRoot(piece.transform).rotation;
+                    Vector2 rotatedOffset = rotation * solvedOffset;
+                    Vector2 snappingPosition = (Vector2)piece.transform.position + rotatedOffset;
                     var distance = Vector2.Distance(groupPiece.transform.position, snappingPosition);
 
                     if (distance <= snappingTolerance)
                     {
-                        var adjustment = (Vector3)snappingPosition - groupPiece.transform.position;
-
-                        pieceGroup.SetParent(GetRoot(piece.transform));
+                        Vector3 adjustment = (Vector3)snappingPosition - groupPiece.transform.position;
+                        Transform targetRoot = GetRoot(piece.transform);
                         connectionSystem.AddConnection(groupPiece.Data, piece.Data);
 
-                        var startLocalPosition = pieceGroup.localPosition;
+                        Vector3 startWorldPosition = pieceGroup.position;
                         pieceGroup.position += adjustment;
-                        var endLocalPosition = pieceGroup.localPosition;
 
-                        pieceGroup.localPosition = startLocalPosition;
+                        Vector3 endWorldPosition = pieceGroup.position;
+                        pieceGroup.position = startWorldPosition;
 
-                        StartCoroutine(Animate(pieceGroup, startLocalPosition, endLocalPosition, groupPiece, piece));
+                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, groupPiece, piece));
 
                         Debug.Log($"Snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
+
                         return;
                     }
                 }
@@ -93,8 +96,10 @@ public class SnappingManager : MonoBehaviour
 
                 if (snapValidator.CanSnap(groupPiece.Data, piece.Data, groupPiece.transform, piece.transform, snappingTolerance))
                 {
-                    Vector2 snappingPosition = (Vector2)piece.transform.position + ((Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition);
-
+                    Vector2 solvedOffset = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;
+                    Quaternion rotation = GetRoot(piece.transform).rotation;
+                    Vector2 rotatedOffset = rotation * solvedOffset;
+                    Vector2 snappingPosition = (Vector2)piece.transform.position + rotatedOffset;
                     float distance = Vector2.Distance(groupPiece.transform.position, snappingPosition);
 
                     if (distance <= snappingTolerance)
@@ -103,18 +108,21 @@ public class SnappingManager : MonoBehaviour
                         {
                             continue;
                         }
+
                         Vector3 adjustment = (Vector3)snappingPosition - groupPiece.transform.position;
+                        Transform targetRoot = GetRoot(piece.transform);
+                        connectionSystem.AddConnection(groupPiece.Data, piece.Data);
 
-                        pieceGroup.SetParent(GetRoot(piece.transform));
-                        MergeGroups(pieceGroup, GetRoot(piece.transform));
-
+                        Vector3 startWorldPosition = pieceGroup.position;
                         pieceGroup.position += adjustment;
 
-                        PlaySnapSound();
-                        Particles(groupPiece, piece);
-                        RestorePieceRenderers(GetRoot(pieceGroup));
+                        Vector3 endWorldPosition = pieceGroup.position;
+                        pieceGroup.position = startWorldPosition;
+
+                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, groupPiece, piece));
 
                         Debug.Log($"Auto snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
+
                         return true;
                     }
                 }
@@ -122,13 +130,13 @@ public class SnappingManager : MonoBehaviour
         }
         return false;
     }
-
-    private IEnumerator Animate(Transform pieceGroup, Vector3 start, Vector3 end, PuzzlePiece groupPiece, PuzzlePiece piece)
+    private IEnumerator Animate(Transform pieceGroup, Transform targetRoot, Vector3 start, Vector3 end, PuzzlePiece groupPiece, PuzzlePiece piece)
     {
-        var elapsedTime = 0f;
-        var colliders = pieceGroup.GetComponentsInChildren<Collider2D>();
+        float elapsedTime = 0f;
 
-        foreach (var collider in colliders)
+        Collider2D[] colliders = pieceGroup.GetComponentsInChildren<Collider2D>();
+
+        foreach (Collider2D collider in colliders)
         {
             collider.enabled = false;
         }
@@ -136,24 +144,22 @@ public class SnappingManager : MonoBehaviour
         while (elapsedTime < snapSpeed)
         {
             elapsedTime += Time.deltaTime;
-            pieceGroup.localPosition = Vector3.Lerp(start, end, snapCurve.Evaluate(elapsedTime / snapSpeed));
-            yield return null; 
+            pieceGroup.position = Vector3.Lerp(start, end, snapCurve.Evaluate(elapsedTime / snapSpeed));
+            yield return null;
         }
 
-        pieceGroup.localPosition = end;
+        pieceGroup.position = end;
+
+        MergeGroups(pieceGroup, targetRoot);
 
         PlaySnapSound();
-
         Particles(groupPiece, piece);
+        RestorePieceRenderers(targetRoot);
 
-        //RebuildMesh(GetRoot(piece));
-        RestorePieceRenderers(GetRoot(pieceGroup));
-
-        foreach (var collider in colliders)
+        foreach (Collider2D collider in colliders)
         {
             collider.enabled = true;
         }
-
     }
     private void Particles(PuzzlePiece groupPiece, PuzzlePiece piece)
     {          
@@ -214,76 +220,6 @@ public class SnappingManager : MonoBehaviour
         }
     }
 
-    private void RebuildMesh(Transform groupRoot)
-    {
-        PuzzlePiece[] pieces = groupRoot.GetComponentsInChildren<PuzzlePiece>();
-
-        if (pieces.Length == 0)
-        {
-            return;
-        }
-
-        List<CombineInstance> combines = new List<CombineInstance>();
-
-        foreach (PuzzlePiece puzzlePiece in pieces)
-        {
-            MeshFilter meshFilter = puzzlePiece.GetComponent<MeshFilter>();
-            MeshRenderer meshRenderer = puzzlePiece.GetComponent<MeshRenderer>();
-
-            if ((meshFilter == null) || (meshRenderer == null))
-            {
-                continue;
-            }
-
-            combines.Add(new CombineInstance
-            {
-                mesh = meshFilter.sharedMesh,
-                transform = groupRoot.worldToLocalMatrix * meshFilter.transform.localToWorldMatrix
-            });
-
-            meshRenderer.enabled = false;
-        }
-
-        Transform combinedVisual = groupRoot.Find("CombinedVisual");
-
-        if (combinedVisual == null)
-        {
-            GameObject visualObject = new GameObject("CombinedVisual");
-            visualObject.transform.SetParent(groupRoot);
-            visualObject.transform.localPosition = Vector3.zero;
-            visualObject.transform.localRotation = Quaternion.identity;
-            visualObject.transform.localScale = Vector3.one;
-
-            combinedVisual = visualObject.transform;
-        }
-
-        MeshFilter groupMeshFilter = combinedVisual.GetComponent<MeshFilter>();
-        MeshRenderer groupMeshRenderer = combinedVisual.GetComponent<MeshRenderer>();
-
-        if (groupMeshFilter == null)
-        {
-            groupMeshFilter = combinedVisual.gameObject.AddComponent<MeshFilter>();
-        }
-
-        if (groupMeshRenderer == null)
-        {
-            groupMeshRenderer = combinedVisual.gameObject.AddComponent<MeshRenderer>();
-        }
-
-        Mesh combinedMesh = new Mesh();
-
-        combinedMesh.CombineMeshes(combines.ToArray(), true, true);
-
-        combinedMesh.RecalculateBounds();
-        combinedMesh.RecalculateNormals();
-
-        combinedMesh.bounds = new Bounds(Vector3.zero, Vector3.one * 1000f);
-
-        groupMeshFilter.mesh = combinedMesh;
-        groupMeshRenderer.sharedMaterial = pieces[0].GetComponent<MeshRenderer>().sharedMaterial;
-        groupMeshRenderer.sortingOrder = 10;
-    }
-
     private void PlaySnapSound()
     {
         if (snapAudioSource == null || snapSounds.Length == 0)
@@ -327,6 +263,6 @@ public class SnappingManager : MonoBehaviour
             child.SetParent(targetRoot, true);
         }
 
-        Destroy(sourceRoot.gameObject);
+        sourceRoot.SetParent(targetRoot, true);
     }
 }

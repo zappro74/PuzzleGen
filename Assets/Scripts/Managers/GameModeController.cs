@@ -3,7 +3,7 @@ using UnityEngine;
 public class GameModeController : MonoBehaviour
 {
     [Header("Game Modes")]
-    [SerializeField] public GameMode currentGameMode = GameMode.Easy;
+    public GameMode currentGameMode = GameMode.Easy;
 
     [Header("UI Connections")]
     public GameObject modePanel;
@@ -11,15 +11,15 @@ public class GameModeController : MonoBehaviour
     [Header("Script Connections")]
     public GameStateManager gameManager;
 
-    [SerializeField] private GameModeSettings easyMode = new GameModeSettings
+    private GameModeSettings easyMode = new GameModeSettings
     {
         modeName = "Easy",
-        rows = 4,
-        columns = 4,
+        rows = 3,
+        columns = 3,
         allowRotation = false,
         allowShuffle = false,
         allowPieceCollision = false,
-        snapTolerance = 0.6f,
+        snapTolerance = 1f,
         explosionForce = 10f,
         randomForce = 5f,
         torqueForce = 5f,
@@ -29,7 +29,7 @@ public class GameModeController : MonoBehaviour
         randomizeInitialRotation = false
     };
 
-    [SerializeField] private GameModeSettings mediumMode = new GameModeSettings
+    private GameModeSettings mediumMode = new GameModeSettings
     {
         modeName = "Medium",
         rows = 6,
@@ -37,8 +37,8 @@ public class GameModeController : MonoBehaviour
         allowRotation = false,
         allowShuffle = true,
         allowPieceCollision = false,
-        snapTolerance = 0.45f,
-        explosionForce = 10f,
+        snapTolerance = 0.5f,
+        explosionForce = 15f,
         randomForce = 5f,
         torqueForce = 5f,
         shuffleDuration = 5f,
@@ -47,7 +47,7 @@ public class GameModeController : MonoBehaviour
         randomizeInitialRotation = false
     };
 
-    [SerializeField] private GameModeSettings hardMode = new GameModeSettings
+    private GameModeSettings hardMode = new GameModeSettings
     {
         modeName = "Hard",
         rows = 10,
@@ -55,7 +55,7 @@ public class GameModeController : MonoBehaviour
         allowRotation = true,
         allowShuffle = true,
         allowPieceCollision = false,
-        snapTolerance = 0.3f,
+        snapTolerance = 0.4f,
         explosionForce = 10f,
         randomForce = 5f,
         torqueForce = 5f,

@@ -1514,8 +1514,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ExplosionShuffle
   delayBeforeExplosion: 1.5
-  explosionForce: 8
-  randomForce: 30
+  explosionForce: 10
+  randomForce: 15
   torqueForce: 5
   shuffleDuration: 5
   explosionAudio: {fileID: 629222935}
