@@ -2,8 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using SimpleFileBrowser;
-using System.Text.RegularExpressions;
-
 public class InteractionManager : MonoBehaviour
 {
     [Header("Script Connections")]
@@ -450,7 +448,7 @@ public class InteractionManager : MonoBehaviour
 
         foreach (Renderer renderer in renderers)
         {
-            if (renderer.CompareTag("Piece"));
+            if (renderer.CompareTag("Piece"))
             {
                 highest = Mathf.Max(highest, renderer.sortingOrder);
             }
