@@ -42,7 +42,7 @@ public class SnappingManager : MonoBehaviour
                     continue;
                 }
 
-                if (snapValidator.CanSnap(groupPiece.Data, piece.Data, snappingTolerance))
+                if (snapValidator.CanSnap(groupPiece.Data, piece.Data, groupPiece.transform, piece.transform, snappingTolerance))
                 {    
     
                     var snappingPosition = (Vector2)piece.transform.position + ((Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition);
@@ -91,7 +91,7 @@ public class SnappingManager : MonoBehaviour
                     continue;
                 }
 
-                if (snapValidator.CanSnap(groupPiece.Data, piece.Data, snappingTolerance))
+                if (snapValidator.CanSnap(groupPiece.Data, piece.Data, groupPiece.transform, piece.transform, snappingTolerance))
                 {
                     Vector2 snappingPosition = (Vector2)piece.transform.position + ((Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition);
 
@@ -106,7 +106,7 @@ public class SnappingManager : MonoBehaviour
                         Vector3 adjustment = (Vector3)snappingPosition - groupPiece.transform.position;
 
                         pieceGroup.SetParent(GetRoot(piece.transform));
-                        connectionSystem.AddConnection(groupPiece.Data, piece.Data);
+                        MergeGroups(pieceGroup, GetRoot(piece.transform));
 
                         pieceGroup.position += adjustment;
 
@@ -306,5 +306,27 @@ public class SnappingManager : MonoBehaviour
         float difference = Mathf.Abs(Mathf.DeltaAngle(angleA, angleB));
 
         return difference <= 2f;
+    }
+
+    private void MergeGroups(Transform sourceRoot, Transform targetRoot)
+    {
+        if (sourceRoot == targetRoot)
+        {
+            return;
+        }
+
+        List<Transform> children = new List<Transform>();
+
+        foreach (Transform child in sourceRoot)
+        {
+            children.Add(child);
+        }
+
+        foreach (Transform child in children)
+        {
+            child.SetParent(targetRoot, true);
+        }
+
+        Destroy(sourceRoot.gameObject);
     }
 }
