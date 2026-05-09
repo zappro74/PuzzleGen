@@ -4,11 +4,15 @@ using UnityEngine;
 
 public class ExplosionShuffle : MonoBehaviour
 {
+    [Header("Explosion Shuffle Settings")]
     public float delayBeforeExplosion = 0.75f;
     public float explosionForce = 1.5f;
     public float randomForce = .5f;
     public float torqueForce = .5f;
     public float shuffleDuration = 1.5f;
+
+    [Header("Script Connections")]
+    public PuzzlePhysics physics;
 
     [Header("Audio")]
     [SerializeField] private AudioSource explosionAudio;
@@ -83,18 +87,14 @@ public class ExplosionShuffle : MonoBehaviour
 
         foreach (GameObject piece in pieces)
         {
-            Rigidbody2D rb = piece.GetComponent<Rigidbody2D>();
+            var rigidbody = piece.GetComponent<Rigidbody2D>();
+            var collider = piece.GetComponent<Collider2D>();
 
-            if (rb != null)
+            if (rigidbody != null)
             {
-                rb.linearVelocity = Vector2.zero;
-                rb.angularVelocity = 0f;
-                rb.bodyType = RigidbodyType2D.Kinematic;
-                rb.gravityScale = 0f;
-                rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-                rb.collisionDetectionMode = CollisionDetectionMode2D.Discrete;
+                physics.EnablePhysics(rigidbody, collider);
             }
+
             piece.tag = "Piece";
         }
 

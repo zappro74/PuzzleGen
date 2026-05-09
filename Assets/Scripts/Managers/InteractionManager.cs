@@ -9,6 +9,7 @@ public class InteractionManager : MonoBehaviour
     public MenuController menuController;
     public GameStateManager gameStateManager;
     public GameModeController modeController;
+    public PuzzlePhysics physics;
 
     [Header("UI Connections")]
     public GameObject centerPanel;
@@ -48,6 +49,7 @@ public class InteractionManager : MonoBehaviour
     private int order = 1;
     private Vector3 dragVelocity;
     private Vector3 origin;
+    private Rigidbody2D selectionRB;
     private bool isPanning = false;
   
     void Start()
@@ -103,7 +105,14 @@ public class InteractionManager : MonoBehaviour
 
                 float adjustedSmoothTime = dragSmoothTime * (1f + ((groupSize - 1) * 0.15f));
 
-                selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, adjustedSmoothTime);
+                if (selectionRB != null)
+                {
+                    physics.DragPiece(selectionRB, targetPosition);
+                }
+                else
+                {
+                    selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, dragSmoothTime);
+                }
                 
                 float speed = (selection.position - lastDragPosition).magnitude / Time.deltaTime;
 
@@ -145,6 +154,7 @@ public class InteractionManager : MonoBehaviour
             StartCoroutine(FadeOutDragAudio());
 
             selection = null;
+            selectionRB = null;
             render = null;
             dragVelocity = Vector3.zero;
             isPanning = false;
@@ -245,6 +255,7 @@ public class InteractionManager : MonoBehaviour
         if (topPiece.collider != null)
         {
             selection = GetRoot(topPiece.transform);
+            selectionRB = selection.GetComponent<Rigidbody2D>();
             render = topPiece.transform.GetComponent<Renderer>();
 
             SnapRotation(selection);

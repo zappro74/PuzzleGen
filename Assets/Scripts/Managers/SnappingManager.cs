@@ -23,8 +23,9 @@ public class SnappingManager : MonoBehaviour
 
     [SerializeField] private AudioClip[] snapSounds;
 
-    [Header("Game")]
+    [Header("Script Connections")]
     [SerializeField] private GameStateManager gameStateManager;
+    public PuzzlePhysics physics;
 
     public struct SnapPairs
     {
@@ -186,6 +187,7 @@ public class SnappingManager : MonoBehaviour
         pieceGroup.position = end;
 
         MergeGroups(pieceGroup, targetRoot);
+        physics.HandleSnappingPhysics(pieceGroup, targetRoot);
 
         PlaySnapSound();
 
