@@ -56,6 +56,10 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private float musicReactMultiplier = 25f;
     [SerializeField] private float minScale = 1f;
     [SerializeField] private float maxScale = 1.35f;
+    [SerializeField] private float bounceSpeedX = 200f;
+    [SerializeField] private float bounceSpeedY = 200f;
+
+    private Vector2 bounceDirection = new Vector2(1f, 1f);
 
     private float[] spectrum = new float[512];
     
@@ -221,7 +225,41 @@ public class GameStateManager : MonoBehaviour
         {
             solvedImageDisplay.rectTransform.Rotate(0f, 0f, spinSpeed * Time.deltaTime);
 
-            //Chat helped me make this... I really wanted this effect to work!
+            RectTransform rect = solvedImageDisplay.rectTransform;
+
+            Vector2 movement = new Vector2(bounceSpeedX, bounceSpeedY);
+
+            rect.anchoredPosition += bounceDirection * movement * Time.deltaTime;
+
+            Canvas canvas = solvedImageDisplay.canvas;
+
+            if (canvas != null)
+            {
+                RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+
+                float halfWidth = rect.rect.width * rect.localScale.x * 0.5f;
+                float halfHeight = rect.rect.height * rect.localScale.y * 0.5f;
+
+                float leftBound = -canvasRect.rect.width * 0.5f + halfWidth;
+                float rightBound = canvasRect.rect.width * 0.5f - halfWidth;
+
+                float bottomBound = -canvasRect.rect.height * 0.5f + halfHeight;
+                float topBound = canvasRect.rect.height * 0.5f - halfHeight;
+
+                Vector2 pos = rect.anchoredPosition;
+
+                if (pos.x < leftBound || pos.x > rightBound)
+                {
+                    bounceDirection.x *= -1f;
+                }
+
+                if (pos.y < bottomBound || pos.y > topBound)
+                {
+                    bounceDirection.y *= -1f;
+                }
+            }
+
+            //Chat helped me make this equilizer effect... I really wanted this effect to work!
             if (winMusicSource != null && winMusicSource.isPlaying)
             {
                 winMusicSource.GetSpectrumData(spectrum, 0, FFTWindow.BlackmanHarris);
@@ -274,7 +312,6 @@ public class GameStateManager : MonoBehaviour
             pointsPerCurveHalf = 10
         };
 
-        //Hard code values for testing purposes
         PuzzleConfig puzzleConfig = new PuzzleConfig
         {
             rows = rows,
@@ -406,6 +443,9 @@ public class GameStateManager : MonoBehaviour
             solvedImageDisplay.gameObject.SetActive(true);
             solvedImageDisplay.texture = image;
             solvedImageDisplay.color = Color.white;
+
+            solvedImageDisplay.rectTransform.anchoredPosition = Vector2.zero;
+            solvedImageDisplay.rectTransform.localScale = Vector3.one;
         }
 
         foreach (ParticleSystem cannon in confettiCannons)
