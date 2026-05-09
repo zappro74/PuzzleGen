@@ -43,6 +43,19 @@ public class GameStateManager : MonoBehaviour
     [Header("Shuffling")]
     [SerializeField] private ExplosionShuffle explosionShuffle;
 
+    [Header("Win Screen")]
+    [SerializeField] private GameObject winScreenPanel;
+    [SerializeField] private ParticleSystem[] confettiCannons;
+    [SerializeField] private AudioSource winAudioSource;
+    [SerializeField] private AudioClip winSound;
+    [SerializeField] private TextMeshProUGUI finalTimeText;
+    
+
+    private bool hasWon = false;
+
+    private GroupSystem groupSystem;
+    private ConnectionSystem connectionSystem;
+
     private float elapsedTime = 0f;
 
     public void StartGame()
@@ -208,8 +221,8 @@ public class GameStateManager : MonoBehaviour
             }
         }
 
-        var groupSystem = new GroupSystem();
-        var connectionSystem = new ConnectionSystem(groupSystem);
+        groupSystem = new GroupSystem();
+        connectionSystem = new ConnectionSystem(groupSystem);
 
         groupSystem.Initialize(piecesData);
 
@@ -252,6 +265,46 @@ public class GameStateManager : MonoBehaviour
         }
 
         return new Vector2(maxHeight * imageAspect, maxHeight);
+    }
+
+    public void WinGame()
+    {
+        if (hasWon)
+        {
+            return;
+        }
+
+        hasWon = true;
+
+        currentState = State.Paused;
+
+        Debug.Log("Puzzle Complete!");
+
+        if (finalTimeText != null)
+        {
+            int minutes = Mathf.FloorToInt(elapsedTime / 60);
+            int seconds = Mathf.FloorToInt(elapsedTime % 60);
+
+            finalTimeText.text = $"You solved the puzzle in: {minutes} minutes {seconds} seconds!";
+        }
+
+        if (winAudioSource != null && winSound != null)
+        {
+            winAudioSource.PlayOneShot(winSound);
+        }
+
+        if (winScreenPanel != null)
+        {
+            winScreenPanel.SetActive(true);
+        }
+
+        foreach (ParticleSystem cannon in confettiCannons)
+        {
+            if (cannon != null)
+            {
+                cannon.Play();
+            }
+        }
     }
 }
 
