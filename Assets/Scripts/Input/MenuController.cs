@@ -47,6 +47,7 @@ public class MenuController : MonoBehaviour
     public void RestartGame()
     {
         OpenMenu();
+        stateManager.RestartGame();
         stateManager.ResetPuzzle();
     }
     public void ExitGame()

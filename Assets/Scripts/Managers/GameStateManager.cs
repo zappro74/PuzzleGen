@@ -48,7 +48,11 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private ParticleSystem[] confettiCannons;
     [SerializeField] private AudioSource winAudioSource;
     [SerializeField] private AudioClip winSound;
+    [SerializeField] private AudioSource winMusicSource;
+    [SerializeField] private AudioClip winMusic;
     [SerializeField] private TextMeshProUGUI finalTimeText;
+    [SerializeField] private RawImage solvedImageDisplay;
+    [SerializeField] private float spinSpeed = 50f;
     
 
     private bool hasWon = false;
@@ -60,6 +64,29 @@ public class GameStateManager : MonoBehaviour
 
     public void StartGame()
     {
+        hasWon = false;
+
+        if (winScreenPanel != null)
+        {
+            winScreenPanel.SetActive(false);
+        }
+
+        if (solvedImageDisplay != null)
+        {
+            solvedImageDisplay.texture = null;
+            solvedImageDisplay.gameObject.SetActive(false);
+        }
+
+        if (winMusicSource != null)
+        {
+            winMusicSource.Stop();
+        }
+
+        if (timer != null)
+        {
+            timer.gameObject.SetActive(true);
+        }
+
         // Runs once a new game is started.
         if (image == null)
         {
@@ -74,6 +101,21 @@ public class GameStateManager : MonoBehaviour
     }
     public void PrepareNewGame(Texture loadedImage)
     {
+        hasWon = false;
+
+        if (winScreenPanel != null)
+        {
+            winScreenPanel.SetActive(false);
+        }
+
+        if (solvedImageDisplay != null)
+        {
+            solvedImageDisplay.texture = null;
+            solvedImageDisplay.gameObject.SetActive(false);
+        }
+
+        hasWon = false;
+
         image = loadedImage;
         ClearPuzzle();
         
@@ -101,6 +143,24 @@ public class GameStateManager : MonoBehaviour
     public void RestartGame()
     {
         Debug.Log("Game restarting.");
+
+        hasWon = false;
+
+        if (winScreenPanel != null)
+        {
+            winScreenPanel.SetActive(false);
+        }
+
+        if (solvedImageDisplay != null)
+        {
+            solvedImageDisplay.texture = null;
+            solvedImageDisplay.gameObject.SetActive(false);
+        }
+
+        if (winMusicSource != null)
+        {
+            winMusicSource.Stop();
+        }
 
         currentState = State.Inactive;
         image = null;
@@ -150,6 +210,11 @@ public class GameStateManager : MonoBehaviour
             {
                 timer.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
             }
+        }
+        
+        if (hasWon && solvedImageDisplay != null)
+        {
+            solvedImageDisplay.rectTransform.Rotate(0f, 0f, spinSpeed * Time.deltaTime);
         }
     }
 
@@ -278,6 +343,13 @@ public class GameStateManager : MonoBehaviour
 
         currentState = State.Paused;
 
+        if (timer != null)
+        {
+            timer.gameObject.SetActive(false);
+        }
+
+        ClearPuzzle();
+
         Debug.Log("Puzzle Complete!");
 
         if (finalTimeText != null)
@@ -285,7 +357,7 @@ public class GameStateManager : MonoBehaviour
             int minutes = Mathf.FloorToInt(elapsedTime / 60);
             int seconds = Mathf.FloorToInt(elapsedTime % 60);
 
-            finalTimeText.text = $"You solved the puzzle in: {minutes} minutes {seconds} seconds!";
+            finalTimeText.text = $"You solved the puzzle in: {minutes} minute(s) {seconds} seconds!";
         }
 
         if (winAudioSource != null && winSound != null)
@@ -293,9 +365,23 @@ public class GameStateManager : MonoBehaviour
             winAudioSource.PlayOneShot(winSound);
         }
 
+        if (winMusicSource != null && winMusic != null)
+        {
+            winMusicSource.clip = winMusic;
+            winMusicSource.loop = true;
+            winMusicSource.Play();
+        }
+
         if (winScreenPanel != null)
         {
             winScreenPanel.SetActive(true);
+        }
+
+        if (solvedImageDisplay != null)
+        {
+            solvedImageDisplay.gameObject.SetActive(true);
+            solvedImageDisplay.texture = image;
+            solvedImageDisplay.color = Color.white;
         }
 
         foreach (ParticleSystem cannon in confettiCannons)
