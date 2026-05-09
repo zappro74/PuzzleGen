@@ -1458,12 +1458,13 @@ MonoBehaviour:
   boundaries: {x: 50, y: 50}
   boundaryColor: {r: 1, g: 0, b: 0, a: 1}
   boundaryThickness: 0.5
-  dragAudio: {fileID: 1173712066}
+  dragAudio: {fileID: 1173712068}
   grabAudioSource: {fileID: 1173712066}
   grabSounds:
   - {fileID: 8300000, guid: f62ec94e37320d84ea89c5d77c6a9224, type: 3}
   maxDragSpeed: 10
   maxDragVolume: 0.8
+  dragSoundThreshold: 0.05
   minPitch: 0.5
   maxPitch: 1.3
 --- !u!114 &629222932
