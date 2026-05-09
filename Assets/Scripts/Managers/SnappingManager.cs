@@ -26,6 +26,11 @@ public class SnappingManager : MonoBehaviour
     [Header("Game")]
     [SerializeField] private GameStateManager gameStateManager;
 
+    public struct SnapPairs
+    {
+        public PuzzlePiece draggedPiece;
+        public PuzzlePiece targetPiece;
+    }
     public void TrySnap(Transform pieceGroup)
     {
         if (connectionSystem == null)
@@ -66,7 +71,8 @@ public class SnappingManager : MonoBehaviour
                         Vector3 endWorldPosition = pieceGroup.position;
                         pieceGroup.position = startWorldPosition;
 
-                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, groupPiece, piece));
+                        var scanConnections = ScanConnections(pieceGroup, targetRoot, groupPiece, piece);
+                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, scanConnections));
 
                         Debug.Log($"Snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
 
@@ -122,7 +128,8 @@ public class SnappingManager : MonoBehaviour
                         Vector3 endWorldPosition = pieceGroup.position;
                         pieceGroup.position = startWorldPosition;
 
-                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, groupPiece, piece));
+                        var scanConnections = ScanConnections(pieceGroup, targetRoot, groupPiece, piece);
+                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, scanConnections));
 
                         Debug.Log($"Auto snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
 
@@ -133,13 +140,38 @@ public class SnappingManager : MonoBehaviour
         }
         return false;
     }
-    private IEnumerator Animate(Transform pieceGroup, Transform targetRoot, Vector3 start, Vector3 end, PuzzlePiece groupPiece, PuzzlePiece piece)
+
+    private List<SnapPairs> ScanConnections(Transform pieceGroup, Transform targetRoot, PuzzlePiece groupPiece, PuzzlePiece piece)
+    {
+        var scanConnections = new List<SnapPairs>();
+
+        foreach (var a in pieceGroup.GetComponentsInChildren<PuzzlePiece>())
+        {
+            foreach (var b in targetRoot.GetComponentsInChildren<PuzzlePiece>())
+            {
+                var distance = Vector2.Distance(a.SolvedPosition, b.SolvedPosition);
+                
+                if (distance > 0.1f && distance <= Vector2.Distance(groupPiece.SolvedPosition, piece.SolvedPosition) * 1.2f)
+                {
+                    var direction = (Vector2)a.SolvedPosition - (Vector2)b.SolvedPosition;
+                    if (Mathf.Abs(direction.x) < 0.1f || Mathf.Abs(direction.y) < 0.1f)
+                    {
+                        var connection = new SnapPairs { draggedPiece = a, targetPiece = b };
+                        scanConnections.Add(connection);
+                    }
+                }
+            }
+        }
+        
+        return scanConnections;
+    }
+    private IEnumerator Animate(Transform pieceGroup, Transform targetRoot, Vector3 start, Vector3 end, List<SnapPairs> scanConnections)
     {
         float elapsedTime = 0f;
 
         Collider2D[] colliders = pieceGroup.GetComponentsInChildren<Collider2D>();
 
-        foreach (Collider2D collider in colliders)
+        foreach (var collider in colliders)
         {
             collider.enabled = false;
         }
@@ -156,10 +188,15 @@ public class SnappingManager : MonoBehaviour
         MergeGroups(pieceGroup, targetRoot);
 
         PlaySnapSound();
-        Particles(groupPiece, piece);
+
+        foreach (var connection in scanConnections)
+        {
+            Particles(connection.draggedPiece, connection.targetPiece);
+        }
+
         RestorePieceRenderers(targetRoot);
 
-        foreach (Collider2D collider in colliders)
+        foreach (var collider in colliders)
         {
             collider.enabled = true;
         }
