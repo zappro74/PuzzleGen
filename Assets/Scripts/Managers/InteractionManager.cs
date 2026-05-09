@@ -37,6 +37,7 @@ public class InteractionManager : MonoBehaviour
     [SerializeField] private AudioClip[] grabSounds;
     [SerializeField] private float maxDragSpeed = 10f;
     [SerializeField] private float maxDragVolume = .8f;
+    [SerializeField] private float dragSoundThreshold = 0.05f;
     [SerializeField] private float minPitch = 0.5f;
     [SerializeField] private float maxPitch = 1.3f;
 
@@ -100,7 +101,7 @@ public class InteractionManager : MonoBehaviour
 
                 int groupSize = selection.GetComponentsInChildren<PuzzlePiece>().Length;
 
-                float adjustedSmoothTime = dragSmoothTime * (1f + ((groupSize - 1) * 0.08f));
+                float adjustedSmoothTime = dragSmoothTime * (1f + ((groupSize - 1) * 0.15f));
 
                 selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, adjustedSmoothTime);
                 
@@ -355,6 +356,12 @@ public class InteractionManager : MonoBehaviour
 
     private void UpdateDragAudio(float speed, int groupSize, bool isSnapping)
     {
+        if (speed < dragSoundThreshold)
+        {
+            dragAudio.volume = Mathf.Lerp(dragAudio.volume, 0f, Time.deltaTime * 12f);
+            return;
+        }
+
         float speed01 = Mathf.Clamp01(speed / maxDragSpeed);
 
         float groupVolumeBoost = Mathf.Clamp01(groupSize / 10f) * 0.2f;

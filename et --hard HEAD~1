@@ -1,0 +1,240 @@
+[33m7440c7e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/win-con[m[33m, [m[1;31morigin/feature/win-con[m[33m)[m Merge branch 'feature/win-con' of https://github.com/zappro74/PuzzleGen into feature/win-con
+[33m6afbd0b[m main scene
+[33me7e776c[m Merge branch 'main' into feature/win-con
+[33m0ba70c0[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #98 from zappro74/feature/win
+[33m1c04483[m implement win screen
+[33m73ef16b[m[33m ([m[1;31morigin/feature/win[m[33m, [m[1;32mfeature/win[m[33m)[m add Effectmanager
+[33ma77d013[m[33m ([m[1;32mmain[m[33m)[m Merge pull request #97 from zappro74/feature/group-movement
+[33m2742315[m[33m ([m[1;31morigin/feature/group-movement[m[33m, [m[1;32mfeature/group-movement[m[33m)[m fixed pieces not showing up
+[33ma561e24[m add slower movement to groups
+[33m2eac1d9[m fixed grouping root issue
+[33mb446d69[m Merge pull request #96 from zappro74/fix/snapping
+[33m6e62b67[m[33m ([m[1;31morigin/fix/snapping[m[33m, [m[1;32mfix/snapping[m[33m)[m implement better cansnap
+[33me7e267a[m .
+[33m727e293[m Minor changes
+[33me5d9499[m Mode Selection
+[33m6cf459b[m Game mode selection after image select
+[33m5ecc632[m remove allow shuffle since not used
+[33m0d06663[m rm
+[33m8be8035[m Things
+[33m97b085d[m Resolve scene merge conflict
+[33m24c719a[m implement tryautosnap on easy mode
+[33m02b90b2[m Merge branch 'main' of https://github.com/zappro74/PuzzleGen
+[33m0b80910[m Fixed collisions and boundries
+[33mcc789db[m Merge branch 'main' of https://github.com/zappro74/PuzzleGen
+[33maedd590[m new explosion
+[33m98d46cd[m Fixed inspector items
+[33m7a7c57b[m audio sources
+[33m5dc0808[m Merge pull request #94 from zappro74/feature/rotation-animation
+[33m5bfda25[m[33m ([m[1;31morigin/feature/rotation-animation[m[33m, [m[1;32mfeature/rotation-animation[m[33m)[m rotation animation
+[33m6c69101[m Merge pull request #93 from zappro74/feature/gifs
+[33me8cee41[m[33m ([m[1;31morigin/feature/gifs[m[33m)[m Working GIF puzzles
+[33m810d9d0[m added rotation duration variable for future animation
+[33m4c6eed6[m fixed mathf and rightclick error for rotation
+[33ma0a786b[m Merge pull request #92 from zappro74/feature/piece-rotation
+[33m45ec8b5[m Merge pull request #90 from zappro74/feature/piece-data
+[33m0623dbd[m Merge pull request #91 from zappro74/feature/audio
+[33m00539fc[m[33m ([m[1;31morigin/feature/piece-rotation[m[33m)[m Piece Rotation
+[33m7053def[m[33m ([m[1;31morigin/feature/audio[m[33m, [m[1;32mfeature/audio[m[33m)[m new improved sounds
+[33m7b465d2[m f Merge branch 'main' of https://github.com/zappro74/PuzzleGen into feature/audio
+[33mb1ca5cc[m[33m ([m[1;31morigin/feature/piece-data[m[33m)[m Finished IsPuzzleComplete() method
+[33m235536f[m Merge pull request #89 from zappro74/feature/particles
+[33m4af2591[m[33m ([m[1;31morigin/feature/particles[m[33m)[m I promise final tweeks this time
+[33m0509d04[m Final tweeks
+[33m9073280[m Cleaned up code
+[33m54bf325[m Better menu and snapping after animation
+[33m0861ccb[m A better snapping effect
+[33me393ed1[m Starting particle system
+[33m153f917[m implement explosion sound
+[33m9d3eb86[m recorded new audio
+[33m45a272a[m new audio
+[33m54a1692[m tested audio dragging
+[33m4d8a659[m Implememnted drag audio
+[33m2d9cf3c[m Merge pull request #86 from zappro74/feature/gamemodes
+[33m175e97b[m[33m ([m[1;31morigin/feature/gamemodes[m[33m, [m[1;32mfeature/gamemodes[m[33m)[m implemented gamemode selectoin buttons
+[33mda5d828[m implement mode change in generatenewpuzzle
+[33mca0cc75[m add gamemode enum and getcurrentgamemode
+[33m33b9201[m implement gamemodesettings class
+[33m62e151d[m Merge pull request #83 from zappro74/feature/piece-collision
+[33m39bd32a[m[33m ([m[1;31morigin/feature/piece-collision[m[33m, [m[1;32mfeature/piece-collision[m[33m)[m now pieces can be picked up after explosion
+[33m7343a34[m restored piecefactory rigid bodies...
+[33m3fa8f3a[m added rigidbody to piecefactory
+[33mce3d08a[m Merge pull request #79 from zappro74/fix/puzzle-lag
+[33m9b2d40a[m[33m ([m[1;31morigin/fix/puzzle-lag[m[33m, [m[1;32mfix/puzzle-lag[m[33m)[m .
+[33m00b6024[m meshes dont glitch anymore!
+[33m314f3f4[m groups are now picked up and drift towards middle
+[33m0cd6351[m Minor changes
+[33m69fe126[m finished implementation of rebuildmesh
+[33mc49c9b9[m More minor fixes
+[33m123824b[m implement RebuildMesh method
+[33mb0f8fb9[m Merge branch 'main' of https://github.com/zappro74/PuzzleGen
+[33m65eb412[m Fixed edge cases
+[33mee48228[m Merge branch 'main' of https://github.com/zappro74/PuzzleGen
+[33m6996a09[m Increase zoom
+[33mbf4646b[m add sounds folder
+[33m5512066[m Merge pull request #76 from zappro74/feature/main-scene
+[33m5596733[m[33m ([m[1;31morigin/feature/main-scene[m[33m)[m Zoom on mouse
+[33m68712cf[m pieces now generate good at higher amounts
+[33m3d9fab7[m Added boundary lines.
+[33m2be5ebd[m Remove DS_Store files and update gitignore
+[33m70a1dc0[m Merge pull request #75 from zappro74/feature/json-functions
+[33m490dc74[m[33m ([m[1;31morigin/feature/json-functions[m[33m)[m Add files via upload
+[33mde2bad0[m Delete Assets/Data Processing directory
+[33m01889d0[m Added world boundaries
+[33ma0f4ff0[m Update JSONFunctions.cs
+[33m7f0c5af[m Merge pull request #73 from zappro74/main
+[33m55e82df[m Working panning and zooming
+[33m71ca951[m Removed the ugly ass green background and made the timer better
+[33m9bca859[m Fixed minor ordering bug
+[33mccd478c[m adjust points per curve half
+[33med44892[m Merge pull request #71 from zappro74/feature/puzzle-snapping
+[33m10dbbd3[m[33m ([m[1;31morigin/feature/puzzle-snapping[m[33m)[m Working snapping
+[33m2bf9f58[m Merge pull request #70 from zappro74/fix/piece-dragging
+[33m86dd4b7[m[33m ([m[1;31morigin/fix/piece-dragging[m[33m, [m[1;32mfix/piece-dragging[m[33m)[m found the perfect smoothtime
+[33m9d05891[m set offset to center (zero is not center i guess)
+[33m998d7e8[m set offset to zero
+[33m9a7a6d7[m implement drag velocity into trypickup
+[33m0c6f871[m add smoothdamp to update method
+[33m29dfab7[m add smooth drag variables
+[33mba638ca[m Merge branch 'feature/puzzle-snapping' into fix/piece-dragging
+[33m746cfec[m Functioning Piece Snapping
+[33m7e5d153[m Minor additions
+[33m319f8b9[m Added start to snapping in interaction
+[33m04862cd[m Added a snapping manager.
+[33m4674d46[m Commented erroring file for now
+[33mc062b13[m Things
+[33m44489f1[m Merge brancmain' into feature/puzzle-snapping
+[33m081f8f6[m Fixed minor image reference issue
+[33m1be3112[m Created Branch
+[33m63f6d6f[m Merge pull request #68 from zappro74/feature/puzzle-selection
+[33m7e82e91[m[33m ([m[1;31morigin/feature/puzzle-selection[m[33m)[m Fixed menu buttons to function with changes
+[33mae9fa69[m Merge pull request #67 from zappro74/feature/json-functions
+[33m33aa7f1[m Add files via upload
+[33m52531ed[m Fixed screen collision bug
+[33m49f9d8a[m Screen Collision & Cleanup
+[33m27719b7[m Fixed previous commit
+[33m77c0f4e[m Added selected piece being on the highest layer
+[33me117fc7[m Initial piece interaction
+[33m6d9e35e[m Branch creation
+[33m4a91812[m Merge pull request #65 from zappro74/fix/tab-size
+[33m4e38b76[m[33m ([m[1;31morigin/fix/tab-size[m[33m, [m[1;32mfix/tab-size[m[33m)[m add variables for accesability for adjusting tab sizes
+[33m48ec9e8[m Merge pull request #63 from zappro74/fix/piece-tab
+[33m59d1d1c[m[33m ([m[1;31morigin/fix/piece-tab[m[33m, [m[1;32mfix/piece-tab[m[33m)[m removed point clamping
+[33m24f2a8b[m flipped edges edge curve
+[33md8cf52f[m add use of addcurve helper
+[33m1771f8c[m implemented tabWorldWidth into bezierutility calculations
+[33md2ae0af[m change piece/puzzlefactory to work iwth the new 0 based indexing
+[33m7129972[m generate method now uses 0 based indexing
+[33mce7e195[m implemented InvertEdge method
+[33m7951f5b[m added debugging test in piecefacotry
+[33m8401ad5[m[33m ([m[1;31morigin/feature/json[m[33m)[m Merge pull request #61 from zappro74/feature/uv-map
+[33mbb89eed[m[33m ([m[1;31morigin/feature/uv-map[m[33m, [m[1;32mfeature/uv-map[m[33m)[m FINALLY got images to load correctly
+[33mc961631[m implement new build mesh
+[33mf848401[m added new variables
+[33me894023[m added puzzleImage to PuzzleConfig
+[33m6e233f7[m Merge pull request #60 from zappro74/feature/piece-data
+[33mfa60dab[m Merge branch 'main' into feature/piece-data
+[33mb1c61e2[m Finished Issue Implement Group System Fixes #17
+[33mf4f43b7[m Merge pull request #59 from zappro74/fix/piece-shape
+[33mde64bd9[m Merge pull request #58 from zappro74/feature/main-scene
+[33m2a9e6ce[m[33m ([m[1;31morigin/fix/piece-shape[m[33m, [m[1;32mfix/piece-shape[m[33m)[m edit texture
+[33mc28154f[m fixed tabHeight and added more edge points
+[33mf054b7b[m fixed generateedgecurve use in pieceoutline
+[33m0315a87[m Added an esc menu
+[33md7c3560[m added third curve for rounded tabs
+[33m4485a2a[m actually set piecewidth/height
+[33mf2e2292[m Merge pull request #56 from zappro74/feature/uv-mapping
+[33m2fff758[m[33m ([m[1;31morigin/feature/uv-mapping[m[33m, [m[1;32mfeature/uv-mapping[m[33m)[m formatting
+[33m0eb8521[m fixed CreatePiece syntax in Puzzlefactory
+[33mef9802b[m CreatePiece now uses puzzleConfig
+[33mf517f21[m changed pieceMaterial to hold the image texture
+[33m4045e02[m Merge pull request #55 from zappro74/fix/generated-puzzle-size
+[33m0d5e303[m[33m ([m[1;31morigin/fix/generated-puzzle-size[m[33m, [m[1;32mfix/generated-puzzle-size[m[33m)[m fixed main scene
+[33m3679406[m Merge pull request #54 from zappro74/fix/generated-puzzle-size
+[33ma97cc93[m fixed GetPiecePosition method to center the puzzle
+[33m017a6fc[m implemented puzzleboard for puzzle placement
+[33md18be3b[m set PuzzleFactory object
+[33mddd0b62[m Changed image reference size
+[33ma614236[m Merge pull request #52 from zappro74/feature/gamestate-puzzle-generation
+[33m3616a95[m[33m ([m[1;31morigin/feature/gamestate-puzzle-generation[m[33m, [m[1;32mfeature/gamestate-puzzle-generation[m[33m)[m moved full puzzle generation to GenerateNewPuzzle method
+[33m98eac04[m implemented GeneratePuzzle
+[33m88e11dc[m added pieceConfig and puzzleConfig
+[33m9c4126b[m Merge pull request #50 from zappro74/fix/use-configs
+[33md117fe3[m[33m ([m[1;31morigin/fix/use-configs[m[33m, [m[1;32mfix/use-configs[m[33m)[m fixed use of BuildPieceOutline in CreatePiece
+[33mf8a8b3c[m change BuildPieceOutline to use puzzleconfig
+[33m09fc0c0[m passes changed perams in CreatePiece
+[33m725201e[m change CreatePiece method to use piece config
+[33m737853a[m Merge pull request #49 from zappro74/feature/puzzle-factory
+[33me6d303c[m[33m ([m[1;31morigin/feature/puzzle-factory[m[33m, [m[1;32mfeature/puzzle-factory[m[33m)[m completed GetPiecePosition
+[33m73a9c38[m completed GeneratePuzzle method
+[33m00239e4[m Merge pull request #48 from zappro74/feature/configs
+[33m0ded8c4[m Merge pull request #47 from zappro74/feature/configs
+[33mcd5e83e[m[33m ([m[1;31morigin/feature/configs[m[33m, [m[1;32mfeature/configs[m[33m)[m create PuzzleConfig
+[33m7446045[m create PieceConfig
+[33m5801986[m init PuzzleFactory
+[33m78124f0[m fixed syntax errors
+[33m6331dc8[m Merge pull request #45 from zappro74/feature/piece-data
+[33m30b7f39[m removed some comments
+[33m88262af[m Merge pull request #44 from zappro74/feature/piece-data
+[33m3dd8785[m Expanded the PuzzleGenerator class to satisfy Issue Implement Edge Assignment Fixes #12
+[33m6b805e9[m Merge pull request #43 from zappro74/feature/piece-data
+[33m5c101f1[m Fixed some formatting and syntax issues
+[33ma020149[m ConnectionSystem
+[33m51ca87b[m Merge pull request #41 from zappro74/feature/piece-data
+[33ma1c7aff[m Fixes to NeighborDetection and SnapValidation
+[33m7186e3f[m Added Neighbor Validation and Snap Validation/Edited PieceDirection
+[33m6ae2c05[m Merge pull request #40 from zappro74/feature/piece-factory
+[33m2cdb933[m[33m ([m[1;31morigin/feature/piece-factory[m[33m, [m[1;32mfeature/piece-factory[m[33m)[m removed unnecesary library calls in Triangulate method
+[33mb3dc5d2[m removed libraries that were not used
+[33m35221c9[m added Triangulate method and finished BuildMesh and CreatePiece
+[33m5c7ecb2[m commented out unfinished methods
+[33m6047347[m started on BuildMesh method
+[33mb053567[m updated CeatePiece method with mesh/collider rendering
+[33m717b0e5[m Merge pull request #39 from zappro74/feature/piece-factory
+[33m0778e8d[m moved CreatePiece and CreateAllPieces to PieceFactory.cs
+[33mf43895a[m Merge pull request #38 from zappro74/feature/piece-factory
+[33m59bfe24[m Added CreateAllPieces method
+[33m649458f[m added MonoBehavior and finished CreatePiece method
+[33m6f841bd[m initialize PuzzlePiece.cs and implemented Initialize method
+[33m82f678e[m added comments for testing purposes
+[33md1b4eed[m Merge pull request #36 from zappro74/feature/piece-outline-builder
+[33ma4c4230[m[33m ([m[1;31morigin/feature/piece-outline-builder[m[33m, [m[1;32mfeature/piece-outline-builder[m[33m)[m fully implemented BuildPieceOutline method and AddEdgeWithoutFirstPoint mehtod
+[33m9ec6beb[m changed to use UnityEngine Vectors
+[33m0374417[m Merge pull request #35 from zappro74/feature/piece-outline-builder
+[33mb22dd8f[m fixed for loop increment variable
+[33mb2ef7dc[m Merge pull request #34 from zappro74/feature/image-functions
+[33m0194d6d[m[33m ([m[1;31morigin/feature/image-functions[m[33m)[m Working image uploading, referencing, and large picture view
+[33m520e756[m Merge pull request #33 from zappro74/feature/bezier-utility
+[33ma77e58c[m[33m ([m[1;31morigin/feature/bezier-utility[m[33m, [m[1;32mfeature/bezier-utility[m[33m)[m fixed old exception messages
+[33m03d120c[m implemented GenerateEdgeCurve method
+[33m268b41d[m Merge pull request #32 from zappro74/feature/piece-data
+[33m76dd0d9[m Simplified row/column tracking
+[33m2198eaf[m Mostly finished Issue Implement PuzzleGenerator Fixes #11
+[33m2f3fbc1[m Added the PuzzleGenerator class (not complete). Testing to see if I commit/make a pull request properly
+[33mf1bcb52[m Improved variables for t and u in EvaluateCubicBezier
+[33m2fc09b0[m initialize GenerateEdgeCurve.cs
+[33m1d63309[m implemented CubicBezier and EvaluateCubicBezier methods
+[33mb8d7238[m Branch creation
+[33mcb13ece[m Merge pull request #15 from zappro74/feature/main-scene
+[33m756ac93[m Added basic setup to the main scene
+[33mc9c1464[m Merge pull request #9 from zappro74/feature/folder-structure
+[33ma749cc1[m[33m ([m[1;31morigin/feature/folder-structure[m[33m, [m[1;32mfeature/folder-structure[m[33m)[m Merge branch 'main' into feature/folder-structure
+[33m145586c[m added Rendering folder
+[33m99f6dcd[m Merge pull request #8 from zappro74/piece-data
+[33mad34b8c[m[33m ([m[1;31morigin/piece-data[m[33m, [m[1;32mpiece-data[m[33m, [m[1;32mfeature/piece-data[m[33m)[m added PieceDirection enum
+[33m460e1c3[m init variables
+[33ma69bb16[m init PieceData.cs
+[33mee1affd[m added EdgeType enum
+[33m1ef81eb[m added backlog
+[33m9b1bce3[m Merge pull request #5 from zappro74/feature/folder-structure
+[33m35d8975[m added folders
+[33m5e3853a[m Merge branch 'main' of https://github.com/zappro74/PuzzleGen
+[33m9efddc8[m added NamingConventions.md
+[33mfd24592[m[33m ([m[1;31morigin/JD's-Branch[m[33m)[m Merge pull request #1 from zappro74/testing
+[33ma3b5658[m[33m ([m[1;31morigin/testing[m[33m, [m[1;32mtesting[m[33m)[m Revert "removed files"
+[33ma751931[m removed files
+[33m4fe5e75[m removing files
+[33meb3dc6a[m[33m ([m[1;31morigin/Karls-Branch[m[33m)[m Conflict resolution
+[33mec733af[m Initial project commit
+[33m84d39f9[m Create .gitignore for Unity project
+[33md2ee0a2[m Initial commit
