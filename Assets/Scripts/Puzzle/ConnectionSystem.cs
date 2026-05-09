@@ -4,6 +4,7 @@ using UnityEngine;
 public class ConnectionSystem
 {
     private GroupSystem groups;
+    public GroupSystem Groups => groups;
     public ConnectionSystem(GroupSystem groupSystem)
     {
         groups = groupSystem;

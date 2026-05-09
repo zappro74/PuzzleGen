@@ -23,6 +23,9 @@ public class SnappingManager : MonoBehaviour
 
     [SerializeField] private AudioClip[] snapSounds;
 
+    [Header("Game")]
+    [SerializeField] private GameStateManager gameStateManager;
+
     public void TrySnap(Transform pieceGroup)
     {
         if (connectionSystem == null)
@@ -159,6 +162,11 @@ public class SnappingManager : MonoBehaviour
         foreach (Collider2D collider in colliders)
         {
             collider.enabled = true;
+        }
+
+        if (connectionSystem.Groups.IsPuzzleComplete())
+        {
+            gameStateManager.WinGame();
         }
     }
     private void Particles(PuzzlePiece groupPiece, PuzzlePiece piece)
