@@ -53,9 +53,6 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI finalTimeText;
     [SerializeField] private RawImage solvedImageDisplay;
     [SerializeField] private float spinSpeed = 50f;
-    [SerializeField] private float musicReactMultiplier = 25f;
-    [SerializeField] private float minScale = 1f;
-    [SerializeField] private float maxScale = 1.35f;
     [SerializeField] private float bounceSpeedX = 200f;
     [SerializeField] private float bounceSpeedY = 200f;
 
