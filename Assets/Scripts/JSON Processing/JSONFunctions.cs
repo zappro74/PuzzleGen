@@ -15,14 +15,20 @@ namespace JSONFunctions
         [Header("Script Connections")]
         public static ImageReferencing imageReference;
         public static GameStateManager stateManager;
+        public static string CurrentSaveFilePath;
 
+        [Serializable]
         public class GameData
         {
             public string filepath;
+            public int rows;
+            public int columns;
+            public int generationSeed;
+            public float elapsedTime;  // ← add this
             public List<PieceData> game;
         }
         public PieceData piecedata;
-        public static string FilePath;
+        public static string CurrentImagePath;
         //public InteractionManager interactionManager;
             void Start()
         {
@@ -38,10 +44,25 @@ namespace JSONFunctions
                 gamedata.game = new List<PieceData>();
                 int i = 0;
                 string folder = Path.GetDirectoryName(filepath);
-                string JSONFilePath = folder + @"\" + DateTime.Today.ToString("d").Replace("/", "_");
+                string imageName = Path.GetFileNameWithoutExtension(filepath);
+
+                string JSONFilePath =
+                    folder + @"\" +
+                    imageName + "_" +
+                    DateTime.Now.ToString("yyyy-MM-dd");
                 string altfilepath = JSONFilePath;
                 var data = new List<PieceData>();
                 var pieces = GameObject.FindGameObjectsWithTag("Piece");
+
+                GameStateManager stateManager = GameObject.FindFirstObjectByType<GameStateManager>();
+
+                if (stateManager != null)
+                {
+                    gamedata.rows = stateManager.currentRows;
+                    gamedata.columns = stateManager.currentColumns;
+                    gamedata.generationSeed = stateManager.currentGenerationSeed;
+                    gamedata.elapsedTime = stateManager.elapsedTime;
+                }
 
                 foreach (GameObject piece in pieces)
                 {
@@ -57,7 +78,7 @@ namespace JSONFunctions
                         {
                             Transform root = InteractionManager.GetRoot(piece.transform);
 
-                           
+
                             var a = new PieceData
                             {
                                Id = script.Data.Id,
@@ -68,8 +89,8 @@ namespace JSONFunctions
                                RightEdge = script.Data.RightEdge,
                                BottomEdge = script.Data.BottomEdge,
                                LeftEdge = script.Data.LeftEdge,
-                               Position = root.position,
-                               Rotation = root.eulerAngles.z,
+                                Position = piece.transform.position,
+                                Rotation = piece.transform.eulerAngles.z,
                             };
                             data.Add(a);
                             
@@ -86,11 +107,13 @@ namespace JSONFunctions
                     {
                         altfilepath = JSONFilePath + $"_{i++}";
                     }
-                    File.WriteAllText(altfilepath + ".json", json);
+                    CurrentSaveFilePath = altfilepath + ".json";
+                    File.WriteAllText(CurrentSaveFilePath, json);
                 }
                 else
                 {
-                    File.WriteAllText(JSONFilePath + ".json", json);
+                    CurrentSaveFilePath = JSONFilePath + ".json";
+                    File.WriteAllText(CurrentSaveFilePath, json);
                 }
                
 
@@ -103,7 +126,6 @@ namespace JSONFunctions
 
         public static GameData ReadJSON(string filepath)
         {
-            FilePath = filepath;
             try
             {
                 string json = File.ReadAllText(filepath);
@@ -119,15 +141,14 @@ namespace JSONFunctions
         }
         public static void OpenJSONBrowser()
         {
-            Debug.Log("FILE 1");
-            FileBrowser.ShowLoadDialog((paths) => { OnFileSelected(paths[0]); },
+            FileBrowser.SetFilters(true, new FileBrowser.Filter("Files", ".json"));
+            FileBrowser.SetDefaultFilter(".json");
+
+            FileBrowser.ShowLoadDialog(
+                (paths) => { OnFileSelected(paths[0]); },
                 () => { Debug.Log("File selection cancelled."); },
                 FileBrowser.PickMode.Files, false, null, null, "Select Previous Game", "Load"
             );
-            Debug.Log("FILE 2");
-            FileBrowser.SetFilters(true, new FileBrowser.Filter("Files", ".json"));
-            FileBrowser.SetDefaultFilter(".json");
-            Debug.Log("FILE 4");
         }
         private static void OnFileSelected(string path)
         {
@@ -137,6 +158,7 @@ namespace JSONFunctions
             Debug.Log("Read JSON");
             var pieces = data.game;
             var Texture = data.filepath;
+            CurrentImagePath = Texture;
             Debug.Log(Texture);
             byte[] fileData = File.ReadAllBytes(Texture);
             Debug.Log("bytes done");
@@ -147,20 +169,22 @@ namespace JSONFunctions
             {
                 
                 Debug.Log("Loaded Texture");
-                imageReference.imageReference.gameObject.SetActive(true);
-                Debug.Log("set active");
-                JSONFileFunctions.stateManager.image = texture;
+                GameStateManager stateManager = GameObject.FindAnyObjectByType<GameStateManager>();
+                ImageReferencing imageReference = GameObject.FindAnyObjectByType<ImageReferencing>();
+
+                if (stateManager == null)
+                {
+                    Debug.LogError("GameStateManager not found.");
+                    return;
+                }
+
+                stateManager.image = texture;
                 if (imageReference != null)
                 {
-                    Debug.Log("ref not null");
+                    imageReference.imageReference.gameObject.SetActive(true);
                     imageReference.UpdateImages();
                 }
-                Debug.Log("Update Image");
-                Debug.Log("FILE 5");
-                stateManager.PrepareNewGame(texture);
-                Debug.Log("FILE 5");
-                //stateManager.GeneratePuzzleFromJSON(texture, pieces);
-                Debug.Log("FILE 5");
+                stateManager.LoadJSONGame(texture, pieces, data.rows, data.columns, data.generationSeed);
             }
         }
     }

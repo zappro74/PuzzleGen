@@ -16,6 +16,9 @@ public class Image : MonoBehaviour
     }
     public void OpenImageBrowser()
     {
+        FileBrowser.SetFilters(true, new FileBrowser.Filter("Images", ".png", ".jpg", ".jpeg", ".gif"));
+        FileBrowser.SetDefaultFilter(".png");
+
         FileBrowser.ShowLoadDialog((paths) => { OnFileSelected(paths[0]); },
             () => { Debug.Log("File selection cancelled."); },
             FileBrowser.PickMode.Files, false, null, null, "Select Puzzle Image", "Load"
@@ -33,6 +36,8 @@ public class Image : MonoBehaviour
             Debug.LogError($"File could not be found: {path}");
             return;
         }
+
+        JSONFunctions.JSONFileFunctions.CurrentImagePath = path;
 
         if (Path.GetExtension(path).ToLower() == ".gif")
         {

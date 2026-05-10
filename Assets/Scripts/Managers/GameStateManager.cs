@@ -2,9 +2,9 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using UnityEngine.U2D;
-using Unity.VisualScripting;
+using System.IO;
 using System.Collections;
+using System.Threading.Tasks.Sources;
 
 public enum State
 {
@@ -23,6 +23,8 @@ public enum GameMode
 public class GameStateManager : MonoBehaviour
 {
     public State currentState;
+    [Header("Camera Zoom")]
+    [SerializeField] private Camera gameCamera;
 
     [Header("Puzzle Image")]
     public Texture image; 
@@ -34,11 +36,15 @@ public class GameStateManager : MonoBehaviour
     [Header("Script Connections")]
     public SnappingManager snappingManager;
     public GameModeController modeController;
+    public InteractionManager interactionManager;
 
 
     [Header("Puzzle Generation")]
     [SerializeField] private PuzzleFactory puzzleFactory;
     [SerializeField] private Material pieceMaterial;
+    public int currentGenerationSeed;
+    public int currentRows;
+    public int currentColumns;
 
     [Header("Shuffling")]
     [SerializeField] private ExplosionShuffle explosionShuffle;
@@ -66,7 +72,7 @@ public class GameStateManager : MonoBehaviour
     private GroupSystem groupSystem;
     private ConnectionSystem connectionSystem;
 
-    private float elapsedTime = 0f;
+    public float elapsedTime = 0f;
 
     public void StartGame()
     {
@@ -130,6 +136,13 @@ public class GameStateManager : MonoBehaviour
             modeSelectionPanel.SetActive(true);
         }
     }
+
+    public void LoadJSONGame(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
+    {
+        GeneratePuzzleFromJSON(loadedImage, savedPieces, rows, columns, generationSeed, savedElapsedTime);
+        currentState = State.Active;
+    }
+
     public void PauseGame()
     {
         // Anything that triggers during a paused game.
@@ -178,8 +191,237 @@ public class GameStateManager : MonoBehaviour
         }
 
         ClearPuzzle();
-        
     }
+    public void GeneratePuzzleFromJSON(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
+    {
+        StartCoroutine(
+            GeneratePuzzleFromJSONRoutine(
+                loadedImage,
+                savedPieces,
+                rows,
+                columns,
+                generationSeed,
+                savedElapsedTime
+            )
+        );
+    }
+
+    //altered by Claude (I've been trying to get this to work for the past 5 hours) (Zach Procopis)
+    //left in Claudes comments for honesty
+    private IEnumerator GeneratePuzzleFromJSONRoutine(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
+    {
+        ClearPuzzle();
+        yield return null;
+
+        image = loadedImage;
+        pieceMaterial.mainTexture = loadedImage;
+
+        currentGenerationSeed = generationSeed;
+        currentRows    = rows;
+        currentColumns = columns;
+
+        Vector2 puzzleSize = GetBoardSize(image, boardWidth, boardHeight);
+
+        float pieceWidth  = puzzleSize.x / columns;
+        float pieceHeight = puzzleSize.y / rows;
+
+        PieceConfig pieceConfig = new PieceConfig
+        {
+            pieceMaterial = pieceMaterial,
+            pieceWidth = pieceWidth,
+            pieceHeight = pieceHeight,
+            tabWidth = 0.22f,
+            edgeMargin = 0.1f,
+            tabHeight = Mathf.Min(pieceWidth, pieceHeight) * 0.25f,
+            pointsPerCurveHalf = 10
+        };
+
+        PuzzleConfig puzzleConfig = new PuzzleConfig
+        {
+            rows = rows,
+            columns = columns,
+            generationSeed = generationSeed,
+            puzzleImage = loadedImage,
+            pieceConfig = pieceConfig
+        };
+
+        List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, puzzleSize.x, puzzleSize.y);
+
+        Dictionary<int, PieceData> savedById = new Dictionary<int, PieceData>();
+        foreach (PieceData saved in savedPieces)
+        {
+            savedById[saved.Id] = saved;
+        }
+
+        // ── Pass 1: place every piece at its SOLVED position (shows full image) ──
+        List<PieceData> loadedPiecesData = new List<PieceData>();
+
+        foreach (GameObject piece in pieces)
+        {
+            piece.tag = "Piece";
+
+            PuzzlePiece script = piece.GetComponent<PuzzlePiece>();
+            if (script == null || script.Data == null) continue;
+
+            script.SolvedPosition = piece.transform.position;
+
+            piece.transform.position = script.SolvedPosition;
+            piece.transform.rotation = Quaternion.identity;
+
+            script.Data.GroupId = script.Data.Id;
+            loadedPiecesData.Add(script.Data);
+        }
+
+        // ── Set up systems BEFORE any movement so snapping logic works later ────
+        groupSystem = new GroupSystem();
+        connectionSystem = new ConnectionSystem(groupSystem);
+        groupSystem.Initialize(loadedPiecesData);
+
+        if (snappingManager != null)
+            snappingManager.connectionSystem = connectionSystem;
+
+        // Let Unity render one frame so the player sees the assembled puzzle.
+        yield return null;
+        yield return null;
+
+        float driftDuration = 1.4f;
+        float originalZoom  = gameCamera.orthographicSize;
+        float minX = float.MaxValue, maxX = float.MinValue;
+        float minY = float.MaxValue, maxY = float.MinValue;
+
+        foreach (PieceData saved in savedPieces)
+        {
+            minX = Mathf.Min(minX, saved.Position.x);
+            maxX = Mathf.Max(maxX, saved.Position.x);
+            minY = Mathf.Min(minY, saved.Position.y);
+            maxY = Mathf.Max(maxY, saved.Position.y);
+        }
+
+        float boundsWidth  = (maxX - minX) + 2f;
+        float boundsHeight = (maxY - minY) + 2f;
+
+        Vector3 boundsCenter = new Vector3((minX + maxX) / 2f, (minY + maxY) / 2f, gameCamera.transform.position.z);
+
+        boundsCenter.x -= 0f; 
+        boundsCenter.y -= 0f;
+
+        // Fit orthographic size to the bounds
+        float targetZoom = Mathf.Max(boundsHeight / 2f, boundsWidth / 2f / gameCamera.aspect);
+        targetZoom = Mathf.Clamp(targetZoom, interactionManager.minZoom, interactionManager.maxZoom);
+
+        // Move camera to center of pieces and zoom out
+        StartCoroutine(LerpCameraZoom(originalZoom, targetZoom, 0.5f));
+        StartCoroutine(LerpCameraPosition(gameCamera.transform.position, boundsCenter, 0.5f));
+
+        StartCoroutine(LerpCameraZoom(originalZoom, targetZoom, 0.5f));
+
+        // ── Pass 2: drift all pieces to saved positions ──────────────────────────
+        foreach (GameObject piece in pieces)
+        {
+            PuzzlePiece script = piece.GetComponent<PuzzlePiece>();
+            if (script == null || script.Data == null) continue;
+
+            if (!savedById.TryGetValue(script.Data.Id, out PieceData saved)) continue;
+
+            float displacement = Vector3.Distance(piece.transform.position, saved.Position);
+            if (displacement < 0.01f) continue;
+
+            StartCoroutine(DriftToSavedPosition(piece.transform, script.SolvedPosition, saved.Position, saved.Rotation, driftDuration));
+        }
+
+        yield return new WaitForSeconds(driftDuration);
+
+        // ── Pass 3: snap everything now all pieces are at rest ───────────────────
+        bool anySnapped = true;
+
+        while (anySnapped)
+        {
+            anySnapped = false;
+
+            PuzzlePiece[] allPieces = Object.FindObjectsByType<PuzzlePiece>(FindObjectsInactive.Exclude);
+
+            foreach (PuzzlePiece p in allPieces)
+            {
+                if (p.transform.parent != null && p.transform.parent.CompareTag("Piece"))
+                    continue;
+
+                bool snapped = snappingManager.TryAutoSnap(p.transform);
+
+                if (snapped)
+                {
+                    anySnapped = true;
+                    break;
+                }
+            }
+        }
+
+        elapsedTime = savedElapsedTime;
+    }
+
+    private IEnumerator DriftToSavedPosition(Transform piece, Vector3 startPosition, Vector3 targetPosition, float targetRotationZ, float driftDuration)
+    {
+        Quaternion startingRotation = Quaternion.identity;
+        Quaternion targetRotation   = Quaternion.Euler(0f, 0f, targetRotationZ);
+
+        float elapsed = 0f;
+
+        while (elapsed < driftDuration)
+        {
+            if (piece == null) yield break;
+
+            elapsed += Time.deltaTime;
+            float progress         = Mathf.Clamp01(elapsed / driftDuration);
+            float progressSmoothed = Mathf.SmoothStep(0f, 1f, progress);
+
+            piece.position = Vector3.Lerp(startPosition, targetPosition, progressSmoothed);
+            piece.rotation = Quaternion.Lerp(startingRotation, targetRotation, progressSmoothed);
+
+            yield return null;
+        }
+
+        if (piece == null) yield break;
+
+        piece.position = targetPosition;
+        piece.rotation = targetRotation;
+    }
+
+    private IEnumerator LerpCameraZoom(float startSize, float targetSize, float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (gameCamera == null) yield break;
+
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+            gameCamera.orthographicSize = Mathf.Lerp(startSize, targetSize, t);
+
+            yield return null;
+        }
+
+        if (gameCamera != null)
+            gameCamera.orthographicSize = targetSize;
+    }
+    private IEnumerator LerpCameraPosition(Vector3 from, Vector3 to, float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (gameCamera == null) yield break;
+
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+            gameCamera.transform.position = Vector3.Lerp(from, to, t);
+
+            yield return null;
+        }
+
+        if (gameCamera != null)
+            gameCamera.transform.position = to;
+    }
+
     public void ResetPuzzle()
     {
         if (image == null) 
@@ -287,8 +529,6 @@ public class GameStateManager : MonoBehaviour
         
         pieceMaterial.mainTexture = loadedImage;
 
-        int generationSeed = System.Guid.NewGuid().GetHashCode();
-
         GameModeSettings modeSettings = modeController.GetCurrentGameModeSettings();
 
         int rows = modeSettings.rows;
@@ -297,6 +537,12 @@ public class GameStateManager : MonoBehaviour
         float pieceWidth = puzzleSize.x / columns;
         float pieceHeight = puzzleSize.y / rows;
         float smallestSide = Mathf.Min(pieceWidth, pieceHeight);
+
+        int generationSeed = System.Guid.NewGuid().GetHashCode();
+        
+        currentGenerationSeed = generationSeed;
+        currentRows = rows;
+        currentColumns = columns;
 
         PieceConfig pieceConfig = new PieceConfig
         {
@@ -450,6 +696,16 @@ public class GameStateManager : MonoBehaviour
             if (cannon != null)
             {
                 cannon.Play();
+            }
+        }
+
+        if (!string.IsNullOrEmpty(JSONFunctions.JSONFileFunctions.CurrentSaveFilePath))
+        {
+            if (File.Exists(JSONFunctions.JSONFileFunctions.CurrentSaveFilePath))
+            {
+                File.Delete(JSONFunctions.JSONFileFunctions.CurrentSaveFilePath);
+
+                Debug.Log("Deleted completed puzzle save file.");
             }
         }
     }

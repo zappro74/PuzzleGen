@@ -38,6 +38,18 @@ public class MenuController : MonoBehaviour
             stateManager.ResumeGame();
         }
     }
+    public void LoadGame()
+    {
+        if (pauseMenu != null)
+        {
+            pauseMenu.SetActive(false);
+        }
+
+        menuOpen = false;
+
+        stateManager.RestartGame();
+        JSONFunctions.JSONFileFunctions.OpenJSONBrowser();
+    }
     public void StartNewGame()
     {
         OpenMenu();
@@ -53,7 +65,24 @@ public class MenuController : MonoBehaviour
     public void ExitGame()
     {
         Debug.Log("Exiting Application");
-        Application.Quit(); 
+        Debug.Log("Current image path: " + JSONFunctions.JSONFileFunctions.CurrentImagePath);
+
+        if (!string.IsNullOrEmpty(JSONFunctions.JSONFileFunctions.CurrentImagePath))
+        {
+            JSONFunctions.JSONFileFunctions.CreateOrEditJSON(JSONFunctions.JSONFileFunctions.CurrentImagePath);
+            Debug.Log("Game autosaved on exit.");
+        }
+        else
+        {
+            Debug.LogWarning("No CurrentImagePath set. Game was not saved.");
+        }
+
+    //for testing in editor
+    #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+    #else
+        Application.Quit();
+    #endif
     }
     public bool MenuCheck()
     {

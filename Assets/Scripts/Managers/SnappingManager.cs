@@ -52,7 +52,6 @@ public class SnappingManager : MonoBehaviour
 
                 if (snapValidator.CanSnap(groupPiece.Data, piece.Data, groupPiece.transform, piece.transform, snappingTolerance))
                 {    
-    
                     Vector2 solvedOffset = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;
                     Quaternion rotation = GetRoot(piece.transform).rotation;
                     Vector2 rotatedOffset = rotation * solvedOffset;
@@ -235,7 +234,7 @@ public class SnappingManager : MonoBehaviour
     }
     private Transform GetRoot(Transform piece)
     {
-        while (piece.parent != null && piece.parent.GetComponent<PuzzlePiece>() != null)
+        while (piece.parent != null && piece.parent.CompareTag("Piece"))
         {
             piece = piece.parent;
         }

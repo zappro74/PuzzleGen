@@ -22,9 +22,9 @@ public class InteractionManager : MonoBehaviour
     private bool isRotating = false;
 
     [Header("Zoom Settings")]
-    [SerializeField] private float minZoom = 2f;
-    [SerializeField] private float maxZoom = 15f;
-    [SerializeField] private float zoomSpeed = 0.2f; // smaller is typically better here
+    [SerializeField] public float minZoom = 2f;
+    [SerializeField] public float maxZoom = 15f;
+    [SerializeField] public float zoomSpeed = 0.2f; // smaller is typically better here
 
     [Header("Boundary Settings")]
     public Vector2 boundaries = new Vector2(30f, 20f);
@@ -344,13 +344,12 @@ public class InteractionManager : MonoBehaviour
 
         return center + (selection.position - GetGroupCenter(selection));    
     }
-    private Transform GetRoot(Transform piece)
+    public static Transform GetRoot(Transform piece)
     {
         while (piece.parent != null && piece.parent.CompareTag("Piece"))
         {
             piece = piece.parent;
         }
-
         return piece;
     }
 
@@ -462,5 +461,29 @@ public class InteractionManager : MonoBehaviour
         }
 
         return highest == int.MinValue ? 0 : highest;
+    }
+    public IEnumerator SimulateDragToPosition(Transform root, Vector3 targetPosition, float targetRotation, float duration)
+    {
+        Vector3 startPosition = root.position;
+        Quaternion startRotation = root.rotation;
+        Quaternion endRotation = Quaternion.Euler(0f, 0f, targetRotation);
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+
+            float t = elapsed / duration;
+            t = Mathf.SmoothStep(0f, 1f, t);
+
+            root.position = Vector3.Lerp(startPosition, targetPosition, t);
+            root.rotation = Quaternion.Lerp(startRotation, endRotation, t);
+
+            yield return null;
+        }
+
+        root.position = targetPosition;
+        root.rotation = endRotation;
     }
 }
