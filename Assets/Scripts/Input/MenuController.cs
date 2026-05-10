@@ -6,11 +6,11 @@ public class MenuController : MonoBehaviour
 {
     [Header("Script Connections")]
     public GameStateManager stateManager;
-    public Image imageLoad; 
-
+    public Image imageLoad;
     [Header("UI Connections")]
     public GameObject pauseMenu;
     private bool menuOpen = true;
+    public static string filepath;
 
     void Update()
     {
@@ -49,6 +49,20 @@ public class MenuController : MonoBehaviour
 
         stateManager.RestartGame();
         JSONFunctions.JSONFileFunctions.OpenJSONBrowser();
+    }
+
+    public void SaveGame()
+    {
+        if (pauseMenu != null)
+        {
+            pauseMenu.SetActive(false);
+        }
+
+        menuOpen = false;
+        if (filepath is not null)
+        {
+            JSONFunctions.JSONFileFunctions.CreateOrEditJSON(filepath);
+        }
     }
     public void StartNewGame()
     {
