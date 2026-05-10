@@ -101,7 +101,7 @@ namespace JSONFunctions
                 gamedata.filepath = filepath;
                 string json = JsonUtility.ToJson(gamedata);
 
-                if (File.Exists(JSONFilePath+".json"))
+                if (File.Exists(JSONFilePath + ".json"))
                 {
                     while (File.Exists(altfilepath + ".json"))
                     {
@@ -151,24 +151,21 @@ namespace JSONFunctions
             );
         }
         private static void OnFileSelected(string path)
-        {
-            Debug.Log(path);
-            Debug.Log("FILE 3");
+        { 
+
             var data = ReadJSON(path);
-            Debug.Log("Read JSON");
+ 
             var pieces = data.game;
-            var Texture = data.filepath;
-            CurrentImagePath = Texture;
-            Debug.Log(Texture);
-            byte[] fileData = File.ReadAllBytes(Texture);
-            Debug.Log("bytes done");
+            var Image = data.filepath;
+            MenuController.filepath = Image;
+            CurrentImagePath = Image;
+            byte[] fileData = File.ReadAllBytes(Image);
+
             Texture2D texture = new Texture2D(2, 2);
             
-            Debug.Log("Got Texture");
             if (texture.LoadImage(fileData))
             {
                 
-                Debug.Log("Loaded Texture");
                 GameStateManager stateManager = GameObject.FindAnyObjectByType<GameStateManager>();
                 ImageReferencing imageReference = GameObject.FindAnyObjectByType<ImageReferencing>();
 
