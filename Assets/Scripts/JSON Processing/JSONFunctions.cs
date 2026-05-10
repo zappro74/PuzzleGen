@@ -2,9 +2,6 @@ using SimpleFileBrowser;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Xml.Linq;
 using UnityEngine;
 
 
@@ -78,22 +75,20 @@ namespace JSONFunctions
                         {
                             Transform root = InteractionManager.GetRoot(piece.transform);
 
-
                             var a = new PieceData
                             {
-                               Id = script.Data.Id,
-                               Row = script.Data.Row,
-                               Column = script.Data.Column,
-                               GroupId = script.Data.GroupId,
-                               TopEdge = script.Data.TopEdge,
-                               RightEdge = script.Data.RightEdge,
-                               BottomEdge = script.Data.BottomEdge,
-                               LeftEdge = script.Data.LeftEdge,
+                                Id = script.Data.Id,
+                                Row = script.Data.Row,
+                                Column = script.Data.Column,
+                                GroupId = script.Data.GroupId,
+                                TopEdge = script.Data.TopEdge,
+                                RightEdge = script.Data.RightEdge,
+                                BottomEdge = script.Data.BottomEdge,
+                                LeftEdge = script.Data.LeftEdge,
                                 Position = piece.transform.position,
                                 Rotation = piece.transform.eulerAngles.z,
                             };
                             data.Add(a);
-                            
                         }
                     }
                 }
@@ -155,6 +150,7 @@ namespace JSONFunctions
             Debug.Log(path);
             Debug.Log("FILE 3");
             var data = ReadJSON(path);
+            CurrentSaveFilePath = path; 
             Debug.Log("Read JSON");
             var pieces = data.game;
             var Texture = data.filepath;

@@ -69,8 +69,7 @@ public class GameStateManager : MonoBehaviour
 
     private float[] spectrum = new float[512];
     
-
-    private bool hasWon = false;
+    public bool hasWon = false;
 
     private GroupSystem groupSystem;
     private ConnectionSystem connectionSystem;

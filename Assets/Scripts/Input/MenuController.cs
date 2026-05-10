@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using SimpleFileBrowser;
+using System.IO;
 
 public class MenuController : MonoBehaviour
 {
@@ -67,7 +68,28 @@ public class MenuController : MonoBehaviour
         Debug.Log("Exiting Application");
         Debug.Log("Current image path: " + JSONFunctions.JSONFileFunctions.CurrentImagePath);
 
-        if (!string.IsNullOrEmpty(JSONFunctions.JSONFileFunctions.CurrentImagePath))
+        if (stateManager.hasWon)
+        {
+            Debug.Log("Puzzle already completed, skipping autosave.");
+
+            if (!string.IsNullOrEmpty(JSONFunctions.JSONFileFunctions.CurrentSaveFilePath))
+            {
+                if (File.Exists(JSONFunctions.JSONFileFunctions.CurrentSaveFilePath))
+                {
+                    File.Delete(JSONFunctions.JSONFileFunctions.CurrentSaveFilePath);
+                    Debug.Log("Deleted completed puzzle save file on exit.");
+                }
+                else
+                {
+                    Debug.Log("No save file found to delete.");
+                }
+            }
+            else
+            {
+                Debug.Log("CurrentSaveFilePath was empty on exit.");
+            }
+        }
+        else if (!string.IsNullOrEmpty(JSONFunctions.JSONFileFunctions.CurrentImagePath))
         {
             JSONFunctions.JSONFileFunctions.CreateOrEditJSON(JSONFunctions.JSONFileFunctions.CurrentImagePath);
             Debug.Log("Game autosaved on exit.");
@@ -77,12 +99,11 @@ public class MenuController : MonoBehaviour
             Debug.LogWarning("No CurrentImagePath set. Game was not saved.");
         }
 
-    //for testing in editor
-    #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-    #else
-        Application.Quit();
-    #endif
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
     public bool MenuCheck()
     {
