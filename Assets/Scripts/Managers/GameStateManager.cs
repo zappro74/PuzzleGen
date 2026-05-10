@@ -48,6 +48,9 @@ public class GameStateManager : MonoBehaviour
 
     [Header("Shuffling")]
     [SerializeField] private ExplosionShuffle explosionShuffle;
+    [Header("Load Sound")]
+    [SerializeField] private AudioSource loadAudioSource;
+    [SerializeField] private AudioClip loadSound;
 
     [Header("Win Screen")]
     [SerializeField] private GameObject winScreenPanel;
@@ -315,6 +318,8 @@ public class GameStateManager : MonoBehaviour
 
         StartCoroutine(LerpCameraZoom(originalZoom, targetZoom, 0.5f));
 
+        PlayLoadSound();
+        
         // ── Pass 2: drift all pieces to saved positions ──────────────────────────
         foreach (GameObject piece in pieces)
         {
@@ -331,29 +336,66 @@ public class GameStateManager : MonoBehaviour
 
         yield return new WaitForSeconds(driftDuration);
 
-        // ── Pass 3: snap everything now all pieces are at rest ───────────────────
-        bool anySnapped = true;
+        // ── Pass 3: restore saved group connections from JSON ────────────────────
+        Dictionary<int, List<GameObject>> savedGroups = new Dictionary<int, List<GameObject>>();
 
-        while (anySnapped)
+        foreach (GameObject piece in pieces)
         {
-            anySnapped = false;
+            PuzzlePiece script = piece.GetComponent<PuzzlePiece>();
+            if (script == null || script.Data == null) continue;
 
-            PuzzlePiece[] allPieces = Object.FindObjectsByType<PuzzlePiece>(FindObjectsInactive.Exclude);
+            if (!savedById.TryGetValue(script.Data.Id, out PieceData saved)) continue;
 
-            foreach (PuzzlePiece p in allPieces)
+            if (!savedGroups.ContainsKey(saved.GroupId))
+                savedGroups[saved.GroupId] = new List<GameObject>();
+
+            savedGroups[saved.GroupId].Add(piece);
+        }
+
+        float snapZoom = 3f; 
+
+        foreach (var group in savedGroups)
+        {
+            List<GameObject> groupPieces = group.Value;
+            if (groupPieces.Count <= 1) continue;
+
+            foreach (GameObject piece in groupPieces)
             {
-                if (p.transform.parent != null && p.transform.parent.CompareTag("Piece"))
-                    continue;
+                if (piece == null) continue;
 
-                bool snapped = snappingManager.TryAutoSnap(p.transform);
+                Transform pieceRoot = InteractionManager.GetRoot(piece.transform);
 
-                if (snapped)
+                Vector3 targetCamPos = new Vector3(pieceRoot.position.x, pieceRoot.position.y, gameCamera.transform.position.z);
+                StartCoroutine(LerpCameraPosition(gameCamera.transform.position, targetCamPos, 0.1f));
+                StartCoroutine(LerpCameraZoom(gameCamera.orthographicSize, snapZoom, 0.1f));
+
+                snappingManager.TryAutoSnap(pieceRoot);
+
+                yield return new WaitForSeconds(0.15f);
+
+                Transform newRoot = InteractionManager.GetRoot(piece.transform);
+                if (newRoot != pieceRoot)
                 {
-                    anySnapped = true;
-                    break;
+                    snappingManager.TryAutoSnap(newRoot);
+                    yield return new WaitForSeconds(0.15f);
                 }
             }
+
+            yield return new WaitForSeconds(0.1f);
+
+            foreach (GameObject piece in groupPieces)
+            {
+                if (piece == null) continue;
+
+                Transform pieceRoot = InteractionManager.GetRoot(piece.transform);
+                snappingManager.TryAutoSnap(pieceRoot);
+                yield return null;
+            }
         }
+
+        // Zoom back out to show all pieces when done
+        StartCoroutine(LerpCameraZoom(gameCamera.orthographicSize, targetZoom, 0.8f));
+        StartCoroutine(LerpCameraPosition(gameCamera.transform.position, boundsCenter, 0.8f));
 
         elapsedTime = savedElapsedTime;
     }
@@ -383,6 +425,12 @@ public class GameStateManager : MonoBehaviour
 
         piece.position = targetPosition;
         piece.rotation = targetRotation;
+    }
+
+    private void PlayLoadSound()
+    {
+        if (loadAudioSource == null || loadSound == null) return;
+        loadAudioSource.PlayOneShot(loadSound);
     }
 
     private IEnumerator LerpCameraZoom(float startSize, float targetSize, float duration)
