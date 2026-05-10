@@ -26,6 +26,7 @@ public class Image : MonoBehaviour
     }
     private void OnFileSelected(string path)
     {
+        MenuController.filepath = path;
         Debug.Log($"Path chosen: {path}");
         LoadImageFromDisk(path);
     }
