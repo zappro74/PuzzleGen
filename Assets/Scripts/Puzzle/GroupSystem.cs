@@ -8,9 +8,15 @@ public class GroupSystem
     public void Initialize(List<PieceData> pieces)
     {
         groups.Clear();
-        foreach(var piece in pieces)
+
+        foreach (var piece in pieces)
         {
-            groups[piece.GroupId] = new List<PieceData> {piece};
+            if (!groups.ContainsKey(piece.GroupId))
+            {
+                groups[piece.GroupId] = new List<PieceData>();
+            }
+
+            groups[piece.GroupId].Add(piece);
         }
     }
 
@@ -56,5 +62,8 @@ public class GroupSystem
         groups.Remove(groupBId);
     }
 
-
+    public bool IsPuzzleComplete()
+    {
+        return groups.Count == 1;
+    }
 }

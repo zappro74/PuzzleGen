@@ -2,37 +2,107 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using UnityEngine.U2D;
+using System.IO;
+using System.Collections;
+using System.Threading.Tasks.Sources;
+
+public enum State
+{
+    Inactive,
+    Active,
+    Paused
+}
+public enum GameMode
+{
+    Easy,
+    Medium,
+    Hard
+}
+
 
 public class GameStateManager : MonoBehaviour
 {
-    public enum State
-    {
-        Inactive,
-        Active,
-        Paused
-    }
     public State currentState;
+    [Header("Camera Zoom")]
+    [SerializeField] private Camera gameCamera;
 
     [Header("Puzzle Image")]
-    public Texture2D image; 
+    public Texture image; 
 
     [Header("UI Connections")]
     public TextMeshProUGUI timer;
+    public GameObject modeSelectionPanel;
 
     [Header("Script Connections")]
     public SnappingManager snappingManager;
+    public GameModeController modeController;
+    public InteractionManager interactionManager;
 
-    private float elapsedTime = 0f;
 
+    [Header("Puzzle Generation")]
     [SerializeField] private PuzzleFactory puzzleFactory;
     [SerializeField] private Material pieceMaterial;
+    public int currentGenerationSeed;
+    public int currentRows;
+    public int currentColumns;
+
+    [Header("Shuffling")]
+    [SerializeField] private ExplosionShuffle explosionShuffle;
+
+    [Header("Win Screen")]
+    [SerializeField] private GameObject winScreenPanel;
+    [SerializeField] private ParticleSystem[] confettiCannons;
+    [SerializeField] private AudioSource winAudioSource;
+    [SerializeField] private AudioClip winSound;
+    [SerializeField] private AudioSource winMusicSource;
+    [SerializeField] private AudioClip winMusic;
+    [SerializeField] private TextMeshProUGUI finalTimeText;
+    [SerializeField] private RawImage solvedImageDisplay;
+    [SerializeField] private float spinSpeed = 50f;
+    [SerializeField] private float bounceSpeedX = 200f;
+    [SerializeField] private float bounceSpeedY = 200f;
+
+    private Vector2 bounceDirection = new Vector2(1f, 1f);
+
+    private float[] spectrum = new float[512];
+    
+
+    private bool hasWon = false;
+
+    private GroupSystem groupSystem;
+    private ConnectionSystem connectionSystem;
+
+    public float elapsedTime = 0f;
+
     public void StartGame()
     {
+        hasWon = false;
+
+        if (winScreenPanel != null)
+        {
+            winScreenPanel.SetActive(false);
+        }
+
+        if (solvedImageDisplay != null)
+        {
+            solvedImageDisplay.texture = null;
+            solvedImageDisplay.gameObject.SetActive(false);
+        }
+
+        if (winMusicSource != null)
+        {
+            winMusicSource.Stop();
+        }
+
+        if (timer != null)
+        {
+            timer.gameObject.SetActive(true);
+        }
+
         // Runs once a new game is started.
         if (image == null)
         {
-            Debug.LogWarning("Warning: Attempted to start game with no image loaded into unity.");
+            Debug.LogWarning("Warning: Attempted to start game with no image loaded.");
             return;
         }
 
@@ -41,6 +111,38 @@ public class GameStateManager : MonoBehaviour
 
         Debug.Log($"Game Started, State set to: {currentState}");
     }
+    public void PrepareNewGame(Texture loadedImage)
+    {
+        hasWon = false;
+
+        if (winScreenPanel != null)
+        {
+            winScreenPanel.SetActive(false);
+        }
+
+        if (solvedImageDisplay != null)
+        {
+            solvedImageDisplay.texture = null;
+            solvedImageDisplay.gameObject.SetActive(false);
+        }
+
+        hasWon = false;
+
+        image = loadedImage;
+        ClearPuzzle();
+        
+        if (modeSelectionPanel != null)
+        {
+            modeSelectionPanel.SetActive(true);
+        }
+    }
+
+    public void LoadJSONGame(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
+    {
+        GeneratePuzzleFromJSON(loadedImage, savedPieces, rows, columns, generationSeed, savedElapsedTime);
+        currentState = State.Active;
+    }
+
     public void PauseGame()
     {
         // Anything that triggers during a paused game.
@@ -61,18 +163,265 @@ public class GameStateManager : MonoBehaviour
     {
         Debug.Log("Game restarting.");
 
+        hasWon = false;
+
+        if (winScreenPanel != null)
+        {
+            winScreenPanel.SetActive(false);
+        }
+
+        if (solvedImageDisplay != null)
+        {
+            solvedImageDisplay.texture = null;
+            solvedImageDisplay.gameObject.SetActive(false);
+        }
+
+        if (winMusicSource != null)
+        {
+            winMusicSource.Stop();
+        }
+
         currentState = State.Inactive;
         image = null;
         elapsedTime = 0f;
         
         if (timer != null)
         {
-            timer.text = "00:00"; 
+            timer.text = "00:00:00"; 
         }
 
         ClearPuzzle();
-        
     }
+    public void GeneratePuzzleFromJSON(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
+    {
+        StartCoroutine(
+            GeneratePuzzleFromJSONRoutine(
+                loadedImage,
+                savedPieces,
+                rows,
+                columns,
+                generationSeed,
+                savedElapsedTime
+            )
+        );
+    }
+
+    //altered by Claude (I've been trying to get this to work for the past 5 hours) (Zach Procopis)
+    //left in Claudes comments for honesty
+    private IEnumerator GeneratePuzzleFromJSONRoutine(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
+    {
+        ClearPuzzle();
+        yield return null;
+
+        image = loadedImage;
+        pieceMaterial.mainTexture = loadedImage;
+
+        currentGenerationSeed = generationSeed;
+        currentRows    = rows;
+        currentColumns = columns;
+
+        Vector2 puzzleSize = GetBoardSize(image, boardWidth, boardHeight);
+
+        float pieceWidth  = puzzleSize.x / columns;
+        float pieceHeight = puzzleSize.y / rows;
+
+        PieceConfig pieceConfig = new PieceConfig
+        {
+            pieceMaterial = pieceMaterial,
+            pieceWidth = pieceWidth,
+            pieceHeight = pieceHeight,
+            tabWidth = 0.22f,
+            edgeMargin = 0.1f,
+            tabHeight = Mathf.Min(pieceWidth, pieceHeight) * 0.25f,
+            pointsPerCurveHalf = 10
+        };
+
+        PuzzleConfig puzzleConfig = new PuzzleConfig
+        {
+            rows = rows,
+            columns = columns,
+            generationSeed = generationSeed,
+            puzzleImage = loadedImage,
+            pieceConfig = pieceConfig
+        };
+
+        List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, puzzleSize.x, puzzleSize.y);
+
+        Dictionary<int, PieceData> savedById = new Dictionary<int, PieceData>();
+        foreach (PieceData saved in savedPieces)
+        {
+            savedById[saved.Id] = saved;
+        }
+
+        // ── Pass 1: place every piece at its SOLVED position (shows full image) ──
+        List<PieceData> loadedPiecesData = new List<PieceData>();
+
+        foreach (GameObject piece in pieces)
+        {
+            piece.tag = "Piece";
+
+            PuzzlePiece script = piece.GetComponent<PuzzlePiece>();
+            if (script == null || script.Data == null) continue;
+
+            script.SolvedPosition = piece.transform.position;
+
+            piece.transform.position = script.SolvedPosition;
+            piece.transform.rotation = Quaternion.identity;
+
+            script.Data.GroupId = script.Data.Id;
+            loadedPiecesData.Add(script.Data);
+        }
+
+        // ── Set up systems BEFORE any movement so snapping logic works later ────
+        groupSystem = new GroupSystem();
+        connectionSystem = new ConnectionSystem(groupSystem);
+        groupSystem.Initialize(loadedPiecesData);
+
+        if (snappingManager != null)
+            snappingManager.connectionSystem = connectionSystem;
+
+        // Let Unity render one frame so the player sees the assembled puzzle.
+        yield return null;
+        yield return null;
+
+        float driftDuration = 1.4f;
+        float originalZoom  = gameCamera.orthographicSize;
+        float minX = float.MaxValue, maxX = float.MinValue;
+        float minY = float.MaxValue, maxY = float.MinValue;
+
+        foreach (PieceData saved in savedPieces)
+        {
+            minX = Mathf.Min(minX, saved.Position.x);
+            maxX = Mathf.Max(maxX, saved.Position.x);
+            minY = Mathf.Min(minY, saved.Position.y);
+            maxY = Mathf.Max(maxY, saved.Position.y);
+        }
+
+        float boundsWidth  = (maxX - minX) + 2f;
+        float boundsHeight = (maxY - minY) + 2f;
+
+        Vector3 boundsCenter = new Vector3((minX + maxX) / 2f, (minY + maxY) / 2f, gameCamera.transform.position.z);
+
+        boundsCenter.x -= 0f; 
+        boundsCenter.y -= 0f;
+
+        // Fit orthographic size to the bounds
+        float targetZoom = Mathf.Max(boundsHeight / 2f, boundsWidth / 2f / gameCamera.aspect);
+        targetZoom = Mathf.Clamp(targetZoom, interactionManager.minZoom, interactionManager.maxZoom);
+
+        // Move camera to center of pieces and zoom out
+        StartCoroutine(LerpCameraZoom(originalZoom, targetZoom, 0.5f));
+        StartCoroutine(LerpCameraPosition(gameCamera.transform.position, boundsCenter, 0.5f));
+
+        StartCoroutine(LerpCameraZoom(originalZoom, targetZoom, 0.5f));
+
+        // ── Pass 2: drift all pieces to saved positions ──────────────────────────
+        foreach (GameObject piece in pieces)
+        {
+            PuzzlePiece script = piece.GetComponent<PuzzlePiece>();
+            if (script == null || script.Data == null) continue;
+
+            if (!savedById.TryGetValue(script.Data.Id, out PieceData saved)) continue;
+
+            float displacement = Vector3.Distance(piece.transform.position, saved.Position);
+            if (displacement < 0.01f) continue;
+
+            StartCoroutine(DriftToSavedPosition(piece.transform, script.SolvedPosition, saved.Position, saved.Rotation, driftDuration));
+        }
+
+        yield return new WaitForSeconds(driftDuration);
+
+        // ── Pass 3: snap everything now all pieces are at rest ───────────────────
+        bool anySnapped = true;
+
+        while (anySnapped)
+        {
+            anySnapped = false;
+
+            PuzzlePiece[] allPieces = Object.FindObjectsByType<PuzzlePiece>(FindObjectsInactive.Exclude);
+
+            foreach (PuzzlePiece p in allPieces)
+            {
+                if (p.transform.parent != null && p.transform.parent.CompareTag("Piece"))
+                    continue;
+
+                bool snapped = snappingManager.TryAutoSnap(p.transform);
+
+                if (snapped)
+                {
+                    anySnapped = true;
+                    break;
+                }
+            }
+        }
+
+        elapsedTime = savedElapsedTime;
+    }
+
+    private IEnumerator DriftToSavedPosition(Transform piece, Vector3 startPosition, Vector3 targetPosition, float targetRotationZ, float driftDuration)
+    {
+        Quaternion startingRotation = Quaternion.identity;
+        Quaternion targetRotation   = Quaternion.Euler(0f, 0f, targetRotationZ);
+
+        float elapsed = 0f;
+
+        while (elapsed < driftDuration)
+        {
+            if (piece == null) yield break;
+
+            elapsed += Time.deltaTime;
+            float progress         = Mathf.Clamp01(elapsed / driftDuration);
+            float progressSmoothed = Mathf.SmoothStep(0f, 1f, progress);
+
+            piece.position = Vector3.Lerp(startPosition, targetPosition, progressSmoothed);
+            piece.rotation = Quaternion.Lerp(startingRotation, targetRotation, progressSmoothed);
+
+            yield return null;
+        }
+
+        if (piece == null) yield break;
+
+        piece.position = targetPosition;
+        piece.rotation = targetRotation;
+    }
+
+    private IEnumerator LerpCameraZoom(float startSize, float targetSize, float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (gameCamera == null) yield break;
+
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+            gameCamera.orthographicSize = Mathf.Lerp(startSize, targetSize, t);
+
+            yield return null;
+        }
+
+        if (gameCamera != null)
+            gameCamera.orthographicSize = targetSize;
+    }
+    private IEnumerator LerpCameraPosition(Vector3 from, Vector3 to, float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            if (gameCamera == null) yield break;
+
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+            gameCamera.transform.position = Vector3.Lerp(from, to, t);
+
+            yield return null;
+        }
+
+        if (gameCamera != null)
+            gameCamera.transform.position = to;
+    }
+
     public void ResetPuzzle()
     {
         if (image == null) 
@@ -81,10 +430,8 @@ public class GameStateManager : MonoBehaviour
             return;
         }
 
-        GenerateNewPuzzle(image);
-        StartGame();
-
         Debug.Log("Puzzle reset.");
+        modeSelectionPanel.SetActive(true);    
     }
     public void RestartTimer()
     {
@@ -112,9 +459,67 @@ public class GameStateManager : MonoBehaviour
                 timer.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
             }
         }
+                
+        if (hasWon && solvedImageDisplay != null)
+        {
+            solvedImageDisplay.rectTransform.Rotate(0f, 0f, spinSpeed * Time.deltaTime);
+
+            RectTransform rect = solvedImageDisplay.rectTransform;
+
+            Vector2 movement = new Vector2(bounceSpeedX, bounceSpeedY);
+
+            rect.anchoredPosition += bounceDirection * movement * Time.deltaTime;
+
+            Canvas canvas = solvedImageDisplay.canvas;
+
+            if (canvas != null)
+            {
+                RectTransform canvasRect = canvas.GetComponent<RectTransform>();
+
+                float halfWidth = rect.rect.width * rect.localScale.x * 0.5f;
+                float halfHeight = rect.rect.height * rect.localScale.y * 0.5f;
+
+                float leftBound = -canvasRect.rect.width * 0.5f + halfWidth;
+                float rightBound = canvasRect.rect.width * 0.5f - halfWidth;
+
+                float bottomBound = -canvasRect.rect.height * 0.5f + halfHeight;
+                float topBound = canvasRect.rect.height * 0.5f - halfHeight;
+
+                Vector2 pos = rect.anchoredPosition;
+
+                if (pos.x < leftBound || pos.x > rightBound)
+                {
+                    bounceDirection.x *= -1f;
+                }
+
+                if (pos.y < bottomBound || pos.y > topBound)
+                {
+                    bounceDirection.y *= -1f;
+                }
+            }
+
+            //Chat helped me make this equilizer effect... I really wanted this effect to work!
+            if (winMusicSource != null && winMusicSource.isPlaying)
+            {
+                winMusicSource.GetSpectrumData(spectrum, 0, FFTWindow.BlackmanHarris);
+
+                float bass = 0f;
+
+                for (int i = 0; i < 2; i++)
+                {
+                    bass += spectrum[i];
+                }
+
+                bass *= 6f;
+
+                float scale = Mathf.Clamp(1f + bass, 1f, 4f);
+
+                solvedImageDisplay.rectTransform.localScale = Vector3.Lerp(solvedImageDisplay.rectTransform.localScale, new Vector3(scale, scale, scale), Time.deltaTime * 10f);
+            }
+        }
     }
 
-    public void GenerateNewPuzzle(Texture2D loadedImage)
+    public void GenerateNewPuzzle(Texture loadedImage)
     {
         ClearPuzzle();
 
@@ -124,31 +529,48 @@ public class GameStateManager : MonoBehaviour
         
         pieceMaterial.mainTexture = loadedImage;
 
-        int generationSeed = System.Guid.NewGuid().GetHashCode();
+        GameModeSettings modeSettings = modeController.GetCurrentGameModeSettings();
 
-        //might need this to be scalable... 
+        int rows = modeSettings.rows;
+        int columns = modeSettings.columns;
+
+        float pieceWidth = puzzleSize.x / columns;
+        float pieceHeight = puzzleSize.y / rows;
+        float smallestSide = Mathf.Min(pieceWidth, pieceHeight);
+
+        int generationSeed = System.Guid.NewGuid().GetHashCode();
+        
+        currentGenerationSeed = generationSeed;
+        currentRows = rows;
+        currentColumns = columns;
+
         PieceConfig pieceConfig = new PieceConfig
         {
             pieceMaterial = pieceMaterial,
-            pieceWidth = puzzleSize.x / 3,
-            pieceHeight = puzzleSize.y / 3,
-            tabHeight = 0.5f,
-            edgeMargin = 0.35f,
-            tabWidth = 0.35f,
+            pieceWidth = pieceWidth,
+            pieceHeight = pieceHeight,
+            tabWidth = 0.22f,
+            edgeMargin = 0.1f,
+            tabHeight = Mathf.Min(pieceWidth, pieceHeight) * 0.25f,
             pointsPerCurveHalf = 10
         };
 
-        //Hard code values for testing purposes
         PuzzleConfig puzzleConfig = new PuzzleConfig
         {
-            rows = 3,
-            columns = 3,
+            rows = rows,
+            columns = columns,
             generationSeed = generationSeed,
             puzzleImage = loadedImage,
             pieceConfig = pieceConfig
         };
 
         List<GameObject> pieces = puzzleFactory.GeneratePuzzle(puzzleConfig, puzzleSize.x, puzzleSize.y);
+
+        if (explosionShuffle != null)
+        {
+            explosionShuffle.ExplodePieces(pieces);
+        }
+
         var piecesData = new List<PieceData>();
 
         foreach (GameObject piece in pieces)
@@ -168,8 +590,8 @@ public class GameStateManager : MonoBehaviour
             }
         }
 
-        var groupSystem = new GroupSystem();
-        var connectionSystem = new ConnectionSystem(groupSystem);
+        groupSystem = new GroupSystem();
+        connectionSystem = new ConnectionSystem(groupSystem);
 
         groupSystem.Initialize(piecesData);
 
@@ -201,7 +623,7 @@ public class GameStateManager : MonoBehaviour
 
     [SerializeField] private float boardWidth = 8f;
     [SerializeField] private float boardHeight = 6f;
-    private Vector2 GetBoardSize(Texture2D image, float maxWidth, float maxHeight)
+    private Vector2 GetBoardSize(Texture image, float maxWidth, float maxHeight)
     {
         float imageAspect = image.width / (float)image.height;
         float boxAspect = maxWidth / maxHeight;
@@ -212,6 +634,80 @@ public class GameStateManager : MonoBehaviour
         }
 
         return new Vector2(maxHeight * imageAspect, maxHeight);
+    }
+
+    public void WinGame()
+    {
+        if (hasWon)
+        {
+            return;
+        }
+
+        hasWon = true;
+
+        currentState = State.Paused;
+
+        if (timer != null)
+        {
+            timer.gameObject.SetActive(false);
+        }
+
+        ClearPuzzle();
+
+        Debug.Log("Puzzle Complete!");
+
+        if (finalTimeText != null)
+        {
+            int minutes = Mathf.FloorToInt(elapsedTime / 60);
+            int seconds = Mathf.FloorToInt(elapsedTime % 60);
+
+            finalTimeText.text = $"You solved the puzzle in: {minutes} minute(s) {seconds} seconds!";
+        }
+
+        if (winAudioSource != null && winSound != null)
+        {
+            winAudioSource.PlayOneShot(winSound);
+        }
+
+        if (winMusicSource != null && winMusic != null)
+        {
+            winMusicSource.clip = winMusic;
+            winMusicSource.loop = true;
+            winMusicSource.Play();
+        }
+
+        if (winScreenPanel != null)
+        {
+            winScreenPanel.SetActive(true);
+        }
+
+        if (solvedImageDisplay != null)
+        {
+            solvedImageDisplay.gameObject.SetActive(true);
+            solvedImageDisplay.texture = image;
+            solvedImageDisplay.color = Color.white;
+
+            solvedImageDisplay.rectTransform.anchoredPosition = Vector2.zero;
+            solvedImageDisplay.rectTransform.localScale = Vector3.one;
+        }
+
+        foreach (ParticleSystem cannon in confettiCannons)
+        {
+            if (cannon != null)
+            {
+                cannon.Play();
+            }
+        }
+
+        if (!string.IsNullOrEmpty(JSONFunctions.JSONFileFunctions.CurrentSaveFilePath))
+        {
+            if (File.Exists(JSONFunctions.JSONFileFunctions.CurrentSaveFilePath))
+            {
+                File.Delete(JSONFunctions.JSONFileFunctions.CurrentSaveFilePath);
+
+                Debug.Log("Deleted completed puzzle save file.");
+            }
+        }
     }
 }
 

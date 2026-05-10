@@ -3,19 +3,23 @@ using UnityEngine;
 [System.Serializable]
 public class PieceData
 {
-    public int Id { get; set; }
-    public int Row { get; set; }
-    public int Column { get; set; }
-    public int GroupId { get; set; }
+    public int Id;
+    public int Row;
+    public int Column;
+    public int GroupId;
 
-    public EdgeType TopEdge { get; set; }
-    public EdgeType RightEdge { get; set; }
-    public EdgeType BottomEdge { get; set; }
-    public EdgeType LeftEdge { get; set; }
+    public EdgeType TopEdge;
+    public EdgeType RightEdge;
+    public EdgeType BottomEdge;
+    public EdgeType LeftEdge;
 
-    public Vector2 Position { get; set; }
-    public float Rotation { get; set; }
+    public Vector2 Position;
+    public float Rotation;
 
+    public PieceData()
+    {
+
+    }
 
     public PieceData(int id, int row, int column, int groupId)
     {

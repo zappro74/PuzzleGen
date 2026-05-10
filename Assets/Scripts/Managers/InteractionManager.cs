@@ -1,128 +1,489 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+using SimpleFileBrowser;
 public class InteractionManager : MonoBehaviour
 {
     [Header("Script Connections")]
     public SnappingManager snapManager;
+    public MenuController menuController;
+    public GameStateManager gameStateManager;
+    public GameModeController modeController;
 
-    [Header("Drag")]
+    [Header("UI Connections")]
+    public GameObject centerPanel;
+
+    [Header("Drag Settings")]
     [SerializeField] private float dragSmoothTime = 0.08f;
 
+    [Header("Rotation Settings")]
+    [SerializeField] private float rotationStep = 90f;
+    [SerializeField] private float rotationDuration = 0.15f;
+    private bool isRotating = false;
+
+    [Header("Zoom Settings")]
+    [SerializeField] public float minZoom = 2f;
+    [SerializeField] public float maxZoom = 15f;
+    [SerializeField] public float zoomSpeed = 0.2f; // smaller is typically better here
+
+    [Header("Boundary Settings")]
+    public Vector2 boundaries = new Vector2(30f, 20f);
+    [SerializeField] private Color boundaryColor = Color.red;
+    [SerializeField] private float boundaryThickness = 0.15f;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource dragAudio;
+    [SerializeField] private AudioSource grabAudioSource;
+    [SerializeField] private AudioClip[] grabSounds;
+    [SerializeField] private float maxDragSpeed = 10f;
+    [SerializeField] private float maxDragVolume = .8f;
+    [SerializeField] private float dragSoundThreshold = 0.05f;
+    [SerializeField] private float minPitch = 0.5f;
+    [SerializeField] private float maxPitch = 1.3f;
+
+    private Vector3 lastDragPosition;
     private Camera gameCamera;
     private Transform selection;
-    private Vector3 offset;
     private Renderer render;
     private int order = 1;
-
-    private Vector3 dragTargetPosition;
     private Vector3 dragVelocity;
+    private Vector3 origin;
+    private bool isPanning = false;
   
     void Start()
     {
         gameCamera = Camera.main;
+        BoundaryLines();
     }
     void Update()
     {
-        if (Mouse.current == null || gameCamera == null)
+        if (Mouse.current == null || gameCamera == null || FileBrowser.IsOpen || menuController.MenuCheck() || centerPanel.gameObject.activeInHierarchy)
         {
             return;
         }
 
         var leftButton = Mouse.current.leftButton;
+        var y = Mouse.current.scroll.ReadValue().y;
         Vector3 mousePosition = gameCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         mousePosition.z = 0f;
+
+        if (Mathf.Abs(y) > 0.01f)
+        {
+            ZoomCamera(y, mousePosition);
+        }
+
+        if (Mouse.current.rightButton.wasPressedThisFrame)
+        {
+            TryRotate(mousePosition);
+        }
 
         if (leftButton.wasPressedThisFrame)
         {
             TryPickup(mousePosition);
-        }
 
-        if (leftButton.isPressed && selection != null && render != null)
+            if (selection == null)
+            {
+                isPanning = true;
+                origin = mousePosition;
+            }
+        }
+        else if (leftButton.isPressed)
         {
-            Vector3 movement = mousePosition + offset;
-            dragTargetPosition = ScreenBoundaries(movement);
+            if (selection != null && render != null) 
+            {
+                Vector3 groupCenter = GetGroupCenter(selection);
 
-            selection.position = Vector3.SmoothDamp(selection.position, dragTargetPosition, ref dragVelocity, dragSmoothTime);
+                Vector3 centerToRoot = selection.position - groupCenter;
+                Vector3 targetPosition = mousePosition + centerToRoot;
+
+                targetPosition.z = selection.position.z;
+                targetPosition = WorldBoundaries(targetPosition);
+
+                int groupSize = selection.GetComponentsInChildren<PuzzlePiece>().Length;
+
+                float adjustedSmoothTime = dragSmoothTime * (1f + ((groupSize - 1) * 0.15f));
+
+                selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, adjustedSmoothTime);
+                
+                float speed = (selection.position - lastDragPosition).magnitude / Time.deltaTime;
+
+                bool isSnapping = false;
+
+                UpdateDragAudio(speed, groupSize, isSnapping);
+
+                lastDragPosition = selection.position;
+
+                if (snapManager != null && modeController.currentGameMode == GameMode.Easy)
+                {
+                    bool didSnap = snapManager.TryAutoSnap(selection);
+
+                    if (didSnap)
+                    {
+                        selection = null;
+                        render = null;
+                        dragVelocity = Vector3.zero;
+                        isPanning = false;
+
+                        StartCoroutine(FadeOutDragAudio());
+                        return;
+                    }
+                }
+            }
+            else if (isPanning)
+            {
+                PanCamera(mousePosition);
+            }
         }
-
+        
         if (leftButton.wasReleasedThisFrame)
         {
-            if (selection != null && snapManager != null)
+            if (selection != null && snapManager != null && gameStateManager != null && modeController.currentGameMode != GameMode.Easy)
             {
                 snapManager.TrySnap(selection);
             }
-            selection = null;
 
+            StartCoroutine(FadeOutDragAudio());
+
+            selection = null;
+            render = null;
             dragVelocity = Vector3.zero;
+            isPanning = false;
         }
+    }
+    private void ZoomCamera(float y, Vector3 mousePosition)
+    {
+        var size = Mathf.Clamp(gameCamera.orthographicSize - (y * zoomSpeed), minZoom, Mathf.Min(maxZoom, boundaries.y / 2f, boundaries.x / 2f / gameCamera.aspect));
+
+        if (Mathf.Approximately(gameCamera.orthographicSize, size)) 
+        {
+            return;
+        }
+
+        gameCamera.orthographicSize = size;
+
+        var mousePostZoom = gameCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+        mousePostZoom.z = 0f;
+
+        gameCamera.transform.position += (mousePosition - mousePostZoom);
+
+        CameraBoundaries();
+    }
+    private void PanCamera(Vector3 mousePosition)
+    {
+        var difference = origin - mousePosition;
+        difference.z = 0f;
+        gameCamera.transform.position += difference;
+        CameraBoundaries();
+    }
+    private void BoundaryLines()
+    {
+        var x = boundaries.x / 2f;
+        var y = boundaries.y / 2f;
+        var lineObject = new GameObject("BoundaryBox");
+        var renderer = lineObject.AddComponent<LineRenderer>();
+
+        lineObject.transform.SetParent(transform); 
+        
+        renderer.material = new Material(Shader.Find("Sprites/Default")); 
+        renderer.startWidth = boundaryThickness;
+        renderer.endWidth = boundaryThickness;
+        renderer.sortingOrder = 500; 
+        renderer.startColor = boundaryColor;
+        renderer.endColor = boundaryColor;
+
+        renderer.positionCount = 4;
+        renderer.SetPositions(new Vector3[] 
+        { 
+            new(-x, -y, 0),
+            new(-x, y, 0),  
+            new(x, y, 0),  
+            new(x, -y, 0)   
+        });
+        renderer.loop = true;    
+
+        var collider = lineObject.AddComponent<EdgeCollider2D>();
+        var points = new Vector2[] 
+        {
+            new(-x, -y),
+            new(-x, y),
+            new(x, y),
+            new(x, -y),
+            new(-x, -y)
+        };
+        collider.points = points;
+
+        var bounce = new PhysicsMaterial2D("Wall");
+        bounce.bounciness = 1f; 
+        bounce.friction = 0.1f;
+        
+        collider.sharedMaterial = bounce;
     }
     private RaycastHit2D GrabPiece(Vector3 mousePosition)
     {
-        var hitPieces = Physics2D.RaycastAll(mousePosition, Vector2.zero);
-        int highestOrder = int.MinValue;
-        var topPiece = new RaycastHit2D();
+        var pieces = Physics2D.RaycastAll(mousePosition, Vector2.zero);
+        int highest = int.MinValue;
+        var top = new RaycastHit2D();
 
-        foreach (var piece in hitPieces)
+        foreach (var piece in pieces)
         {
             if (piece.collider != null && piece.collider.CompareTag("Piece"))
             {
-                var render = piece.transform.GetComponent<Renderer>();
-
-                if (render != null && render.sortingOrder > highestOrder)
+                if (piece.transform.TryGetComponent(out Renderer render) && render.sortingOrder > highest)
                 {
-                    highestOrder = render.sortingOrder;
-                    topPiece = piece;
+                    highest = render.sortingOrder;
+                    top = piece;
                 }
             }
         }
-        return topPiece;
+        return top;
     }
     private void TryPickup(Vector3 mousePosition)
     {
+        PlayGrabSound();
         var topPiece = GrabPiece(mousePosition);
 
         if (topPiece.collider != null)
         {
             selection = GetRoot(topPiece.transform);
             render = topPiece.transform.GetComponent<Renderer>();
-            Vector3 centerOffset = selection.position - render.bounds.center;
-            offset =  centerOffset;
-            order = Mathf.Max(order, render.sortingOrder) + 1;
 
-            dragTargetPosition = selection.position;
+            SnapRotation(selection);
+
+            order = GetHighestSortingOrder() + 1;
             dragVelocity = Vector3.zero;
 
             var renderers = selection.GetComponentsInChildren<Renderer>();
 
-            foreach (var renderer in renderers)
+            for (int i = 0; i < renderers.Length; i++)
             {
-                renderer.sortingOrder = order;
+                renderers[i].sortingOrder = order + i;
+            }
+
+            lastDragPosition = selection.position;
+
+            dragAudio.loop = true;
+            dragAudio.volume = 0f;
+
+            if (!dragAudio.isPlaying)
+            {
+                dragAudio.Play();
             }
         }
     }
-    private Vector3 ScreenBoundaries(Vector3 movement)
+    private void SnapRotation(Transform target)
     {
-        var screenHeight = gameCamera.orthographicSize;
-        var screenWidth = screenHeight * gameCamera.aspect;
-        var cameraPosition = gameCamera.transform.position;
-        var left = cameraPosition.x - screenWidth;
-        var right = cameraPosition.x + screenWidth;
-        var bottom = cameraPosition.y - screenHeight;
-        var top = cameraPosition.y + screenHeight;
-
-        movement.x = Mathf.Clamp(movement.x, left, right - render.bounds.size.x);
-        movement.y = Mathf.Clamp(movement.y, bottom, top - render.bounds.size.y);
-
-        return movement;
+        float angle = GetZAngle(target.rotation);
+        float snapped = Mathf.Round(angle / rotationStep) * rotationStep;
+        target.rotation = Quaternion.AngleAxis(snapped, Vector3.forward);
     }
-    private Transform GetRoot(Transform piece)
+    private float GetZAngle(Quaternion rotation)
     {
-        while (piece.parent != null && piece.parent.GetComponent<PuzzlePiece>() != null)
+        Vector3 right = rotation * Vector3.right;
+        return Mathf.Atan2(right.y, right.x) * Mathf.Rad2Deg;
+    }
+    private void TryRotate(Vector3 mousePosition)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero);
+
+        if (isRotating)
+        {
+            return;
+        }
+
+        if (hit.collider == null || !hit.collider.CompareTag("Piece"))
+        {
+            return;
+        }
+
+        Transform root = GetRoot(hit.transform);
+
+        StartCoroutine(RotationAnimation(root, -rotationStep));
+    }
+
+    private Vector3 GetGroupCenter(Transform group)
+    {
+        Collider2D[] colliders = group.GetComponentsInChildren<Collider2D>();
+
+        if (colliders.Length == 0)
+        {
+            return group.position;
+        }
+
+        Bounds bounds = colliders[0].bounds;
+
+        for (int i = 1; i < colliders.Length; i++)
+        {
+            bounds.Encapsulate(colliders[i].bounds);
+        }
+
+        return bounds.center;
+    }
+
+    private void CameraBoundaries()
+    {
+        var x = Mathf.Max(0, (boundaries.x / 2f) - (gameCamera.orthographicSize * gameCamera.aspect));
+        var y = Mathf.Max(0, (boundaries.y / 2f) - gameCamera.orthographicSize);
+        var cameraPosition = gameCamera.transform.position;
+
+        cameraPosition.x = Mathf.Clamp(cameraPosition.x, -x, x);
+        cameraPosition.y = Mathf.Clamp(cameraPosition.y, -y, y);
+
+        gameCamera.transform.position = cameraPosition;
+    }
+    private Vector3 WorldBoundaries(Vector3 movement)
+    {
+        var center = movement - (selection.position - GetGroupCenter(selection));
+
+        var left = (-boundaries.x / 2f) + render.bounds.extents.x;
+        var right = (boundaries.x / 2f) - render.bounds.extents.x;
+        var bottom = (-boundaries.y / 2f) + render.bounds.extents.y;
+        var top = (boundaries.y / 2f) - render.bounds.extents.y;
+
+        center.x = Mathf.Clamp(center.x, left, right);
+        center.y = Mathf.Clamp(center.y, bottom, top);
+
+        return center + (selection.position - GetGroupCenter(selection));    
+    }
+    public static Transform GetRoot(Transform piece)
+    {
+        while (piece.parent != null && piece.parent.CompareTag("Piece"))
         {
             piece = piece.parent;
         }
-
         return piece;
+    }
+
+    private void UpdateDragAudio(float speed, int groupSize, bool isSnapping)
+    {
+        if (speed < dragSoundThreshold)
+        {
+            dragAudio.volume = Mathf.Lerp(dragAudio.volume, 0f, Time.deltaTime * 12f);
+            return;
+        }
+
+        float speed01 = Mathf.Clamp01(speed / maxDragSpeed);
+
+        float groupVolumeBoost = Mathf.Clamp01(groupSize / 10f) * 0.2f;
+
+        float targetVolume = (speed01 * maxDragVolume) + groupVolumeBoost;
+
+        float groupPitchDrop = Mathf.Clamp01(groupSize / 10f) * 0.15f;
+
+        float targetPitch = Mathf.Lerp(minPitch, maxPitch, speed01) - groupPitchDrop;
+
+        if (isSnapping)
+        {
+            targetVolume *= 0.5f;
+            targetPitch *= 1.1f;
+        }
+
+        dragAudio.volume = Mathf.Lerp(dragAudio.volume, targetVolume, Time.deltaTime * 10f);
+
+        dragAudio.pitch = Mathf.Lerp(dragAudio.pitch, targetPitch, Time.deltaTime * 10f);
+    }
+
+    private IEnumerator FadeOutDragAudio()
+    {
+        float startVolume = dragAudio.volume;
+
+        while (dragAudio.volume > 0.01f)
+        {
+            dragAudio.volume = Mathf.Lerp(dragAudio.volume, 0f, Time.deltaTime * 12f);
+
+            yield return null;
+        }
+
+        dragAudio.Stop();
+        dragAudio.volume = 0f;
+    }
+
+    private void PlayGrabSound()
+    {
+        if (grabAudioSource == null || grabSounds == null || grabSounds.Length == 0)
+        {
+            return;
+        }
+
+        int randomIndex = Random.Range(0, grabSounds.Length);
+
+        grabAudioSource.volume = 4f;
+
+        grabAudioSource.pitch = Random.Range(0.95f, 1.05f);
+
+        grabAudioSource.PlayOneShot(grabSounds[randomIndex]);
+    }
+
+    private IEnumerator RotationAnimation(Transform target, float totalAngle)
+    {
+        isRotating = true;
+
+        float elapsed = 0f;
+        float rotatedAmount = 0f;
+
+        while (elapsed < rotationDuration)
+        {
+            float progress = elapsed / rotationDuration;
+            float erasedProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            float targetAngle = Mathf.Lerp(0f, totalAngle, erasedProgress);
+            float angleThisFrame = targetAngle - rotatedAmount;
+
+            Vector3 center = GetGroupCenter(target);
+
+            target.RotateAround(center, Vector3.forward, angleThisFrame);
+
+            rotatedAmount = targetAngle;
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        Vector3 finalCenter = GetGroupCenter(target);
+        target.RotateAround(finalCenter, Vector3.forward, totalAngle - rotatedAmount);
+
+        SnapRotation(target);
+
+        isRotating = false;
+    }
+
+    private int GetHighestSortingOrder()
+    {
+        int highest = int.MinValue;
+
+        Renderer[] renderers = FindObjectsByType<Renderer>(FindObjectsInactive.Exclude);
+
+        foreach (Renderer renderer in renderers)
+        {
+            if (renderer.CompareTag("Piece"))
+            {
+                highest = Mathf.Max(highest, renderer.sortingOrder);
+            }
+        }
+
+        return highest == int.MinValue ? 0 : highest;
+    }
+    public IEnumerator SimulateDragToPosition(Transform root, Vector3 targetPosition, float targetRotation, float duration)
+    {
+        Vector3 startPosition = root.position;
+        Quaternion startRotation = root.rotation;
+        Quaternion endRotation = Quaternion.Euler(0f, 0f, targetRotation);
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+
+            float t = elapsed / duration;
+            t = Mathf.SmoothStep(0f, 1f, t);
+
+            root.position = Vector3.Lerp(startPosition, targetPosition, t);
+            root.rotation = Quaternion.Lerp(startRotation, endRotation, t);
+
+            yield return null;
+        }
+
+        root.position = targetPosition;
+        root.rotation = endRotation;
     }
 }
