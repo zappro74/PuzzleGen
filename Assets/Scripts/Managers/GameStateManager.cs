@@ -553,12 +553,12 @@ public class GameStateManager : MonoBehaviour
 
                 float bass = 0f;
 
-                for (int i = 0; i < 2; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     bass += spectrum[i];
                 }
 
-                bass *= 6f;
+                bass *= 5f;
 
                 float scale = Mathf.Clamp(1f + bass, 1f, 4f);
 
