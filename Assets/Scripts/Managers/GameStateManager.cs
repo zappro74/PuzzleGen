@@ -40,59 +40,16 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private PuzzleFactory puzzleFactory;
     [SerializeField] private Material pieceMaterial;
 
+    [Header("Puzzle Data")]
+    //[SerializeField] publ PuzzleFactory puzzleFactory;
+
     [Header("Shuffling")]
     [SerializeField] private ExplosionShuffle explosionShuffle;
-
-    [Header("Win Screen")]
-    [SerializeField] private GameObject winScreenPanel;
-    [SerializeField] private ParticleSystem[] confettiCannons;
-    [SerializeField] private AudioSource winAudioSource;
-    [SerializeField] private AudioClip winSound;
-    [SerializeField] private AudioSource winMusicSource;
-    [SerializeField] private AudioClip winMusic;
-    [SerializeField] private TextMeshProUGUI finalTimeText;
-    [SerializeField] private RawImage solvedImageDisplay;
-    [SerializeField] private float spinSpeed = 50f;
-    [SerializeField] private float bounceSpeedX = 200f;
-    [SerializeField] private float bounceSpeedY = 200f;
-
-    private Vector2 bounceDirection = new Vector2(1f, 1f);
-
-    private float[] spectrum = new float[512];
-    
-
-    private bool hasWon = false;
-
-    private GroupSystem groupSystem;
-    private ConnectionSystem connectionSystem;
 
     private float elapsedTime = 0f;
 
     public void StartGame()
     {
-        hasWon = false;
-
-        if (winScreenPanel != null)
-        {
-            winScreenPanel.SetActive(false);
-        }
-
-        if (solvedImageDisplay != null)
-        {
-            solvedImageDisplay.texture = null;
-            solvedImageDisplay.gameObject.SetActive(false);
-        }
-
-        if (winMusicSource != null)
-        {
-            winMusicSource.Stop();
-        }
-
-        if (timer != null)
-        {
-            timer.gameObject.SetActive(true);
-        }
-
         // Runs once a new game is started.
         if (image == null)
         {
@@ -107,21 +64,6 @@ public class GameStateManager : MonoBehaviour
     }
     public void PrepareNewGame(Texture loadedImage)
     {
-        hasWon = false;
-
-        if (winScreenPanel != null)
-        {
-            winScreenPanel.SetActive(false);
-        }
-
-        if (solvedImageDisplay != null)
-        {
-            solvedImageDisplay.texture = null;
-            solvedImageDisplay.gameObject.SetActive(false);
-        }
-
-        hasWon = false;
-
         image = loadedImage;
         ClearPuzzle();
         
@@ -130,6 +72,17 @@ public class GameStateManager : MonoBehaviour
             modeSelectionPanel.SetActive(true);
         }
     }
+    public void PrepareJSONGame(Texture loadedImage)
+    {
+        Debug.Log("Prepare JSON Game");
+        image = loadedImage;
+        ClearPuzzle();
+        Debug.Log("Clear puzzle");
+        modeSelectionPanel.SetActive(true);
+        Debug.Log("Mode Selection");
+    }
+
+
     public void PauseGame()
     {
         // Anything that triggers during a paused game.
@@ -149,24 +102,6 @@ public class GameStateManager : MonoBehaviour
     public void RestartGame()
     {
         Debug.Log("Game restarting.");
-
-        hasWon = false;
-
-        if (winScreenPanel != null)
-        {
-            winScreenPanel.SetActive(false);
-        }
-
-        if (solvedImageDisplay != null)
-        {
-            solvedImageDisplay.texture = null;
-            solvedImageDisplay.gameObject.SetActive(false);
-        }
-
-        if (winMusicSource != null)
-        {
-            winMusicSource.Stop();
-        }
 
         currentState = State.Inactive;
         image = null;
@@ -217,64 +152,6 @@ public class GameStateManager : MonoBehaviour
                 timer.text = string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
             }
         }
-                
-        if (hasWon && solvedImageDisplay != null)
-        {
-            solvedImageDisplay.rectTransform.Rotate(0f, 0f, spinSpeed * Time.deltaTime);
-
-            RectTransform rect = solvedImageDisplay.rectTransform;
-
-            Vector2 movement = new Vector2(bounceSpeedX, bounceSpeedY);
-
-            rect.anchoredPosition += bounceDirection * movement * Time.deltaTime;
-
-            Canvas canvas = solvedImageDisplay.canvas;
-
-            if (canvas != null)
-            {
-                RectTransform canvasRect = canvas.GetComponent<RectTransform>();
-
-                float halfWidth = rect.rect.width * rect.localScale.x * 0.5f;
-                float halfHeight = rect.rect.height * rect.localScale.y * 0.5f;
-
-                float leftBound = -canvasRect.rect.width * 0.5f + halfWidth;
-                float rightBound = canvasRect.rect.width * 0.5f - halfWidth;
-
-                float bottomBound = -canvasRect.rect.height * 0.5f + halfHeight;
-                float topBound = canvasRect.rect.height * 0.5f - halfHeight;
-
-                Vector2 pos = rect.anchoredPosition;
-
-                if (pos.x < leftBound || pos.x > rightBound)
-                {
-                    bounceDirection.x *= -1f;
-                }
-
-                if (pos.y < bottomBound || pos.y > topBound)
-                {
-                    bounceDirection.y *= -1f;
-                }
-            }
-
-            //Chat helped me make this equilizer effect... I really wanted this effect to work!
-            if (winMusicSource != null && winMusicSource.isPlaying)
-            {
-                winMusicSource.GetSpectrumData(spectrum, 0, FFTWindow.BlackmanHarris);
-
-                float bass = 0f;
-
-                for (int i = 0; i < 2; i++)
-                {
-                    bass += spectrum[i];
-                }
-
-                bass *= 6f;
-
-                float scale = Mathf.Clamp(1f + bass, 1f, 4f);
-
-                solvedImageDisplay.rectTransform.localScale = Vector3.Lerp(solvedImageDisplay.rectTransform.localScale, new Vector3(scale, scale, scale), Time.deltaTime * 10f);
-            }
-        }
     }
 
     public void GenerateNewPuzzle(Texture loadedImage)
@@ -309,6 +186,7 @@ public class GameStateManager : MonoBehaviour
             pointsPerCurveHalf = 10
         };
 
+        //Hard code values for testing purposes
         PuzzleConfig puzzleConfig = new PuzzleConfig
         {
             rows = rows,
@@ -344,8 +222,34 @@ public class GameStateManager : MonoBehaviour
             }
         }
 
-        groupSystem = new GroupSystem();
-        connectionSystem = new ConnectionSystem(groupSystem);
+        var groupSystem = new GroupSystem();
+        var connectionSystem = new ConnectionSystem(groupSystem);
+
+        groupSystem.Initialize(piecesData);
+
+        if (snappingManager != null)
+        {
+            snappingManager.connectionSystem = connectionSystem;
+        }
+        else
+        {
+            Debug.LogWarning("SnappingManager not assigned.");
+        }
+    }
+
+    public void GeneratePuzzleFromJSON(Texture loadedImage, List<PieceData> piecesData)
+    {
+        ClearPuzzle();
+
+        image = loadedImage;
+
+        Vector2 puzzleSize = GetBoardSize(image, boardWidth, boardHeight);
+
+        pieceMaterial.mainTexture = loadedImage;
+
+
+        var groupSystem = new GroupSystem();
+        var connectionSystem = new ConnectionSystem(groupSystem);
 
         groupSystem.Initialize(piecesData);
 
@@ -388,70 +292,6 @@ public class GameStateManager : MonoBehaviour
         }
 
         return new Vector2(maxHeight * imageAspect, maxHeight);
-    }
-
-    public void WinGame()
-    {
-        if (hasWon)
-        {
-            return;
-        }
-
-        hasWon = true;
-
-        currentState = State.Paused;
-
-        if (timer != null)
-        {
-            timer.gameObject.SetActive(false);
-        }
-
-        ClearPuzzle();
-
-        Debug.Log("Puzzle Complete!");
-
-        if (finalTimeText != null)
-        {
-            int minutes = Mathf.FloorToInt(elapsedTime / 60);
-            int seconds = Mathf.FloorToInt(elapsedTime % 60);
-
-            finalTimeText.text = $"You solved the puzzle in: {minutes} minute(s) {seconds} seconds!";
-        }
-
-        if (winAudioSource != null && winSound != null)
-        {
-            winAudioSource.PlayOneShot(winSound);
-        }
-
-        if (winMusicSource != null && winMusic != null)
-        {
-            winMusicSource.clip = winMusic;
-            winMusicSource.loop = true;
-            winMusicSource.Play();
-        }
-
-        if (winScreenPanel != null)
-        {
-            winScreenPanel.SetActive(true);
-        }
-
-        if (solvedImageDisplay != null)
-        {
-            solvedImageDisplay.gameObject.SetActive(true);
-            solvedImageDisplay.texture = image;
-            solvedImageDisplay.color = Color.white;
-
-            solvedImageDisplay.rectTransform.anchoredPosition = Vector2.zero;
-            solvedImageDisplay.rectTransform.localScale = Vector3.one;
-        }
-
-        foreach (ParticleSystem cannon in confettiCannons)
-        {
-            if (cannon != null)
-            {
-                cannon.Play();
-            }
-        }
     }
 }
 
