@@ -1389,7 +1389,7 @@ MonoBehaviour:
   winAudioSource: {fileID: 1173712065}
   winSound: {fileID: 8300000, guid: 2c494541e74246d40906a238c2932321, type: 3}
   winMusicSource: {fileID: 1173712070}
-  winMusic: {fileID: 8300000, guid: 376a96ccd66fd4c47aa34a37f6bf70ac, type: 3}
+  winMusic: {fileID: 8300000, guid: 2a09005358874f247be1c635f08c4e58, type: 3}
   finalTimeText: {fileID: 1685827006}
   solvedImageDisplay: {fileID: 1999853238}
   spinSpeed: 50
@@ -7918,7 +7918,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 376a96ccd66fd4c47aa34a37f6bf70ac, type: 3}
+  m_Resource: {fileID: 8300000, guid: 2a09005358874f247be1c635f08c4e58, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
