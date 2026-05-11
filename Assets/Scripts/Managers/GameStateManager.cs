@@ -771,6 +771,13 @@ public class GameStateManager : MonoBehaviour
             solvedImageDisplay.gameObject.SetActive(false);
         }
         winMusicSource?.Stop();
+        if (confettiCannons != null)
+        {
+            foreach (ParticleSystem cannon in confettiCannons)
+            {
+                cannon?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
+        }
     }
 }
 
