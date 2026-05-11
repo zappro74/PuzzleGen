@@ -57,11 +57,8 @@ public class InteractionManager : MonoBehaviour
     }
     void Update()
     {
-        if (Mouse.current == null || gameCamera == null || FileBrowser.IsOpen || menuController.MenuCheck() || centerPanel.gameObject.activeInHierarchy)
-        {
-            return;
-        }
-
+        if (Mouse.current == null || gameCamera == null || FileBrowser.IsOpen || menuController.MenuCheck() || centerPanel.gameObject.activeInHierarchy) return;
+        
         var leftButton = Mouse.current.leftButton;
         var y = Mouse.current.scroll.ReadValue().y;
         Vector3 mousePosition = gameCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
@@ -256,7 +253,7 @@ public class InteractionManager : MonoBehaviour
 
             for (int i = 0; i < renderers.Length; i++)
             {
-                renderers[i].sortingOrder = order + i;
+                renderers[i].sortingOrder = order;
             }
 
             lastDragPosition = selection.position;

@@ -29,13 +29,19 @@ public class ImageReferencing : MonoBehaviour
             Fit(imageReference, maxImageReference, texture);
             Fit(centerImage, maxCenterSize, texture);
         }
+        else
+        {
+            imageReference.texture = null;
+            centerImage.texture = null;
+            Debug.Log("Cleared image references.");
+        }
     }
 
-    private void Fit(RawImage image, Vector2 maxBounds, Texture texture)
+    private void Fit(RawImage image, Vector2 maxSize, Texture texture)
     {
         var imageRect = image.GetComponent<RectTransform>();
-        var widthRatio = maxBounds.x / texture.width;
-        var heightRatio = maxBounds.y / texture.height;
+        var widthRatio = maxSize.x / texture.width;
+        var heightRatio = maxSize.y / texture.height;
         var scaleFactor = Mathf.Min(widthRatio, heightRatio);
 
         imageRect.localRotation = Quaternion.identity;

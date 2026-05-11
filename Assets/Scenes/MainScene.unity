@@ -143,16 +143,16 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 19975275}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -13.022583, y: 6.8530273, z: 0}
+  m_LocalScale: {x: 0.75, y: 0.75, z: 0.75}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 55220114}
   - {fileID: 78546789}
   - {fileID: 1811623759}
   - {fileID: 1938165064}
-  m_Father: {fileID: 359958281}
+  m_Father: {fileID: 1572266079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &54638403
 GameObject:
@@ -242,9 +242,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'New Text
-
-'
+  m_text: 'Easy: Not Set'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -518,7 +516,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 'Medium: Not Set'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1234,7 +1232,6 @@ Transform:
   - {fileID: 1329492412}
   - {fileID: 171321953}
   - {fileID: 1790326177}
-  - {fileID: 19975276}
   m_Father: {fileID: 1572266079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &363619777
@@ -1679,21 +1676,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateManager
   currentState: 0
-  gameCamera: {fileID: 891658817}
+  gameCamera: {fileID: 0}
   image: {fileID: 0}
   timer: {fileID: 1306186867}
   modeSelectionPanel: {fileID: 1532011008}
   snappingManager: {fileID: 629222932}
   modeController: {fileID: 629222940}
-  interactionManager: {fileID: 629222931}
+  interactionManager: {fileID: 0}
   puzzleFactory: {fileID: 1117236279}
   pieceMaterial: {fileID: 2100000, guid: 46782fca045e80d48bea19b014ee051b, type: 2}
   currentGenerationSeed: 0
   currentRows: 0
   currentColumns: 0
   explosionShuffle: {fileID: 629222933}
-  loadAudioSource: {fileID: 1173712071}
-  loadSound: {fileID: 8300000, guid: 5d89f2986f5c9c746a6fffe8ffe95e72, type: 3}
+  loadAudioSource: {fileID: 0}
+  loadSound: {fileID: 0}
   winScreenPanel: {fileID: 1762720291}
   confettiCannons:
   - {fileID: 720716604}
@@ -1758,7 +1755,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Image
   stateManager: {fileID: 629222926}
-  imageReference: {fileID: 629222928}
+  referencing: {fileID: 0}
   gifLoader: {fileID: 629222939}
 --- !u!114 &629222930
 MonoBehaviour:
@@ -1775,9 +1772,9 @@ MonoBehaviour:
   stateManager: {fileID: 629222926}
   imageLoad: {fileID: 629222929}
   pauseMenu: {fileID: 1572266076}
-  easyBestTimeText: {fileID: 55220115}
-  mediumBestTimeText: {fileID: 78546790}
-  hardBestTimeText: {fileID: 1811623760}
+  easyBestTimeText: {fileID: 0}
+  mediumBestTimeText: {fileID: 0}
+  hardBestTimeText: {fileID: 0}
 --- !u!114 &629222931
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9141,6 +9138,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 359958281}
+  - {fileID: 19975276}
   - {fileID: 1793572919}
   m_Father: {fileID: 885647016}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -19788,7 +19786,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 'Hard: Not Set'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

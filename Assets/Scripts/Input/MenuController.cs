@@ -20,10 +20,7 @@ public class MenuController : MonoBehaviour
 
     void Update()
     {
-        if (FileBrowser.IsOpen) 
-        {
-            return;
-        }
+        if (FileBrowser.IsOpen) return;
 
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
