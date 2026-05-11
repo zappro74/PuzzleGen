@@ -4,7 +4,6 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.IO;
 using System.Collections;
-using System.Threading.Tasks.Sources;
 
 public enum State
 {
@@ -18,7 +17,6 @@ public enum GameMode
     Medium,
     Hard
 }
-
 
 public class GameStateManager : MonoBehaviour
 {
@@ -78,23 +76,7 @@ public class GameStateManager : MonoBehaviour
 
     public void StartGame()
     {
-        hasWon = false;
-
-        if (winScreenPanel != null)
-        {
-            winScreenPanel.SetActive(false);
-        }
-
-        if (solvedImageDisplay != null)
-        {
-            solvedImageDisplay.texture = null;
-            solvedImageDisplay.gameObject.SetActive(false);
-        }
-
-        if (winMusicSource != null)
-        {
-            winMusicSource.Stop();
-        }
+        ResetWinScreen();
 
         if (timer != null)
         {
@@ -115,20 +97,7 @@ public class GameStateManager : MonoBehaviour
     }
     public void PrepareNewGame(Texture loadedImage)
     {
-        hasWon = false;
-
-        if (winScreenPanel != null)
-        {
-            winScreenPanel.SetActive(false);
-        }
-
-        if (solvedImageDisplay != null)
-        {
-            solvedImageDisplay.texture = null;
-            solvedImageDisplay.gameObject.SetActive(false);
-        }
-
-        hasWon = false;
+        ResetWinScreen();
 
         image = loadedImage;
         ClearPuzzle();
@@ -165,23 +134,7 @@ public class GameStateManager : MonoBehaviour
     {
         Debug.Log("Game restarting.");
 
-        hasWon = false;
-
-        if (winScreenPanel != null)
-        {
-            winScreenPanel.SetActive(false);
-        }
-
-        if (solvedImageDisplay != null)
-        {
-            solvedImageDisplay.texture = null;
-            solvedImageDisplay.gameObject.SetActive(false);
-        }
-
-        if (winMusicSource != null)
-        {
-            winMusicSource.Stop();
-        }
+        ResetWinScreen();
 
         currentState = State.Inactive;
         image = null;
@@ -212,6 +165,7 @@ public class GameStateManager : MonoBehaviour
     //left in Claudes comments for honesty
     private IEnumerator GeneratePuzzleFromJSONRoutine(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
     {
+        elapsedTime = savedElapsedTime;
         ClearPuzzle();
         yield return null;
 
@@ -395,8 +349,6 @@ public class GameStateManager : MonoBehaviour
         // Zoom back out to show all pieces when done
         StartCoroutine(LerpCameraZoom(gameCamera.orthographicSize, targetZoom, 0.8f));
         StartCoroutine(LerpCameraPosition(gameCamera.transform.position, boundsCenter, 0.8f));
-
-        elapsedTime = savedElapsedTime;
     }
 
     private IEnumerator DriftToSavedPosition(Transform piece, Vector3 startPosition, Vector3 targetPosition, float targetRotationZ, float driftDuration)
@@ -429,7 +381,25 @@ public class GameStateManager : MonoBehaviour
     private void PlayLoadSound()
     {
         if (loadAudioSource == null || loadSound == null) return;
+        StartCoroutine(PlayLoadSoundWithFadeOut());
+    }
+
+    private IEnumerator PlayLoadSoundWithFadeOut()
+    {
+        loadAudioSource.volume = 1f;
         loadAudioSource.PlayOneShot(loadSound);
+
+        yield return new WaitForSeconds(loadSound.length - 1f);
+
+        float elapsed = 0f;
+        while (elapsed < 1f)
+        {
+            elapsed += Time.deltaTime;
+            loadAudioSource.volume = Mathf.Lerp(1f, 0f, elapsed / 0.5f);
+            yield return null;
+        }
+
+        loadAudioSource.volume = 0f;
     }
 
     private IEnumerator LerpCameraZoom(float startSize, float targetSize, float duration)
@@ -552,12 +522,12 @@ public class GameStateManager : MonoBehaviour
 
                 float bass = 0f;
 
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 1; i++)
                 {
                     bass += spectrum[i];
                 }
 
-                bass *= 5f;
+                bass *= 8f;
 
                 float scale = Mathf.Clamp(1f + bass, 1f, 4f);
 
@@ -711,17 +681,7 @@ public class GameStateManager : MonoBehaviour
             finalTimeText.text = $"You solved the puzzle in: {minutes} minute(s) {seconds} seconds!";
         }
 
-        if (winAudioSource != null && winSound != null)
-        {
-            winAudioSource.PlayOneShot(winSound);
-        }
-
-        if (winMusicSource != null && winMusic != null)
-        {
-            winMusicSource.clip = winMusic;
-            winMusicSource.loop = true;
-            winMusicSource.Play();
-        }
+        StartCoroutine(PlayWinAudio());
 
         if (winScreenPanel != null)
         {
@@ -738,13 +698,8 @@ public class GameStateManager : MonoBehaviour
             solvedImageDisplay.rectTransform.localScale = Vector3.one;
         }
 
-        foreach (ParticleSystem cannon in confettiCannons)
-        {
-            if (cannon != null)
-            {
-                cannon.Play();
-            }
-        }
+        StartCoroutine(RepeatingConfetti());
+
 
         if (!string.IsNullOrEmpty(JSONFunctions.JSONFileFunctions.CurrentSaveFilePath))
         {
@@ -755,6 +710,65 @@ public class GameStateManager : MonoBehaviour
                 Debug.Log("Deleted completed puzzle save file.");
             }
         }
+    }
+    private IEnumerator FadeInWinMusic(float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            winMusicSource.volume = Mathf.Clamp01(elapsed / duration);
+            yield return null;
+        }
+
+        winMusicSource.volume = 1f;
+    }
+
+    private IEnumerator RepeatingConfetti()
+    {
+        while (hasWon)
+        {
+            confettiCannons[2].Play();
+            foreach (ParticleSystem cannon in confettiCannons)
+            {
+                if (cannon != null)
+                {
+                    cannon.Play();
+                }
+            }
+
+            yield return new WaitForSeconds(3f);
+        }
+    }
+    private IEnumerator PlayWinAudio()
+    {
+        if (winAudioSource != null && winSound != null)
+        {
+            winAudioSource.PlayOneShot(winSound);
+            yield return new WaitForSeconds(winSound.length - 1);
+        }
+
+        if (winMusicSource != null && winMusic != null)
+        {
+            winMusicSource.clip = winMusic;
+            winMusicSource.loop = true;
+            winMusicSource.volume = 0f;
+            winMusicSource.Play();
+            StartCoroutine(FadeInWinMusic(4f));
+        }
+    }
+
+    private void ResetWinScreen()
+    {
+        hasWon = false;
+        winScreenPanel?.SetActive(false);
+        if (solvedImageDisplay != null)
+        {
+            solvedImageDisplay.texture = null;
+            solvedImageDisplay.gameObject.SetActive(false);
+        }
+        winMusicSource?.Stop();
     }
 }
 

@@ -366,6 +366,7 @@ MonoBehaviour:
   spinSpeed: 50
   bounceSpeedX: 200
   bounceSpeedY: 200
+  hasWon: 0
   elapsedTime: 0
   boardWidth: 8
   boardHeight: 6
@@ -1386,15 +1387,16 @@ MonoBehaviour:
   - {fileID: 720716604}
   - {fileID: 1619073092}
   - {fileID: 1583512720}
-  winAudioSource: {fileID: 1173712065}
+  winAudioSource: {fileID: 1173712070}
   winSound: {fileID: 8300000, guid: 2c494541e74246d40906a238c2932321, type: 3}
   winMusicSource: {fileID: 1173712070}
-  winMusic: {fileID: 8300000, guid: 2a09005358874f247be1c635f08c4e58, type: 3}
+  winMusic: {fileID: 8300000, guid: 807cf2c7b014dcf43baf67588b9ba6ff, type: 3}
   finalTimeText: {fileID: 1685827006}
   solvedImageDisplay: {fileID: 1999853238}
   spinSpeed: 50
   bounceSpeedX: 200
   bounceSpeedY: 200
+  hasWon: 0
   elapsedTime: 0
   boardWidth: 8
   boardHeight: 6
@@ -1850,7 +1852,7 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 0
+  looping: 1
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 0
@@ -2672,7 +2674,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 15.83
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -2782,7 +2784,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 300
+        scalar: 100
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -7918,7 +7920,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 2a09005358874f247be1c635f08c4e58, type: 3}
+  m_Resource: {fileID: 8300000, guid: 807cf2c7b014dcf43baf67588b9ba6ff, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -9934,7 +9936,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 300
+        scalar: 100
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -13857,7 +13859,7 @@ Transform:
   m_GameObject: {fileID: 1583512719}
   serializedVersion: 2
   m_LocalRotation: {x: 0.70709646, y: -0.0038409596, z: 0.003840982, w: -0.7070963}
-  m_LocalPosition: {x: -6.9, y: 0.48, z: -0}
+  m_LocalPosition: {x: -6.9, y: -1.95, z: -0}
   m_LocalScale: {x: 2.41, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -13924,7 +13926,7 @@ Transform:
   m_GameObject: {fileID: 1619073089}
   serializedVersion: 2
   m_LocalRotation: {x: -0.68567175, y: -0.17278424, z: 0.17278421, w: 0.6856716}
-  m_LocalPosition: {x: 2.69, y: 1.07, z: -0}
+  m_LocalPosition: {x: 2.78, y: 2.42, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14025,7 +14027,7 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 0
+  looping: 1
   prewarm: 0
   playOnAwake: 0
   useUnscaledTime: 0
@@ -14847,7 +14849,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 15.3
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -14957,7 +14959,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 300
+        scalar: 100
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -19097,8 +19099,8 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1685827005}
   - {fileID: 1999853237}
+  - {fileID: 1685827005}
   m_Father: {fileID: 885647016}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
