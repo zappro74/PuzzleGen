@@ -253,7 +253,7 @@ public class InteractionManager : MonoBehaviour
 
             for (int i = 0; i < renderers.Length; i++)
             {
-                renderers[i].sortingOrder = order;
+                renderers[i].sortingOrder = order + 1;
             }
 
             lastDragPosition = selection.position;
@@ -285,6 +285,11 @@ public class InteractionManager : MonoBehaviour
         if (isRotating)
         {
             return;
+        }
+        if (selection != null)
+        {
+            StartCoroutine(RotationAnimation(selection, -rotationStep));
+            return; 
         }
 
         if (hit.collider == null || !hit.collider.CompareTag("Piece"))
