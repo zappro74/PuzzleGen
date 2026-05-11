@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class SnappingManager : MonoBehaviour
@@ -10,7 +11,7 @@ public class SnappingManager : MonoBehaviour
 
     [Header("Animation Settings")]
     public float snapSpeed = 0.25f; // the speed value of snapping
-    public AnimationCurve snapCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // the curve inside the inspector that controls the snapping speed
+    public AnimationCurve snapCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // the curve inside the inspector that controls the snapping curve
 
     [Header("Effects")]
     public ParticleSystem snapParticles;
@@ -71,7 +72,7 @@ public class SnappingManager : MonoBehaviour
                         pieceGroup.position = startWorldPosition;
 
                         var scanConnections = ScanConnections(pieceGroup, targetRoot, groupPiece, piece);
-                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, scanConnections));
+                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, pieceGroup.rotation, rotation, scanConnections));
 
                         Debug.Log($"Snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
 
@@ -128,7 +129,7 @@ public class SnappingManager : MonoBehaviour
                         pieceGroup.position = startWorldPosition;
 
                         var scanConnections = ScanConnections(pieceGroup, targetRoot, groupPiece, piece);
-                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, scanConnections));
+                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, pieceGroup.rotation, rotation, scanConnections));
 
                         Debug.Log($"Auto snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
 
@@ -164,7 +165,7 @@ public class SnappingManager : MonoBehaviour
         
         return scanConnections;
     }
-    private IEnumerator Animate(Transform pieceGroup, Transform targetRoot, Vector3 start, Vector3 end, List<SnapPairs> scanConnections)
+    private IEnumerator Animate(Transform pieceGroup, Transform targetRoot, Vector3 start, Vector3 end, Quaternion startRotation, Quaternion endRotation, List<SnapPairs> scanConnections)
     {
         float elapsedTime = 0f;
 
@@ -179,10 +180,12 @@ public class SnappingManager : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             pieceGroup.position = Vector3.Lerp(start, end, snapCurve.Evaluate(elapsedTime / snapSpeed));
+            pieceGroup.rotation = Quaternion.Lerp(startRotation, endRotation, snapCurve.Evaluate(elapsedTime / snapSpeed));
             yield return null;
         }
 
         pieceGroup.position = end;
+        pieceGroup.rotation = endRotation;
 
         MergeGroups(pieceGroup, targetRoot);
 
@@ -308,5 +311,22 @@ public class SnappingManager : MonoBehaviour
         }
 
         sourceRoot.SetParent(targetRoot, true);
+
+        if (targetRoot.GetComponent<PuzzlePiece>() != null)
+        {
+            foreach (var piece in targetRoot.GetComponentsInChildren<PuzzlePiece>())
+            {
+                if (piece.transform == targetRoot)
+                {
+                    continue;
+                }
+
+                Vector3 position = (Vector2)piece.SolvedPosition - (Vector2)targetRoot.GetComponent<PuzzlePiece>().SolvedPosition;
+                position.z = piece.transform.localPosition.z;
+
+                piece.transform.localPosition = position;
+                piece.transform.localRotation = Quaternion.identity;
+            }
+        }
     }
 }

@@ -134,10 +134,7 @@ public class GameStateManager : MonoBehaviour
     {
         Debug.Log("Game restarting.");
 
-        ResetWinScreen();
-
         currentState = State.Inactive;
-        image = null;
         elapsedTime = 0f;
         
         if (timer != null)
@@ -145,7 +142,56 @@ public class GameStateManager : MonoBehaviour
             timer.text = "00:00:00"; 
         }
 
+        ResetPuzzle();
+    }
+    public void ResetPuzzle()
+    {
+        if (image == null)
+        {
+            Debug.LogWarning("No image loaded.");
+            return;
+        }
+
+        if (hasWon)
+        {
+            Debug.Log("Resetting Win Screen");
+            ResetWinScreen();
+        }
+
         ClearPuzzle();
+        Debug.Log("Puzzle cleared.");
+
+        if (modeSelectionPanel != null)
+        {
+            modeSelectionPanel.SetActive(true);
+        }
+    }
+    public void RestartTimer()
+    {
+        if (image != null)
+        {
+            elapsedTime = 0f;
+            currentState = State.Active;
+            Debug.Log("Timer reset.");
+        }
+    }
+    private void ResetWinScreen()
+    {
+        hasWon = false;
+        winScreenPanel?.SetActive(false);
+        if (solvedImageDisplay != null)
+        {
+            solvedImageDisplay.texture = null;
+            solvedImageDisplay.gameObject.SetActive(false);
+        }
+        winMusicSource?.Stop();
+        if (confettiCannons != null)
+        {
+            foreach (ParticleSystem cannon in confettiCannons)
+            {
+                cannon?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
+        }
     }
     public void GeneratePuzzleFromJSON(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
     {
@@ -439,26 +485,6 @@ public class GameStateManager : MonoBehaviour
             gameCamera.transform.position = to;
     }
 
-    public void ResetPuzzle()
-    {
-        if (image == null) 
-        {
-            Debug.LogWarning("No image loaded.");
-            return;
-        }
-
-        Debug.Log("Puzzle reset.");
-        modeSelectionPanel.SetActive(true);    
-    }
-    public void RestartTimer()
-    {
-        if (image != null)
-        {
-            elapsedTime = 0f;
-            currentState = State.Active;
-            Debug.Log("Timer reset.");
-        }
-    }
     public void Update()
     {
         // Anything that updates as the game plays should be put into here.
@@ -760,25 +786,6 @@ public class GameStateManager : MonoBehaviour
             winMusicSource.volume = 0f;
             winMusicSource.Play();
             StartCoroutine(FadeInWinMusic(4f));
-        }
-    }
-
-    private void ResetWinScreen()
-    {
-        hasWon = false;
-        winScreenPanel?.SetActive(false);
-        if (solvedImageDisplay != null)
-        {
-            solvedImageDisplay.texture = null;
-            solvedImageDisplay.gameObject.SetActive(false);
-        }
-        winMusicSource?.Stop();
-        if (confettiCannons != null)
-        {
-            foreach (ParticleSystem cannon in confettiCannons)
-            {
-                cannon?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            }
         }
     }
 }
