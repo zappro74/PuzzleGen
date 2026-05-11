@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using SimpleFileBrowser;
 using System.IO;
+using TMPro;
 
 public class MenuController : MonoBehaviour
 {
@@ -12,6 +13,10 @@ public class MenuController : MonoBehaviour
     [Header("UI Connections")]
     public GameObject pauseMenu;
     private bool menuOpen = true;
+    [Header("Leaderboard Text")]
+    [SerializeField] private TextMeshProUGUI easyBestTimeText;
+    [SerializeField] private TextMeshProUGUI mediumBestTimeText;
+    [SerializeField] private TextMeshProUGUI hardBestTimeText;
 
     void Update()
     {
@@ -23,6 +28,27 @@ public class MenuController : MonoBehaviour
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             OpenMenu();
+        }
+    }
+    private void OnEnable()
+    {
+        UpdateLeaderboardDisplay();
+    }
+    private void UpdateLeaderboardDisplay()
+    {
+        if (easyBestTimeText != null)
+        {
+            easyBestTimeText.text = $"Easy:   {Leaderboard.GetBestTimeFormatted(GameMode.Easy)}";
+        }  
+
+        if (mediumBestTimeText != null)
+        {
+            mediumBestTimeText.text = $"Medium: {Leaderboard.GetBestTimeFormatted(GameMode.Medium)}";
+        }
+
+        if (hardBestTimeText != null)
+        {
+            hardBestTimeText.text = $"Hard:   {Leaderboard.GetBestTimeFormatted(GameMode.Hard)}";
         }
     }
     public void OpenMenu()

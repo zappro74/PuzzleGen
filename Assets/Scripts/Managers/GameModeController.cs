@@ -13,6 +13,7 @@ public class GameModeController : MonoBehaviour
 
     private GameModeSettings easyMode = new GameModeSettings
     {
+        mode = GameMode.Easy,
         modeName = "Easy",
         rows = 3,
         columns = 3,
@@ -31,6 +32,7 @@ public class GameModeController : MonoBehaviour
 
     private GameModeSettings mediumMode = new GameModeSettings
     {
+        mode = GameMode.Medium,
         modeName = "Medium",
         rows = 6,
         columns = 6,
@@ -49,6 +51,7 @@ public class GameModeController : MonoBehaviour
 
     private GameModeSettings hardMode = new GameModeSettings
     {
+        mode = GameMode.Hard,
         modeName = "Hard",
         rows = 10,
         columns = 10,

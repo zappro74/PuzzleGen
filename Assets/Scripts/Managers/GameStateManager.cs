@@ -655,6 +655,8 @@ public class GameStateManager : MonoBehaviour
 
     public void WinGame()
     {
+        Leaderboard.SubmitTime(modeController.GetCurrentGameModeSettings().mode, elapsedTime);
+        
         if (hasWon)
         {
             return;

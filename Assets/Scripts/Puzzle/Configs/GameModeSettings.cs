@@ -4,6 +4,7 @@ using UnityEngine;
 public class GameModeSettings
 {
     [Header("Mode")]
+    public GameMode mode;
     public string modeName;
 
     [Header("Puzzle Size")]
