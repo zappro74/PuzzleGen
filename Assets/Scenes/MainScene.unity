@@ -154,37 +154,6 @@ Transform:
   - {fileID: 1938165064}
   m_Father: {fileID: 1572266079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &54638403
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 54638404}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &54638404
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 54638403}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 826117621}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &55220113
 GameObject:
   m_ObjectHideFlags: 0
@@ -1899,6 +1868,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GifLoader
   gifProjector: {fileID: 629222938}
   gameStateManager: {fileID: 629222926}
+  referencing: {fileID: 629222928}
 --- !u!114 &629222940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7138,7 +7108,6 @@ Transform:
   - {fileID: 629222927}
   - {fileID: 731536899}
   - {fileID: 1117236280}
-  - {fileID: 54638404}
   - {fileID: 1173712064}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

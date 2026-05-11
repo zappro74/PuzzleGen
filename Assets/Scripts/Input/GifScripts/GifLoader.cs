@@ -8,6 +8,7 @@ public class GifLoader : MonoBehaviour
     [Header("Connections")]
     public GifProjector gifProjector;
     public GameStateManager gameStateManager;
+    public ImageReferencing referencing;
 
     public void LoadGif(string path)
     {
@@ -54,6 +55,17 @@ public class GifLoader : MonoBehaviour
         if (frames.Count > 0)
         {
             gifProjector.StartProjection(frames, delays, frames[0].width, frames[0].height);
+            gameStateManager.image = gifProjector.canvas;
+
+            if (referencing != null)
+            {
+                if (referencing.imageReference != null)
+                {
+                    referencing.imageReference.gameObject.SetActive(true);
+                }
+                referencing.UpdateImages();
+            }
+
             gameStateManager.PrepareNewGame(gifProjector.canvas);
         }
     }
