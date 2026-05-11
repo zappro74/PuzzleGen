@@ -1676,13 +1676,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateManager
   currentState: 0
-  gameCamera: {fileID: 0}
+  gameCamera: {fileID: 891658817}
   image: {fileID: 0}
   timer: {fileID: 1306186867}
   modeSelectionPanel: {fileID: 1532011008}
   snappingManager: {fileID: 629222932}
   modeController: {fileID: 629222940}
-  interactionManager: {fileID: 0}
+  interactionManager: {fileID: 629222931}
   puzzleFactory: {fileID: 1117236279}
   pieceMaterial: {fileID: 2100000, guid: 46782fca045e80d48bea19b014ee051b, type: 2}
   currentGenerationSeed: 0
@@ -1755,7 +1755,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Image
   stateManager: {fileID: 629222926}
-  referencing: {fileID: 0}
+  referencing: {fileID: 629222928}
   gifLoader: {fileID: 629222939}
 --- !u!114 &629222930
 MonoBehaviour:
@@ -1772,9 +1772,9 @@ MonoBehaviour:
   stateManager: {fileID: 629222926}
   imageLoad: {fileID: 629222929}
   pauseMenu: {fileID: 1572266076}
-  easyBestTimeText: {fileID: 0}
-  mediumBestTimeText: {fileID: 0}
-  hardBestTimeText: {fileID: 0}
+  easyBestTimeText: {fileID: 55220115}
+  mediumBestTimeText: {fileID: 78546790}
+  hardBestTimeText: {fileID: 1938165065}
 --- !u!114 &629222931
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -60,6 +60,10 @@ public class Image : MonoBehaviour
             
             if (referencing != null) 
             {
+                if (referencing.imageReference != null)
+                {
+                    referencing.imageReference.gameObject.SetActive(true);
+                }
                 referencing.UpdateImages();
             }
 
