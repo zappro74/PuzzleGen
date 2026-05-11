@@ -180,7 +180,7 @@ namespace JSONFunctions
                     imageReference.imageReference.gameObject.SetActive(true);
                     imageReference.UpdateImages();
                 }
-                stateManager.LoadJSONGame(texture, pieces, data.rows, data.columns, data.generationSeed);
+                stateManager.LoadJSONGame(texture, pieces, data.rows, data.columns, data.generationSeed, data.elapsedTime);
             }
         }
     }
