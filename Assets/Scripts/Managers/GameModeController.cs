@@ -90,7 +90,7 @@ public class GameModeController : MonoBehaviour
     {
         currentGameMode = GameMode.Easy;
         modePanel.gameObject.SetActive(false); 
-        gameManager.GenerateNewPuzzle(gameManager.image);     
+        gameManager.GenerateNewPuzzle();     
         gameManager.StartGame();
     }
 
@@ -98,7 +98,7 @@ public class GameModeController : MonoBehaviour
     {
         currentGameMode = GameMode.Medium;
         modePanel.gameObject.SetActive(false); 
-        gameManager.GenerateNewPuzzle(gameManager.image);     
+        gameManager.GenerateNewPuzzle();     
         gameManager.StartGame();
     }
 
@@ -106,7 +106,7 @@ public class GameModeController : MonoBehaviour
     {
         currentGameMode = GameMode.Hard;
         modePanel.gameObject.SetActive(false); 
-        gameManager.GenerateNewPuzzle(gameManager.image);     
+        gameManager.GenerateNewPuzzle();     
         gameManager.StartGame();
     }
 }

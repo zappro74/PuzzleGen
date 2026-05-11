@@ -562,15 +562,19 @@ public class GameStateManager : MonoBehaviour
         }
     }
 
-    public void GenerateNewPuzzle(Texture loadedImage)
+    public void GenerateNewPuzzle()
     {
-        ClearPuzzle();
+        if (image == null) 
+        {
+            Debug.LogWarning("No image loaded while trying to generate puzzle.");
+            return;
+        }
 
-        image = loadedImage;
+        ClearPuzzle();
 
         Vector2 puzzleSize = GetBoardSize(image, boardWidth, boardHeight);
         
-        pieceMaterial.mainTexture = loadedImage;
+        pieceMaterial.mainTexture = image;
 
         GameModeSettings modeSettings = modeController.GetCurrentGameModeSettings();
 
@@ -603,7 +607,7 @@ public class GameStateManager : MonoBehaviour
             rows = rows,
             columns = columns,
             generationSeed = generationSeed,
-            puzzleImage = loadedImage,
+            puzzleImage = image,
             pieceConfig = pieceConfig
         };
 
