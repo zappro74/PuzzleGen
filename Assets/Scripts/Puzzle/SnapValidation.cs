@@ -16,12 +16,6 @@ public class SnapValidation
             return false;
         }
 
-        var game = new GameStateManager();
-        if (game.elapsedTime == 0f)
-        {
-           return false;
-        }
-
         PieceDirection direction = neighborDetection.GetRelativeDirection(a, b);
 
         EdgeType edgeA;
