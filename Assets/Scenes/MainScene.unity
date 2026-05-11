@@ -143,16 +143,16 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 19975275}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -13.022583, y: 6.8530273, z: 0}
+  m_LocalScale: {x: 0.75, y: 0.75, z: 0.75}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 55220114}
   - {fileID: 78546789}
   - {fileID: 1811623759}
   - {fileID: 1938165064}
-  m_Father: {fileID: 359958281}
+  m_Father: {fileID: 1572266079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &54638403
 GameObject:
@@ -242,9 +242,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'New Text
-
-'
+  m_text: 'Easy: --:--'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -518,7 +516,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 'Medium: --:--'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1234,7 +1232,6 @@ Transform:
   - {fileID: 1329492412}
   - {fileID: 171321953}
   - {fileID: 1790326177}
-  - {fileID: 19975276}
   m_Father: {fileID: 1572266079}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &363619777
@@ -1692,8 +1689,8 @@ MonoBehaviour:
   currentRows: 0
   currentColumns: 0
   explosionShuffle: {fileID: 629222933}
-  loadAudioSource: {fileID: 1173712071}
-  loadSound: {fileID: 8300000, guid: 5d89f2986f5c9c746a6fffe8ffe95e72, type: 3}
+  loadAudioSource: {fileID: 0}
+  loadSound: {fileID: 0}
   winScreenPanel: {fileID: 1762720291}
   confettiCannons:
   - {fileID: 720716604}
@@ -1758,7 +1755,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Image
   stateManager: {fileID: 629222926}
-  imageReference: {fileID: 629222928}
+  referencing: {fileID: 629222928}
   gifLoader: {fileID: 629222939}
 --- !u!114 &629222930
 MonoBehaviour:
@@ -1777,7 +1774,7 @@ MonoBehaviour:
   pauseMenu: {fileID: 1572266076}
   easyBestTimeText: {fileID: 55220115}
   mediumBestTimeText: {fileID: 78546790}
-  hardBestTimeText: {fileID: 1811623760}
+  hardBestTimeText: {fileID: 1938165065}
 --- !u!114 &629222931
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9141,6 +9138,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 359958281}
+  - {fileID: 19975276}
   - {fileID: 1793572919}
   m_Father: {fileID: 885647016}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -19788,7 +19786,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: 'Hard: --:--'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -19893,7 +19891,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1938165063}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -19902,8 +19900,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1045, y: 528.5}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -996.1329, y: 544.3055}
+  m_SizeDelta: {x: 374.3837, y: 81.389}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1938165065
 MonoBehaviour:
@@ -19952,13 +19950,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 4
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535

@@ -41,6 +41,10 @@ public class SnappingManager : MonoBehaviour
             Debug.LogWarning("Missing connection system.");
             return;
         }
+        if (gameStateManager.elapsedTime < 2f)
+        {
+            return;
+        }
         var groupedPieces = pieceGroup.GetComponentsInChildren<PuzzlePiece>();
         var allPieces = FindObjectsByType<PuzzlePiece>(FindObjectsInactive.Exclude);
 
@@ -90,6 +94,10 @@ public class SnappingManager : MonoBehaviour
         if (connectionSystem == null)
         {
             Debug.LogWarning("Missing connection system.");
+            return false;
+        }
+        if (gameStateManager.elapsedTime < 2f)
+        {
             return false;
         }
 
