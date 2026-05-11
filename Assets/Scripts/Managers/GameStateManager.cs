@@ -664,6 +664,8 @@ public class GameStateManager : MonoBehaviour
 
         hasWon = true;
 
+        Leaderboard.SubmitTime(modeController.GetCurrentGameModeSettings().mode, elapsedTime);
+
         currentState = State.Paused;
 
         if (timer != null)
