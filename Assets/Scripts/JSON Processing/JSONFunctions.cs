@@ -21,12 +21,12 @@ namespace JSONFunctions
             public int rows;
             public int columns;
             public int generationSeed;
-            public float elapsedTime;  // ← add this
+            public float elapsedTime; 
             public List<PieceData> game;
         }
         public PieceData piecedata;
         public static string CurrentImagePath;
-        //public InteractionManager interactionManager;
+
             void Start()
         {
             FileBrowser.SetFilters(true, new FileBrowser.Filter("Files", ".json"));
