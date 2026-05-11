@@ -27,6 +27,8 @@ public class SnappingManager : MonoBehaviour
     [Header("Game")]
     [SerializeField] private GameStateManager gameStateManager;
 
+    public bool IsAnimating { get; private set; } = false;
+
     public struct SnapPairs
     {
         public PuzzlePiece draggedPiece;
@@ -167,6 +169,8 @@ public class SnappingManager : MonoBehaviour
     }
     private IEnumerator Animate(Transform pieceGroup, Transform targetRoot, Vector3 start, Vector3 end, Quaternion startRotation, Quaternion endRotation, List<SnapPairs> scanConnections)
     {
+        IsAnimating = true;
+
         float elapsedTime = 0f;
 
         Collider2D[] colliders = pieceGroup.GetComponentsInChildren<Collider2D>();
@@ -207,6 +211,8 @@ public class SnappingManager : MonoBehaviour
         {
             gameStateManager.WinGame();
         }
+
+        IsAnimating = false;
     }
     private void Particles(PuzzlePiece groupPiece, PuzzlePiece piece)
     {          

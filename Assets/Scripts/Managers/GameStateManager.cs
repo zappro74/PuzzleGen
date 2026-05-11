@@ -353,6 +353,9 @@ public class GameStateManager : MonoBehaviour
 
         float snapZoom = 3f; 
 
+        float originalSnapSpeed = snappingManager.snapSpeed;
+        snappingManager.snapSpeed = 0.15f; 
+
         foreach (var group in savedGroups)
         {
             List<GameObject> groupPieces = group.Value;
@@ -364,23 +367,25 @@ public class GameStateManager : MonoBehaviour
 
                 Transform pieceRoot = InteractionManager.GetRoot(piece.transform);
 
-                Vector3 targetCamPos = new Vector3(pieceRoot.position.x, pieceRoot.position.y, gameCamera.transform.position.z);
-                StartCoroutine(LerpCameraPosition(gameCamera.transform.position, targetCamPos, 0.1f));
-                StartCoroutine(LerpCameraZoom(gameCamera.orthographicSize, snapZoom, 0.1f));
+                StartCoroutine(LerpCameraPosition(gameCamera.transform.position, new Vector3(pieceRoot.position.x, pieceRoot.position.y, gameCamera.transform.position.z), 0.05f));
+                StartCoroutine(LerpCameraZoom(gameCamera.orthographicSize, snapZoom, 0.05f));
 
                 snappingManager.TryAutoSnap(pieceRoot);
-
-                yield return new WaitForSeconds(0.15f);
+                while (snappingManager.IsAnimating) 
+                {
+                    yield return null;
+                }
 
                 Transform newRoot = InteractionManager.GetRoot(piece.transform);
                 if (newRoot != pieceRoot)
                 {
                     snappingManager.TryAutoSnap(newRoot);
-                    yield return new WaitForSeconds(0.15f);
+                    while (snappingManager.IsAnimating) 
+                    {
+                        yield return null;
+                    }
                 }
             }
-
-            yield return new WaitForSeconds(0.1f);
 
             foreach (GameObject piece in groupPieces)
             {
@@ -388,9 +393,15 @@ public class GameStateManager : MonoBehaviour
 
                 Transform pieceRoot = InteractionManager.GetRoot(piece.transform);
                 snappingManager.TryAutoSnap(pieceRoot);
-                yield return null;
+                while (snappingManager.IsAnimating)
+                {
+                    yield return null;
+                }
             }
         }
+
+        // Restore original snap speed when done
+        snappingManager.snapSpeed = originalSnapSpeed;
 
         // Zoom back out to show all pieces when done
         StartCoroutine(LerpCameraZoom(gameCamera.orthographicSize, targetZoom, 0.8f));
@@ -406,10 +417,13 @@ public class GameStateManager : MonoBehaviour
 
         while (elapsed < driftDuration)
         {
-            if (piece == null) yield break;
+            if (piece == null) 
+            {
+                yield break;
+            }
 
             elapsed += Time.deltaTime;
-            float progress         = Mathf.Clamp01(elapsed / driftDuration);
+            float progress = Mathf.Clamp01(elapsed / driftDuration);
             float progressSmoothed = Mathf.SmoothStep(0f, 1f, progress);
 
             piece.position = Vector3.Lerp(startPosition, targetPosition, progressSmoothed);
@@ -418,7 +432,10 @@ public class GameStateManager : MonoBehaviour
             yield return null;
         }
 
-        if (piece == null) yield break;
+        if (piece == null) 
+        {
+            yield break;
+        }
 
         piece.position = targetPosition;
         piece.rotation = targetRotation;
@@ -464,7 +481,9 @@ public class GameStateManager : MonoBehaviour
         }
 
         if (gameCamera != null)
+        {
             gameCamera.orthographicSize = targetSize;
+        }
     }
     private IEnumerator LerpCameraPosition(Vector3 from, Vector3 to, float duration)
     {
@@ -482,7 +501,9 @@ public class GameStateManager : MonoBehaviour
         }
 
         if (gameCamera != null)
+        {
             gameCamera.transform.position = to;
+        }
     }
 
     public void Update()
