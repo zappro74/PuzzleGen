@@ -75,7 +75,7 @@ namespace JSONFunctions
                         {
                             Transform root = InteractionManager.GetRoot(piece.transform);
 
-                            var a = new PieceData
+                            var pd = new PieceData
                             {
                                 Id = script.Data.Id,
                                 Row = script.Data.Row,
@@ -88,7 +88,7 @@ namespace JSONFunctions
                                 Position = piece.transform.position,
                                 Rotation = piece.transform.eulerAngles.z,
                             };
-                            data.Add(a);
+                            data.Add(pd);
                         }
                     }
                 }
