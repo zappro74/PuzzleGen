@@ -7,12 +7,18 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource loadAudioSource;
     [SerializeField] private AudioClip loadSound;
 
-    [Header("Audio Connections")]
+    [Header("Puzzle Audio")]
     [SerializeField] private AudioSource dragAudio;
     [SerializeField] private AudioSource grabAudioSource;
     [SerializeField] private AudioClip[] grabSounds;
     [SerializeField] private AudioSource snapAudioSource;
     [SerializeField] private AudioClip[] snapSounds;
+
+    [Header("Win Audio")]
+    [SerializeField] private AudioSource winAudioSource;
+    [SerializeField] private AudioClip winSound;
+    [SerializeField] private AudioSource winMusicSource;
+    [SerializeField] private AudioClip winMusic;
 
     [Header("Audio Settings")]
     [SerializeField] private float maxDragSpeed = 10f;
@@ -23,7 +29,7 @@ public class AudioManager : MonoBehaviour
 
     private float[] spectrum = new float[512];
 
-    private void PlayLoadSound()
+    public void PlayLoadSound()
     {
         if (loadAudioSource == null || loadSound == null) return;
         StartCoroutine(PlayLoadSoundWithFadeOut());
@@ -58,7 +64,7 @@ public class AudioManager : MonoBehaviour
 
         winMusicSource.volume = 1f;
     }
-    private IEnumerator PlayWinAudio()
+    public IEnumerator PlayWinAudio()
     {
         if (winAudioSource != null && winSound != null)
         {
@@ -75,7 +81,35 @@ public class AudioManager : MonoBehaviour
             StartCoroutine(FadeInWinMusic(4f));
         }
     }
-    private void UpdateDragAudio(float speed, int groupSize, bool isSnapping)
+    public void StopWinAudio()
+{
+    if (winMusicSource != null)
+    {
+        winMusicSource.Stop();
+        winMusicSource.clip = null;
+    }
+}
+    public void PlaySnapSound()
+    {
+        if (snapAudioSource == null || snapSounds.Length == 0)
+        {
+            return;
+        }
+
+        int randomIndex = Random.Range(0, snapSounds.Length);
+
+        snapAudioSource.pitch = Random.Range(0.95f, 1.05f);
+
+        snapAudioSource.PlayOneShot(snapSounds[randomIndex]);
+    }
+    public void StartDragAudio()
+    {
+        if (dragAudio == null) return;
+        dragAudio.loop = true;
+        dragAudio.volume = 0f;
+        if (!dragAudio.isPlaying) dragAudio.Play();
+    }
+    public void UpdateDragAudio(float speed, int groupSize, bool isSnapping)
     {
         if (speed < dragSoundThreshold)
         {
@@ -103,7 +137,11 @@ public class AudioManager : MonoBehaviour
 
         dragAudio.pitch = Mathf.Lerp(dragAudio.pitch, targetPitch, Time.deltaTime * 10f);
     }
-    private IEnumerator FadeOutDragAudio()
+    public void StopDragAudio()
+    {
+        StartCoroutine(FadeOutDragAudio());
+    }
+    public IEnumerator FadeOutDragAudio()
     {
         float startVolume = dragAudio.volume;
 
@@ -117,7 +155,7 @@ public class AudioManager : MonoBehaviour
         dragAudio.Stop();
         dragAudio.volume = 0f;
     }
-    private void PlayGrabSound()
+    public void PlayGrabSound()
     {
         if (grabAudioSource == null || grabSounds == null || grabSounds.Length == 0)
         {
@@ -132,5 +170,18 @@ public class AudioManager : MonoBehaviour
 
         grabAudioSource.PlayOneShot(grabSounds[randomIndex]);
     }
-
+    public float GetCurrentBass()
+    {
+        if (winMusicSource != null && winMusicSource.isPlaying)
+        {
+            winMusicSource.GetSpectrumData(spectrum, 0, FFTWindow.BlackmanHarris);
+            float bass = 0f;
+            for (int i = 0; i < 1; i++)
+            {
+                bass += spectrum[i];
+            }
+            return bass * 8f;
+        }
+        return 0f;
+    }
 }

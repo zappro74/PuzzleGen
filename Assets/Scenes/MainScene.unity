@@ -618,36 +618,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateManager
   currentState: 0
-  gameCamera: {fileID: 0}
   image: {fileID: 0}
   timer: {fileID: 0}
   modeSelectionPanel: {fileID: 0}
-  snappingManager: {fileID: 0}
+  winManager: {fileID: 0}
   modeController: {fileID: 0}
-  interactionManager: {fileID: 0}
-  puzzleFactory: {fileID: 0}
-  pieceMaterial: {fileID: 0}
-  currentGenerationSeed: 0
-  currentRows: 0
-  currentColumns: 0
-  explosionShuffle: {fileID: 0}
-  loadAudioSource: {fileID: 0}
-  loadSound: {fileID: 0}
-  winScreenPanel: {fileID: 0}
-  confettiCannons: []
-  winAudioSource: {fileID: 0}
-  winSound: {fileID: 0}
-  winMusicSource: {fileID: 0}
-  winMusic: {fileID: 0}
-  finalTimeText: {fileID: 0}
-  solvedImageDisplay: {fileID: 0}
-  spinSpeed: 50
-  bounceSpeedX: 200
-  bounceSpeedY: 200
-  hasWon: 0
+  puzzleBuilder: {fileID: 0}
   elapsedTime: 0
-  boardWidth: 8
-  boardHeight: 6
 --- !u!114 &91898361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1616,15 +1593,26 @@ GameObject:
   m_Component:
   - component: {fileID: 629222927}
   - component: {fileID: 629222926}
+  - component: {fileID: 629222931}
+  - component: {fileID: 629222932}
+  - component: {fileID: 629222951}
   - component: {fileID: 629222928}
   - component: {fileID: 629222929}
   - component: {fileID: 629222930}
-  - component: {fileID: 629222931}
-  - component: {fileID: 629222932}
   - component: {fileID: 629222933}
   - component: {fileID: 629222939}
   - component: {fileID: 629222938}
   - component: {fileID: 629222940}
+  - component: {fileID: 629222950}
+  - component: {fileID: 629222949}
+  - component: {fileID: 629222948}
+  - component: {fileID: 629222947}
+  - component: {fileID: 629222946}
+  - component: {fileID: 629222945}
+  - component: {fileID: 629222944}
+  - component: {fileID: 629222943}
+  - component: {fileID: 629222942}
+  - component: {fileID: 629222941}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1645,39 +1633,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateManager
   currentState: 0
-  gameCamera: {fileID: 891658817}
   image: {fileID: 0}
   timer: {fileID: 1306186867}
   modeSelectionPanel: {fileID: 1532011008}
-  snappingManager: {fileID: 629222932}
+  winManager: {fileID: 629222951}
   modeController: {fileID: 629222940}
-  interactionManager: {fileID: 629222931}
-  puzzleFactory: {fileID: 1117236279}
-  pieceMaterial: {fileID: 2100000, guid: 46782fca045e80d48bea19b014ee051b, type: 2}
-  currentGenerationSeed: 0
-  currentRows: 0
-  currentColumns: 0
-  explosionShuffle: {fileID: 629222933}
-  loadAudioSource: {fileID: 0}
-  loadSound: {fileID: 0}
-  winScreenPanel: {fileID: 1762720291}
-  confettiCannons:
-  - {fileID: 720716604}
-  - {fileID: 1619073092}
-  - {fileID: 1583512720}
-  winAudioSource: {fileID: 1173712070}
-  winSound: {fileID: 8300000, guid: 2c494541e74246d40906a238c2932321, type: 3}
-  winMusicSource: {fileID: 1173712070}
-  winMusic: {fileID: 8300000, guid: 807cf2c7b014dcf43baf67588b9ba6ff, type: 3}
-  finalTimeText: {fileID: 1685827006}
-  solvedImageDisplay: {fileID: 1999853238}
-  spinSpeed: 50
-  bounceSpeedX: 200
-  bounceSpeedY: 200
-  hasWon: 0
+  puzzleBuilder: {fileID: 629222944}
   elapsedTime: 0
-  boardWidth: 8
-  boardHeight: 6
 --- !u!4 &629222927
 Transform:
   m_ObjectHideFlags: 0
@@ -1739,6 +1701,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuController
   stateManager: {fileID: 629222926}
+  winManager: {fileID: 629222951}
   imageLoad: {fileID: 629222929}
   pauseMenu: {fileID: 1572266076}
   easyBestTimeText: {fileID: 55220115}
@@ -1756,29 +1719,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 296d2572084a0428eb9bf89f0965b031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PieceInteractionManager
-  snapManager: {fileID: 629222932}
   menuController: {fileID: 629222930}
-  gameStateManager: {fileID: 629222926}
-  modeController: {fileID: 629222940}
+  cameraController: {fileID: 629222943}
+  pieceController: {fileID: 629222949}
   centerPanel: {fileID: 304034181}
-  dragSmoothTime: 0.08
-  rotationStep: 90
-  rotationDuration: 0.15
-  minZoom: 2
-  maxZoom: 20
-  zoomSpeed: 0.4
-  boundaries: {x: 50, y: 50}
-  boundaryColor: {r: 1, g: 0, b: 0, a: 1}
-  boundaryThickness: 0.5
-  dragAudio: {fileID: 1173712068}
-  grabAudioSource: {fileID: 1173712066}
-  grabSounds:
-  - {fileID: 8300000, guid: f62ec94e37320d84ea89c5d77c6a9224, type: 3}
-  maxDragSpeed: 10
-  maxDragVolume: 0.8
-  dragSoundThreshold: 0.05
-  minPitch: 0.5
-  maxPitch: 1.3
 --- !u!114 &629222932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1791,7 +1735,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a8f4a84f0829dc4ca8e1352ed7ed9fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SnappingManager
-  snappingTolerance: 0.3
   snapSpeed: 0.25
   snapCurve:
     serializedVersion: 2
@@ -1817,13 +1760,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  snapParticles: {fileID: 5237722873583603243, guid: 7f4822cf754344463868aed6baf87573, type: 3}
-  snapAudioSource: {fileID: 1173712067}
-  snapSounds:
-  - {fileID: 8300000, guid: c0dedaa1b9366364d82b3956085928a1, type: 3}
-  - {fileID: 8300000, guid: 41dbcda61d0f87640aea87ef6c22f8c8, type: 3}
-  - {fileID: 8300000, guid: ee10c1ed635c0ab43937aecc417281d9, type: 3}
-  gameStateManager: {fileID: 629222926}
 --- !u!114 &629222933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1881,9 +1817,248 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b863c8c0fa1124fe593d789a9c48b738, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameModeController
+  gameManager: {fileID: 629222926}
+  puzzleBuilder: {fileID: 629222944}
   currentGameMode: 0
   modePanel: {fileID: 1532011008}
-  gameManager: {fileID: 629222926}
+--- !u!114 &629222941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d1078f4be6804b7f93e702c9dedd1b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PieceMerger
+--- !u!114 &629222942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef6e12feb063442c4bb63fdbff628569, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Boundaries
+  boundaries: {x: 30, y: 20}
+  boundaryColor: {r: 1, g: 0, b: 0, a: 1}
+  boundaryThickness: 0.15
+--- !u!114 &629222943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abe76cf9c98454a578f1363542cacd39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  gameCamera: {fileID: 891658817}
+  playBoundaries: {fileID: 629222942}
+  minZoom: 2
+  maxZoom: 15
+  zoomSpeed: 0.2
+--- !u!114 &629222944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5ee55130b97b4fbba8210ad41ae72dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleBuilder
+  gameStateManager: {fileID: 629222926}
+  modeController: {fileID: 629222940}
+  snappingMethods: {fileID: 629222950}
+  animationController: {fileID: 629222948}
+  puzzleFactory: {fileID: 1117236279}
+  pieceMaterial: {fileID: 2100000, guid: 46782fca045e80d48bea19b014ee051b, type: 2}
+  currentGenerationSeed: 0
+  currentRows: 0
+  currentColumns: 0
+  explosionShuffle: {fileID: 629222933}
+  boardWidth: 8
+  boardHeight: 6
+--- !u!114 &629222945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a5b71ee66c5748ed8ef4cd492a594a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VisualFunctions
+  winManager: {fileID: 629222951}
+  snapParticles: {fileID: 5237722873583603243, guid: 7f4822cf754344463868aed6baf87573, type: 3}
+  confettiCannons: []
+--- !u!114 &629222946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac2f01e583e8b4c0089477780f4b3b79, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  loadAudioSource: {fileID: 1173712069}
+  loadSound: {fileID: 0}
+  dragAudio: {fileID: 1173712069}
+  grabAudioSource: {fileID: 1173712069}
+  grabSounds: []
+  snapAudioSource: {fileID: 1173712069}
+  snapSounds: []
+  winAudioSource: {fileID: 1173712069}
+  winSound: {fileID: 0}
+  winMusicSource: {fileID: 1173712069}
+  winMusic: {fileID: 0}
+  maxDragSpeed: 10
+  maxDragVolume: 0.8
+  dragSoundThreshold: 0.05
+  minPitch: 0.5
+  maxPitch: 1.3
+--- !u!114 &629222947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbc4d13799c2f4bdd837ebe712a8d676, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JSONLoading
+  gameStateManager: {fileID: 629222926}
+  cameraController: {fileID: 629222943}
+  puzzleBuilder: {fileID: 629222944}
+  snappingMethods: {fileID: 629222950}
+  animationController: {fileID: 629222948}
+  audioManager: {fileID: 629222946}
+  puzzleFactory: {fileID: 1117236279}
+  modeController: {fileID: 629222940}
+  pieceMaterial: {fileID: 2100000, guid: 46782fca045e80d48bea19b014ee051b, type: 2}
+--- !u!114 &629222948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40f1852233edc4a08b9a1ec99668baf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationController
+  pieceMerger: {fileID: 629222941}
+  gameStateManager: {fileID: 629222926}
+  winManager: {fileID: 629222951}
+  audioManager: {fileID: 629222946}
+  visualFunctions: {fileID: 629222945}
+  pieceController: {fileID: 629222949}
+  snapSpeed: 0.25
+  snapCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  rotationDuration: 0.15
+  rotationStep: 90
+--- !u!114 &629222949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3ac00b2e8b77427a86bbfa00b105b3b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PieceController
+  audioManager: {fileID: 629222946}
+  snapManager: {fileID: 629222950}
+  modeController: {fileID: 629222940}
+  animationController: {fileID: 629222948}
+  playBoundaries: {fileID: 629222942}
+  dragSmoothTime: 0.08
+  rotationStep: 90
+  rotationDuration: 0.15
+--- !u!114 &629222950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4234b1974049a4eb8bd01ce879cf944b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SnappingMethods
+  gameStateManager: {fileID: 629222926}
+  animator: {fileID: 629222948}
+  snappingManager: {fileID: 629222932}
+  snappingTolerance: 0.5
+--- !u!114 &629222951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629222925}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9276f7557e58b462b9db9e6513ca0b5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WinManager
+  audioManager: {fileID: 629222946}
+  modeController: {fileID: 629222940}
+  gameStateManager: {fileID: 629222926}
+  puzzleBuilder: {fileID: 629222944}
+  visualFunctions: {fileID: 629222945}
+  winScreenPanel: {fileID: 1762720291}
+  confettiCannons: []
+  finalTimeText: {fileID: 1685827006}
+  solvedImageDisplay: {fileID: 1999853238}
+  spinSpeed: 50
+  bounceSpeedX: 200
+  bounceSpeedY: 200
+  hasWon: 0
 --- !u!1 &636162760
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,8 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PieceMerger : MonoBehaviour
 {
-    private void MergeGroups(Transform sourceRoot, Transform targetRoot)
+    public void MergeGroups(Transform sourceRoot, Transform targetRoot)
     {
         if (sourceRoot == targetRoot)
         {
@@ -40,7 +41,7 @@ public class PieceMerger : MonoBehaviour
             }
         }
     }
-    private Transform GetRoot(Transform piece)
+    public Transform GetRoot(Transform piece)
     {
         while (piece.parent != null && piece.parent.CompareTag("Piece"))
         {

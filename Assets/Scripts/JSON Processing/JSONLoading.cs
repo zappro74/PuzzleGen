@@ -1,11 +1,30 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class JSONLoading : MonoBehaviour
 {
+    [Header("Script Connections")]
+    public GameStateManager gameStateManager;
+    public CameraController cameraController;
+    public PuzzleBuilder puzzleBuilder;
+    public SnappingMethods snappingMethods;
+    public AnimationController animationController;
+    public AudioManager audioManager;
+    public PuzzleFactory puzzleFactory;
+    public GameModeController modeController;
+
+    [Header("Material")]
+    public Material pieceMaterial;
     public void LoadJSONGame(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
     {
+        if (modeController != null && modeController.modePanel != null)
+        {
+            modeController.modePanel.SetActive(false);
+        }
+
         GeneratePuzzleFromJSON(loadedImage, savedPieces, rows, columns, generationSeed, savedElapsedTime);
-        currentState = State.Active;
+        gameStateManager.currentState = State.Active;
     }
     public void GeneratePuzzleFromJSON(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
     {
@@ -25,18 +44,18 @@ public class JSONLoading : MonoBehaviour
     //left in Claudes comments for honesty
     private IEnumerator GeneratePuzzleFromJSONRoutine(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
     {
-        elapsedTime = savedElapsedTime;
-        ClearPuzzle();
+        gameStateManager.elapsedTime = savedElapsedTime;
+        puzzleBuilder.ClearPuzzle();
         yield return null;
 
-        image = loadedImage;
+        gameStateManager.image = loadedImage;
         pieceMaterial.mainTexture = loadedImage;
 
-        currentGenerationSeed = generationSeed;
-        currentRows    = rows;
-        currentColumns = columns;
+        puzzleBuilder.currentGenerationSeed = generationSeed;
+        puzzleBuilder.currentRows = rows;
+        puzzleBuilder.currentColumns = columns;
 
-        Vector2 puzzleSize = GetBoardSize(image, boardWidth, boardHeight);
+        Vector2 puzzleSize = puzzleBuilder.GetBoardSize(gameStateManager.image, puzzleBuilder.boardWidth, puzzleBuilder.boardHeight);
 
         float pieceWidth  = puzzleSize.x / columns;
         float pieceHeight = puzzleSize.y / rows;
@@ -89,17 +108,18 @@ public class JSONLoading : MonoBehaviour
         }
 
         // ── Set up systems BEFORE any movement so snapping logic works later ────
-        groupSystem = new GroupSystem();
-        connectionSystem = new ConnectionSystem(groupSystem);
+        var groupSystem = new GroupSystem();
+        var connectionSystem = new ConnectionSystem(groupSystem);
         groupSystem.Initialize(loadedPiecesData);
 
-        if (snappingManager != null)
-            snappingManager.connectionSystem = connectionSystem;
+        if (snappingMethods != null)
+            snappingMethods.connectionSystem = connectionSystem;
 
         // Let Unity render one frame so the player sees the assembled puzzle.
         yield return null;
         yield return null;
 
+        var gameCamera = Camera.main;
         float driftDuration = 1.4f;
         float originalZoom  = gameCamera.orthographicSize;
         float minX = float.MaxValue, maxX = float.MinValue;
@@ -123,15 +143,15 @@ public class JSONLoading : MonoBehaviour
 
         // Fit orthographic size to the bounds
         float targetZoom = Mathf.Max(boundsHeight / 2f, boundsWidth / 2f / gameCamera.aspect);
-        targetZoom = Mathf.Clamp(targetZoom, interactionManager.minZoom, interactionManager.maxZoom);
+        targetZoom = Mathf.Clamp(targetZoom, cameraController.minZoom, cameraController.maxZoom);
 
         // Move camera to center of pieces and zoom out
-        StartCoroutine(LerpCameraZoom(originalZoom, targetZoom, 0.5f));
-        StartCoroutine(LerpCameraPosition(gameCamera.transform.position, boundsCenter, 0.5f));
+        StartCoroutine(cameraController.LerpCameraZoom(originalZoom, targetZoom, 0.5f));
+        StartCoroutine(cameraController.LerpCameraPosition(gameCamera.transform.position, boundsCenter, 0.5f));
 
-        StartCoroutine(LerpCameraZoom(originalZoom, targetZoom, 0.5f));
+        StartCoroutine(cameraController.LerpCameraZoom(originalZoom, targetZoom, 0.5f));
 
-        PlayLoadSound();
+        audioManager.PlayLoadSound();
         
         // ── Pass 2: drift all pieces to saved positions ──────────────────────────
         foreach (GameObject piece in pieces)
@@ -144,7 +164,7 @@ public class JSONLoading : MonoBehaviour
             float displacement = Vector3.Distance(piece.transform.position, saved.Position);
             if (displacement < 0.01f) continue;
 
-            StartCoroutine(DriftToSavedPosition(piece.transform, script.SolvedPosition, saved.Position, saved.Rotation, driftDuration));
+            StartCoroutine(animationController.DriftToSavedPosition(piece.transform, script.SolvedPosition, saved.Position, saved.Rotation, driftDuration));
         }
 
         yield return new WaitForSeconds(driftDuration);
@@ -167,8 +187,8 @@ public class JSONLoading : MonoBehaviour
 
         float snapZoom = 3f; 
 
-        float originalSnapSpeed = snappingManager.snapSpeed;
-        snappingManager.snapSpeed = 0.15f; 
+        float originalSnapSpeed = animationController.snapSpeed;
+        animationController.snapSpeed = 0.15f; 
 
         foreach (var group in savedGroups)
         {
@@ -179,22 +199,22 @@ public class JSONLoading : MonoBehaviour
             {
                 if (piece == null) continue;
 
-                Transform pieceRoot = InteractionManager.GetRoot(piece.transform);
+                Transform pieceRoot = PieceController.GetRoot(piece.transform);
 
-                StartCoroutine(LerpCameraPosition(gameCamera.transform.position, new Vector3(pieceRoot.position.x, pieceRoot.position.y, gameCamera.transform.position.z), 0.05f));
-                StartCoroutine(LerpCameraZoom(gameCamera.orthographicSize, snapZoom, 0.05f));
+                StartCoroutine(cameraController.LerpCameraPosition(gameCamera.transform.position, new Vector3(pieceRoot.position.x, pieceRoot.position.y, gameCamera.transform.position.z), 0.05f));
+                StartCoroutine(cameraController.LerpCameraZoom(gameCamera.orthographicSize, snapZoom, 0.05f));
 
-                snappingManager.TryAutoSnap(pieceRoot);
-                while (snappingManager.IsAnimating) 
+                snappingMethods.TryAutoSnap(pieceRoot);
+                while (animationController.IsAnimating) 
                 {
                     yield return null;
                 }
 
-                Transform newRoot = InteractionManager.GetRoot(piece.transform);
+                Transform newRoot = PieceController.GetRoot(piece.transform);
                 if (newRoot != pieceRoot)
                 {
-                    snappingManager.TryAutoSnap(newRoot);
-                    while (snappingManager.IsAnimating) 
+                    snappingMethods.TryAutoSnap(newRoot);
+                    while (animationController.IsAnimating) 
                     {
                         yield return null;
                     }
@@ -205,9 +225,9 @@ public class JSONLoading : MonoBehaviour
             {
                 if (piece == null) continue;
 
-                Transform pieceRoot = InteractionManager.GetRoot(piece.transform);
-                snappingManager.TryAutoSnap(pieceRoot);
-                while (snappingManager.IsAnimating)
+                Transform pieceRoot = PieceController.GetRoot(piece.transform);
+                snappingMethods.TryAutoSnap(pieceRoot);
+                while (animationController.IsAnimating)
                 {
                     yield return null;
                 }
@@ -215,11 +235,11 @@ public class JSONLoading : MonoBehaviour
         }
 
         // Restore original snap speed when done
-        snappingManager.snapSpeed = originalSnapSpeed;
+        animationController.snapSpeed = originalSnapSpeed;
 
         // Zoom back out to show all pieces when done
-        StartCoroutine(LerpCameraZoom(gameCamera.orthographicSize, targetZoom, 0.8f));
-        StartCoroutine(LerpCameraPosition(gameCamera.transform.position, boundsCenter, 0.8f));
+        StartCoroutine(cameraController.LerpCameraZoom(gameCamera.orthographicSize, targetZoom, 0.8f));
+        StartCoroutine(cameraController.LerpCameraPosition(gameCamera.transform.position, boundsCenter, 0.8f));
     }
 
 }

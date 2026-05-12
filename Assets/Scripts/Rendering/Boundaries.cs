@@ -7,7 +7,7 @@ public class Boundaries : MonoBehaviour
     [SerializeField] private Color boundaryColor = Color.red;
     [SerializeField] private float boundaryThickness = 0.15f;
 
-    private void BoundaryLines()
+    private void Start()
     {
         var x = boundaries.x / 2f;
         var y = boundaries.y / 2f;

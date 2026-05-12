@@ -51,13 +51,14 @@ namespace JSONFunctions
                 var data = new List<PieceData>();
                 var pieces = GameObject.FindGameObjectsWithTag("Piece");
 
-                GameStateManager stateManager = GameObject.FindFirstObjectByType<GameStateManager>();
+                var stateManager = GameObject.FindFirstObjectByType<GameStateManager>();
+                var puzzleBuilder = GameObject.FindFirstObjectByType<PuzzleBuilder>();
 
                 if (stateManager != null)
                 {
-                    gamedata.rows = stateManager.currentRows;
-                    gamedata.columns = stateManager.currentColumns;
-                    gamedata.generationSeed = stateManager.currentGenerationSeed;
+                    gamedata.rows = puzzleBuilder.currentRows;
+                    gamedata.columns = puzzleBuilder.currentColumns;
+                    gamedata.generationSeed = puzzleBuilder.currentGenerationSeed;
                     gamedata.elapsedTime = stateManager.elapsedTime;
                 }
 
@@ -73,7 +74,7 @@ namespace JSONFunctions
 
                         if (script.Data != null)
                         {
-                            Transform root = InteractionManager.GetRoot(piece.transform);
+                            Transform root = PieceController.GetRoot(piece.transform);
 
                             var pd = new PieceData
                             {
@@ -166,6 +167,7 @@ namespace JSONFunctions
                 
                 Debug.Log("Loaded Texture");
                 GameStateManager stateManager = GameObject.FindAnyObjectByType<GameStateManager>();
+                JSONLoading jsonLoader = GameObject.FindAnyObjectByType<JSONLoading>();
                 ImageReferencing imageReference = GameObject.FindAnyObjectByType<ImageReferencing>();
 
                 if (stateManager == null)
@@ -180,7 +182,7 @@ namespace JSONFunctions
                     imageReference.imageReference.gameObject.SetActive(true);
                     imageReference.UpdateImages();
                 }
-                stateManager.LoadJSONGame(texture, pieces, data.rows, data.columns, data.generationSeed, data.elapsedTime);
+                jsonLoader.LoadJSONGame(texture, pieces, data.rows, data.columns, data.generationSeed, data.elapsedTime);
             }
         }
     }

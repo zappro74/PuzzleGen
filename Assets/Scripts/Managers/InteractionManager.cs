@@ -1,23 +1,20 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using SimpleFileBrowser;
 public class InteractionManager : MonoBehaviour
 {
     [Header("Script Connections")]
-    public SnappingManager snapManager;
     public MenuController menuController;
-    public GameStateManager gameStateManager;
-    public GameModeController modeController;
+    public CameraController cameraController;
+    public PieceController pieceController;
 
     [Header("UI Connections")]
     public GameObject centerPanel;
 
-  
+    private Camera gameCamera;
     void Start()
     {
         gameCamera = Camera.main;
-        BoundaryLines();
     }
     void Update()
     {
@@ -30,85 +27,38 @@ public class InteractionManager : MonoBehaviour
 
         if (Mathf.Abs(y) > 0.01f)
         {
-            ZoomCamera(y, mousePosition);
+            cameraController.ZoomCamera(y, mousePosition);
         }
 
         if (Mouse.current.rightButton.wasPressedThisFrame)
         {
-            TryRotate(mousePosition);
+            pieceController.TryRotate(mousePosition);
         }
 
         if (leftButton.wasPressedThisFrame)
         {
-            TryPickup(mousePosition);
+            bool selected = pieceController.TryPickup(mousePosition);
 
-            if (selection == null)
+            if (!selected)
             {
-                isPanning = true;
-                origin = mousePosition;
+                cameraController.StartPanning(mousePosition);
             }
         }
         else if (leftButton.isPressed)
         {
-            if (selection != null && render != null) 
+            if (pieceController.IsHoldingPiece())
             {
-                Vector3 groupCenter = GetGroupCenter(selection);
-
-                Vector3 centerToRoot = selection.position - groupCenter;
-                Vector3 targetPosition = mousePosition + centerToRoot;
-
-                targetPosition.z = selection.position.z;
-                targetPosition = WorldBoundaries(targetPosition);
-
-                int groupSize = selection.GetComponentsInChildren<PuzzlePiece>().Length;
-
-                float adjustedSmoothTime = dragSmoothTime * (1f + ((groupSize - 1) * 0.15f));
-
-                selection.position = Vector3.SmoothDamp(selection.position, targetPosition, ref dragVelocity, adjustedSmoothTime);
-                
-                float speed = (selection.position - lastDragPosition).magnitude / Time.deltaTime;
-
-                bool isSnapping = false;
-
-                UpdateDragAudio(speed, groupSize, isSnapping);
-
-                lastDragPosition = selection.position;
-
-                if (snapManager != null && modeController.currentGameMode == GameMode.Easy)
-                {
-                    bool didSnap = snapManager.TryAutoSnap(selection);
-
-                    if (didSnap)
-                    {
-                        selection = null;
-                        render = null;
-                        dragVelocity = Vector3.zero;
-                        isPanning = false;
-
-                        StartCoroutine(FadeOutDragAudio());
-                        return;
-                    }
-                }
+                pieceController.DragPiece(mousePosition);
             }
-            else if (isPanning)
+            else if (cameraController.isPanning)
             {
-                PanCamera(mousePosition);
+                cameraController.PanCamera(mousePosition);
             }
         }
-        
-        if (leftButton.wasReleasedThisFrame)
+        else if (leftButton.wasReleasedThisFrame)
         {
-            if (selection != null && snapManager != null && gameStateManager != null && modeController.currentGameMode != GameMode.Easy)
-            {
-                snapManager.TrySnap(selection);
-            }
-
-            StartCoroutine(FadeOutDragAudio());
-
-            selection = null;
-            render = null;
-            dragVelocity = Vector3.zero;
-            isPanning = false;
+            pieceController.ReleasePiece();
+            cameraController.StopPanning();
         }
     }
 }

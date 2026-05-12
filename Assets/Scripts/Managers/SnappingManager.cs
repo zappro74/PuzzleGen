@@ -1,23 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class SnappingManager : MonoBehaviour
-{
-    [Header("Snapping Settings")]
-    public float snappingTolerance = 0.5f;
-
+{    
     [Header("Animation Settings")]
     public float snapSpeed = 0.25f; // the speed value of snapping
     public AnimationCurve snapCurve = AnimationCurve.EaseInOut(0, 0, 1, 1); // the curve inside the inspector that controls the snapping curve
-
-    public ConnectionSystem connectionSystem;
-    private SnapValidation snapValidator = new SnapValidation();
-
-    [Header("Game")]
-    [SerializeField] private GameStateManager gameStateManager;
 
     public bool IsAnimating { get; private set; } = false;
 
@@ -26,124 +14,8 @@ public class SnappingManager : MonoBehaviour
         public PuzzlePiece draggedPiece;
         public PuzzlePiece targetPiece;
     }
-    public void TrySnap(Transform pieceGroup)
-    {
-        if (connectionSystem == null)
-        {
-            Debug.LogWarning("Missing connection system.");
-            return;
-        }
-        if (gameStateManager.elapsedTime < 2f)
-        {
-            return;
-        }
-        var groupedPieces = pieceGroup.GetComponentsInChildren<PuzzlePiece>();
-        var allPieces = FindObjectsByType<PuzzlePiece>(FindObjectsInactive.Exclude);
 
-        foreach (var groupPiece in groupedPieces)
-        {
-            foreach (var piece in allPieces)
-            {
-                if (groupPiece == piece || groupPiece.Data.GroupId == piece.Data.GroupId)
-                {
-                    continue;
-                }
-
-                if (snapValidator.CanSnap(groupPiece.Data, piece.Data, groupPiece.transform, piece.transform, snappingTolerance))
-                {    
-                    Vector2 solvedOffset = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;
-                    Quaternion rotation = GetRoot(piece.transform).rotation;
-                    Vector2 rotatedOffset = rotation * solvedOffset;
-                    Vector2 snappingPosition = (Vector2)piece.transform.position + rotatedOffset;
-                    var distance = Vector2.Distance(groupPiece.transform.position, snappingPosition);
-
-                    if (distance <= snappingTolerance)
-                    {
-                        Vector3 adjustment = (Vector3)snappingPosition - groupPiece.transform.position;
-                        Transform targetRoot = GetRoot(piece.transform);
-                        connectionSystem.AddConnection(groupPiece.Data, piece.Data);
-
-                        Vector3 startWorldPosition = pieceGroup.position;
-                        pieceGroup.position += adjustment;
-
-                        Vector3 endWorldPosition = pieceGroup.position;
-                        pieceGroup.position = startWorldPosition;
-
-                        var scanConnections = ScanConnections(pieceGroup, targetRoot, groupPiece, piece);
-                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, pieceGroup.rotation, rotation, scanConnections));
-
-                        Debug.Log($"Snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
-
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    public bool TryAutoSnap(Transform pieceGroup)
-    {
-        if (connectionSystem == null)
-        {
-            Debug.LogWarning("Missing connection system.");
-            return false;
-        }
-        if (gameStateManager.elapsedTime < 2f)
-        {
-            return false;
-        }
-
-        PuzzlePiece[] groupedPieces = pieceGroup.GetComponentsInChildren<PuzzlePiece>();
-        PuzzlePiece[] allPieces = FindObjectsByType<PuzzlePiece>(FindObjectsInactive.Exclude);
-
-        foreach (PuzzlePiece groupPiece in groupedPieces)
-        {
-            foreach (PuzzlePiece piece in allPieces)
-            {
-                if (groupPiece == piece || groupPiece.Data.GroupId == piece.Data.GroupId)
-                {
-                    continue;
-                }
-
-                if (snapValidator.CanSnap(groupPiece.Data, piece.Data, groupPiece.transform, piece.transform, snappingTolerance))
-                {
-                    Vector2 solvedOffset = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;
-                    Quaternion rotation = GetRoot(piece.transform).rotation;
-                    Vector2 rotatedOffset = rotation * solvedOffset;
-                    Vector2 snappingPosition = (Vector2)piece.transform.position + rotatedOffset;
-                    float distance = Vector2.Distance(groupPiece.transform.position, snappingPosition);
-
-                    if (distance <= snappingTolerance)
-                    {
-                        if (!IsValidSnapRotation(pieceGroup, piece.transform))
-                        {
-                            continue;
-                        }
-
-                        Vector3 adjustment = (Vector3)snappingPosition - groupPiece.transform.position;
-                        Transform targetRoot = GetRoot(piece.transform);
-                        connectionSystem.AddConnection(groupPiece.Data, piece.Data);
-
-                        Vector3 startWorldPosition = pieceGroup.position;
-                        pieceGroup.position += adjustment;
-
-                        Vector3 endWorldPosition = pieceGroup.position;
-                        pieceGroup.position = startWorldPosition;
-
-                        var scanConnections = ScanConnections(pieceGroup, targetRoot, groupPiece, piece);
-                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, pieceGroup.rotation, rotation, scanConnections));
-
-                        Debug.Log($"Auto snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
-
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private List<SnapPairs> ScanConnections(Transform pieceGroup, Transform targetRoot, PuzzlePiece groupPiece, PuzzlePiece piece)
+    public List<SnapPairs> ScanConnections(Transform pieceGroup, Transform targetRoot, PuzzlePiece groupPiece, PuzzlePiece piece)
     {
         var scanConnections = new List<SnapPairs>();
 
@@ -167,64 +39,8 @@ public class SnappingManager : MonoBehaviour
         
         return scanConnections;
     }
-    private IEnumerator Animate(Transform pieceGroup, Transform targetRoot, Vector3 start, Vector3 end, Quaternion startRotation, Quaternion endRotation, List<SnapPairs> scanConnections)
-    {
-        IsAnimating = true;
 
-        float elapsedTime = 0f;
-
-        Collider2D[] colliders = pieceGroup.GetComponentsInChildren<Collider2D>();
-
-        foreach (var collider in colliders)
-        {
-            collider.enabled = false;
-        }
-
-        while (elapsedTime < snapSpeed)
-        {
-            elapsedTime += Time.deltaTime;
-            pieceGroup.position = Vector3.Lerp(start, end, snapCurve.Evaluate(elapsedTime / snapSpeed));
-            pieceGroup.rotation = Quaternion.Lerp(startRotation, endRotation, snapCurve.Evaluate(elapsedTime / snapSpeed));
-            yield return null;
-        }
-
-        pieceGroup.position = end;
-        pieceGroup.rotation = endRotation;
-
-        MergeGroups(pieceGroup, targetRoot);
-
-        PlaySnapSound();
-
-        foreach (var connection in scanConnections)
-        {
-            Particles(connection.draggedPiece, connection.targetPiece);
-        }
-
-        RestorePieceRenderers(targetRoot);
-
-        foreach (var collider in colliders)
-        {
-            collider.enabled = true;
-        }
-
-        if (connectionSystem.Groups.IsPuzzleComplete())
-        {
-            gameStateManager.WinGame();
-        }
-
-        IsAnimating = false;
-    }
-    private Transform GetRoot(Transform piece)
-    {
-        while (piece.parent != null && piece.parent.CompareTag("Piece"))
-        {
-            piece = piece.parent;
-        }
-
-        return piece;
-    }
-
-    private bool IsValidSnapRotation(Transform pieceGroup, Transform targetPiece)
+    public bool IsValidSnapRotation(Transform pieceGroup, Transform targetPiece)
     {
         float angleA = Mathf.Round(pieceGroup.eulerAngles.z);
         float angleB = Mathf.Round(targetPiece.eulerAngles.z);
@@ -232,44 +48,5 @@ public class SnappingManager : MonoBehaviour
         float difference = Mathf.Abs(Mathf.DeltaAngle(angleA, angleB));
 
         return difference <= 2f;
-    }
-
-    private void MergeGroups(Transform sourceRoot, Transform targetRoot)
-    {
-        if (sourceRoot == targetRoot)
-        {
-            return;
-        }
-
-        List<Transform> children = new List<Transform>();
-
-        foreach (Transform child in sourceRoot)
-        {
-            children.Add(child);
-        }
-
-        foreach (Transform child in children)
-        {
-            child.SetParent(targetRoot, true);
-        }
-
-        sourceRoot.SetParent(targetRoot, true);
-
-        if (targetRoot.GetComponent<PuzzlePiece>() != null)
-        {
-            foreach (var piece in targetRoot.GetComponentsInChildren<PuzzlePiece>())
-            {
-                if (piece.transform == targetRoot)
-                {
-                    continue;
-                }
-
-                Vector3 position = (Vector2)piece.SolvedPosition - (Vector2)targetRoot.GetComponent<PuzzlePiece>().SolvedPosition;
-                position.z = piece.transform.localPosition.z;
-
-                piece.transform.localPosition = position;
-                piece.transform.localRotation = Quaternion.identity;
-            }
-        }
     }
 }

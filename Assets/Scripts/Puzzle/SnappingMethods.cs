@@ -1,17 +1,31 @@
+using System.Collections.Generic;
 using UnityEngine;
+
 
 public class SnappingMethods : MonoBehaviour
 {
-    public void TrySnap(Transform pieceGroup)
+    [Header("Script Connections")]
+    public ConnectionSystem connectionSystem;
+    public GameStateManager gameStateManager;
+    public AnimationController animator;
+    public SnappingManager snappingManager;
+
+    [Header("Snapping Settings")]
+    public float snappingTolerance = 0.5f;
+
+    private SnapValidation snapValidator = new SnapValidation();
+    public struct SnapPairs { public PuzzlePiece draggedPiece; public PuzzlePiece targetPiece; }
+
+    public bool TrySnap(Transform pieceGroup)
     {
         if (connectionSystem == null)
         {
             Debug.LogWarning("Missing connection system.");
-            return;
+            return false;
         }
         if (gameStateManager.elapsedTime < 2f)
         {
-            return;
+            return false;
         }
         var groupedPieces = pieceGroup.GetComponentsInChildren<PuzzlePiece>();
         var allPieces = FindObjectsByType<PuzzlePiece>(FindObjectsInactive.Exclude);
@@ -28,7 +42,7 @@ public class SnappingMethods : MonoBehaviour
                 if (snapValidator.CanSnap(groupPiece.Data, piece.Data, groupPiece.transform, piece.transform, snappingTolerance))
                 {    
                     Vector2 solvedOffset = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;
-                    Quaternion rotation = GetRoot(piece.transform).rotation;
+                    Quaternion rotation = PieceController.GetRoot(piece.transform).rotation;
                     Vector2 rotatedOffset = rotation * solvedOffset;
                     Vector2 snappingPosition = (Vector2)piece.transform.position + rotatedOffset;
                     var distance = Vector2.Distance(groupPiece.transform.position, snappingPosition);
@@ -36,7 +50,7 @@ public class SnappingMethods : MonoBehaviour
                     if (distance <= snappingTolerance)
                     {
                         Vector3 adjustment = (Vector3)snappingPosition - groupPiece.transform.position;
-                        Transform targetRoot = GetRoot(piece.transform);
+                        Transform targetRoot = PieceController.GetRoot(piece.transform);
                         connectionSystem.AddConnection(groupPiece.Data, piece.Data);
 
                         Vector3 startWorldPosition = pieceGroup.position;
@@ -45,16 +59,17 @@ public class SnappingMethods : MonoBehaviour
                         Vector3 endWorldPosition = pieceGroup.position;
                         pieceGroup.position = startWorldPosition;
 
-                        var scanConnections = ScanConnections(pieceGroup, targetRoot, groupPiece, piece);
-                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, pieceGroup.rotation, rotation, scanConnections));
+                        var scanConnections = snappingManager.ScanConnections(pieceGroup, targetRoot, groupPiece, piece);
+                        StartCoroutine(animator.Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, pieceGroup.rotation, rotation, scanConnections));
 
                         Debug.Log($"Snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
 
-                        return;
+                        return true;
                     }
                 }
             }
         }
+        return false;
     }
 
     public bool TryAutoSnap(Transform pieceGroup)
@@ -84,20 +99,20 @@ public class SnappingMethods : MonoBehaviour
                 if (snapValidator.CanSnap(groupPiece.Data, piece.Data, groupPiece.transform, piece.transform, snappingTolerance))
                 {
                     Vector2 solvedOffset = (Vector2)groupPiece.SolvedPosition - (Vector2)piece.SolvedPosition;
-                    Quaternion rotation = GetRoot(piece.transform).rotation;
+                    Quaternion rotation = PieceController.GetRoot(piece.transform).rotation;
                     Vector2 rotatedOffset = rotation * solvedOffset;
                     Vector2 snappingPosition = (Vector2)piece.transform.position + rotatedOffset;
                     float distance = Vector2.Distance(groupPiece.transform.position, snappingPosition);
 
                     if (distance <= snappingTolerance)
                     {
-                        if (!IsValidSnapRotation(pieceGroup, piece.transform))
+                        if (!snappingManager.IsValidSnapRotation(pieceGroup, piece.transform))
                         {
                             continue;
                         }
 
                         Vector3 adjustment = (Vector3)snappingPosition - groupPiece.transform.position;
-                        Transform targetRoot = GetRoot(piece.transform);
+                        Transform targetRoot = PieceController.GetRoot(piece.transform);
                         connectionSystem.AddConnection(groupPiece.Data, piece.Data);
 
                         Vector3 startWorldPosition = pieceGroup.position;
@@ -106,8 +121,8 @@ public class SnappingMethods : MonoBehaviour
                         Vector3 endWorldPosition = pieceGroup.position;
                         pieceGroup.position = startWorldPosition;
 
-                        var scanConnections = ScanConnections(pieceGroup, targetRoot, groupPiece, piece);
-                        StartCoroutine(Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, pieceGroup.rotation, rotation, scanConnections));
+                        var scanConnections = snappingManager.ScanConnections(pieceGroup, targetRoot, groupPiece, piece);
+                        StartCoroutine(animator.Animate(pieceGroup, targetRoot, startWorldPosition, endWorldPosition, pieceGroup.rotation, rotation, scanConnections));
 
                         Debug.Log($"Auto snapped Piece {groupPiece.Data.Id} to Piece {piece.Data.Id}");
 

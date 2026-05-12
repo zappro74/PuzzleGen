@@ -8,6 +8,7 @@ public class MenuController : MonoBehaviour
 {
     [Header("Script Connections")]
     public GameStateManager stateManager;
+    public WinManager winManager;
     public Image imageLoad; 
 
     [Header("UI Connections")]
@@ -91,7 +92,7 @@ public class MenuController : MonoBehaviour
         Debug.Log("Exiting Application");
         Debug.Log("Current image path: " + JSONFunctions.JSONFileFunctions.CurrentImagePath);
 
-        if (stateManager.hasWon)
+        if (winManager.hasWon)
         {
             Debug.Log("Puzzle already completed, skipping autosave.");
 

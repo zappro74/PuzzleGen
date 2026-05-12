@@ -1,14 +1,18 @@
 using System.Collections;
 using UnityEngine;
 
-public class ParticleFunctions : MonoBehaviour
+public class VisualFunctions : MonoBehaviour
 {
+    [Header("Script Connections")]
+    public WinManager winManager;
+
     [Header("Particle Connections")]
     public ParticleSystem snapParticles;
+    public ParticleSystem[] confettiCannons;
 
-    private IEnumerator RepeatingConfetti()
+    public IEnumerator RepeatingConfetti()
     {
-        while (hasWon)
+        while (winManager != null && winManager.hasWon)
         {
             confettiCannons[2].Play();
             foreach (ParticleSystem cannon in confettiCannons)
@@ -22,7 +26,19 @@ public class ParticleFunctions : MonoBehaviour
             yield return new WaitForSeconds(3f);
         }
     }
-    private void SnappingParticles(PuzzlePiece groupPiece, PuzzlePiece piece)
+    public void StopConfetti()
+{
+    if (confettiCannons == null) return;
+
+    foreach (var cannon in confettiCannons)
+    {
+        if (cannon != null)
+        {
+            cannon.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+    }
+}
+    public void SnappingParticles(PuzzlePiece groupPiece, PuzzlePiece piece)
     {          
         if (snapParticles == null || !groupPiece.TryGetComponent(out Renderer gRender) || !piece.TryGetComponent(out Renderer tRender))
         {
@@ -35,9 +51,9 @@ public class ParticleFunctions : MonoBehaviour
         Vector3 center = ((Vector2)gRender.bounds.center + (Vector2)tRender.bounds.center) / 2f;
         Vector3[] directions = { seam, -seam };
         
-        foreach (var direction in directions)
+        foreach (var d in directions)
         {
-            var particleSys = Instantiate(snapParticles, center + (direction * spreadFrom), Quaternion.LookRotation(direction));
+            var particleSys = Instantiate(snapParticles, center + (d * spreadFrom), Quaternion.LookRotation(d));
             if (particleSys.TryGetComponent(out ParticleSystemRenderer renderer)) 
             {
                 renderer.sortingOrder = Mathf.Max(gRender.sortingOrder, tRender.sortingOrder) + 10;
@@ -45,7 +61,7 @@ public class ParticleFunctions : MonoBehaviour
             Destroy(particleSys.gameObject, 1f);
         }                         
     }
-    private void RestorePieceRenderers(Transform groupRoot)
+    public void RestorePieceRenderers(Transform groupRoot)
     {
         PuzzlePiece[] pieces = groupRoot.GetComponentsInChildren<PuzzlePiece>();
 

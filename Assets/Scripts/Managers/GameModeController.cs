@@ -1,15 +1,17 @@
 using UnityEngine;
 
+public enum GameMode { Easy, Medium, Hard }
 public class GameModeController : MonoBehaviour
 {
+    [Header("Script Connections")]
+    public GameStateManager gameManager;
+    public PuzzleBuilder puzzleBuilder;
+
     [Header("Game Modes")]
     public GameMode currentGameMode = GameMode.Easy;
 
     [Header("UI Connections")]
     public GameObject modePanel;
-
-    [Header("Script Connections")]
-    public GameStateManager gameManager;
 
     private GameModeSettings easyMode = new GameModeSettings
     {
@@ -90,7 +92,7 @@ public class GameModeController : MonoBehaviour
     {
         currentGameMode = GameMode.Easy;
         modePanel.gameObject.SetActive(false); 
-        gameManager.GenerateNewPuzzle();     
+        puzzleBuilder.GenerateNewPuzzle();     
         gameManager.StartGame();
     }
 
@@ -98,7 +100,7 @@ public class GameModeController : MonoBehaviour
     {
         currentGameMode = GameMode.Medium;
         modePanel.gameObject.SetActive(false); 
-        gameManager.GenerateNewPuzzle();     
+        puzzleBuilder.GenerateNewPuzzle();     
         gameManager.StartGame();
     }
 
@@ -106,7 +108,7 @@ public class GameModeController : MonoBehaviour
     {
         currentGameMode = GameMode.Hard;
         modePanel.gameObject.SetActive(false); 
-        gameManager.GenerateNewPuzzle();     
+        puzzleBuilder.GenerateNewPuzzle();     
         gameManager.StartGame();
     }
 }
