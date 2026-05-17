@@ -21,6 +21,7 @@ public enum GameMode
 public class GameStateManager : MonoBehaviour
 {
     public State currentState;
+
     [Header("Camera Zoom")]
     [SerializeField] private Camera gameCamera;
 
@@ -46,9 +47,14 @@ public class GameStateManager : MonoBehaviour
 
     [Header("Shuffling")]
     [SerializeField] private ExplosionShuffle explosionShuffle;
+
     [Header("Load Sound")]
     [SerializeField] private AudioSource loadAudioSource;
     [SerializeField] private AudioClip loadSound;
+    
+    [Header("Gameplay Music")]
+    [SerializeField] private AudioSource gameplayMusicSource;
+    [SerializeField] private AudioClip gameplayMusic;
 
     [Header("Win Screen")]
     [SerializeField] private GameObject winScreenPanel;
@@ -192,7 +198,25 @@ public class GameStateManager : MonoBehaviour
                 cannon?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             }
         }
+
+        StopGameplayMusic();
     }
+    public void PlayGameplayMusic()
+    {
+        if (gameplayMusicSource == null || gameplayMusic == null) return;
+
+        gameplayMusicSource.clip = gameplayMusic;
+        gameplayMusicSource.loop = true;
+        gameplayMusicSource.volume = .5f;
+        gameplayMusicSource.Play();
+    }
+
+    private void StopGameplayMusic()
+    {
+        if (gameplayMusicSource == null) return;
+        gameplayMusicSource.Stop();
+    }
+
     public void GeneratePuzzleFromJSON(Texture loadedImage, List<PieceData> savedPieces, int rows, int columns, int generationSeed, float savedElapsedTime = 0f)
     {
         StartCoroutine(
@@ -736,6 +760,7 @@ public class GameStateManager : MonoBehaviour
             finalTimeText.text = $"You solved the puzzle in: {minutes} minute(s) {seconds} seconds!";
         }
 
+        StopGameplayMusic();
         StartCoroutine(PlayWinAudio());
 
         if (winScreenPanel != null)

@@ -92,6 +92,7 @@ public class GameModeController : MonoBehaviour
         modePanel.gameObject.SetActive(false); 
         gameManager.GenerateNewPuzzle();     
         gameManager.StartGame();
+        gameManager.PlayGameplayMusic();
     }
 
     public void SelectMediumMode()
@@ -100,6 +101,7 @@ public class GameModeController : MonoBehaviour
         modePanel.gameObject.SetActive(false); 
         gameManager.GenerateNewPuzzle();     
         gameManager.StartGame();
+        gameManager.PlayGameplayMusic();
     }
 
     public void SelectHardMode()
@@ -108,5 +110,6 @@ public class GameModeController : MonoBehaviour
         modePanel.gameObject.SetActive(false); 
         gameManager.GenerateNewPuzzle();     
         gameManager.StartGame();
+        gameManager.PlayGameplayMusic();
     }
 }

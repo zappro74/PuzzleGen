@@ -25,6 +25,7 @@ public class ExplosionShuffle : MonoBehaviour
 
         if (explosionAudio != null)
         {
+            explosionAudio.volume = 0.5f;
             explosionAudio.pitch = Random.Range(0.9f, 1.1f);
             explosionAudio.Play();
         }
